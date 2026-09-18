@@ -3,2288 +3,853 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackjack</title>
-
+<title>Blackjack Royale — Online</title>
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-    min-height: 100vh;
-    background: #06130c;
-    color: white;
-}
-
-/* =========================
-   HOME
-========================= */
-
-#home {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    background:
-        radial-gradient(circle, #176b3d 0%, #0a321d 45%, #06130c 100%);
-}
-
-.logo {
-    font-size: 70px;
-    font-weight: 900;
-    letter-spacing: 6px;
-    color: #f5d76e;
-    text-shadow: 0 0 30px rgba(245,215,110,.35);
-    margin-bottom: 12px;
-}
-
-.subtitle {
-    max-width: 500px;
-    color: #ddd;
-    line-height: 1.5;
-    font-size: 14px;
-    margin-bottom: 30px;
-}
-
-.mainButton {
-    width: 250px;
-    padding: 17px;
-    margin: 7px;
-    border: none;
-    border-radius: 12px;
-    background: #f5d76e;
-    color: #111;
-    font-size: 21px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: .2s;
-}
-
-.mainButton:hover {
-    transform: scale(1.05);
-    background: #ffe990;
-}
-
-.secondaryButton {
-    background: #222;
-    color: white;
-    border: 1px solid #555;
-}
-
-.secondaryButton:hover {
-    background: #333;
-}
-
-/* =========================
-   GAME
-========================= */
-
-#game {
-    display: none;
-    min-height: 100vh;
-    padding: 15px;
-    background:
-        radial-gradient(circle at center, #146b3a 0%, #07361e 50%, #04150c 100%);
-}
-
-.topbar {
-    max-width: 1250px;
-    margin: auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 15px;
-}
-
-.balance {
-    background: rgba(0,0,0,.4);
-    border: 1px solid #777;
-    padding: 12px 18px;
-    border-radius: 10px;
-    font-size: 18px;
-}
-
-.balance span {
-    color: #f5d76e;
-    font-weight: bold;
-}
-
-.rulesButton {
-    background: #222;
-    color: white;
-    border: 1px solid #666;
-    padding: 10px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-/* =========================
-   TABLE
-========================= */
-
-.table {
-    max-width: 1200px;
-    min-height: 700px;
-    margin: 15px auto;
-    padding: 45px 25px 25px;
-    border: 12px solid #5a351c;
-    border-radius: 45% 45% 25px 25px;
-    background:
-        radial-gradient(ellipse at center, #178549 0%, #0d5b31 65%, #094224 100%);
-    box-shadow:
-        inset 0 0 80px rgba(0,0,0,.45),
-        0 15px 35px rgba(0,0,0,.5);
-}
-
-.tableTitle {
-    text-align: center;
-    color: rgba(255,255,255,.55);
-    font-size: 13px;
-    letter-spacing: 4px;
-}
-
-.handArea {
-    text-align: center;
-    margin-top: 30px;
-}
-
-.handTitle {
-    font-size: 19px;
-    margin-bottom: 8px;
-}
-
-.handValue {
-    color: #f5d76e;
-    font-weight: bold;
-}
-
-.cards {
-    min-height: 125px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 9px;
-    flex-wrap: wrap;
-}
-
-.card {
-    width: 78px;
-    height: 112px;
-    background: white;
-    color: black;
-    border-radius: 8px;
-    padding: 6px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    font-weight: bold;
-    font-size: 20px;
-    box-shadow: 0 5px 10px rgba(0,0,0,.4);
-    animation: cardIn .25s ease;
-}
-
-.card.red {
-    color: #d71920;
-}
-
-.card .middle {
-    text-align: center;
-    font-size: 36px;
-}
-
-.card .bottom {
-    transform: rotate(180deg);
-}
-
-.card.back {
-    background:
-        repeating-linear-gradient(
-            45deg,
-            #b51625,
-            #b51625 5px,
-            #8e0f1b 5px,
-            #8e0f1b 10px
-        );
-    border: 4px solid white;
-    color: white;
-    justify-content: center;
-    align-items: center;
-    font-size: 35px;
-}
-
-@keyframes cardIn {
-    from {
-        transform: translateY(-15px) scale(.9);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0) scale(1);
-        opacity: 1;
-    }
-}
-
-/* =========================
-   SPLIT HANDS
-========================= */
-
-.splitContainer {
-    display: flex;
-    justify-content: center;
-    gap: 45px;
-    flex-wrap: wrap;
-}
-
-.playerHandBox {
-    min-width: 300px;
-    padding: 12px;
-    border-radius: 14px;
-    transition: .2s;
-}
-
-.playerHandBox.activeHand {
-    background: rgba(245,215,110,.12);
-    box-shadow: 0 0 0 2px rgba(245,215,110,.6);
-}
-
-.handNumber {
-    color: #f5d76e;
-    font-size: 15px;
-    margin-bottom: 6px;
-    font-weight: bold;
-}
-
-.handResult {
-    min-height: 20px;
-    margin-top: 4px;
-    color: #ddd;
-    font-size: 14px;
-}
-
-/* =========================
-   MESSAGE
-========================= */
-
-.message {
-    min-height: 32px;
-    text-align: center;
-    margin: 10px 0;
-    font-size: 20px;
-    font-weight: bold;
-}
-
-/* =========================
-   BET
-========================= */
-
-.betArea {
-    text-align: center;
-    margin-top: 10px;
-}
-
-.betText {
-    margin-bottom: 10px;
-    font-size: 18px;
-}
-
-.currentBet {
-    color: #f5d76e;
-    font-weight: bold;
-}
-
-.chips {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-
-.chip {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    border: 5px dashed white;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 4px 8px rgba(0,0,0,.4);
-    transition: .15s;
-}
-
-.chip:hover {
-    transform: translateY(-5px) scale(1.05);
-}
-
-.chip10 { background: #3498db; }
-.chip25 { background: #9b59b6; }
-.chip50 { background: #e74c3c; }
-.chip100 { background: #222; }
-.chip500 {
-    background: #f1c40f;
-    color: black;
-}
-
-/* =========================
-   CONTROLS
-========================= */
-
-.controls {
-    display: flex;
-    justify-content: center;
-    gap: 9px;
-    flex-wrap: wrap;
-    margin-top: 20px;
-}
-
-.controlButton {
-    padding: 13px 19px;
-    border: none;
-    border-radius: 9px;
-    background: #f5d76e;
-    color: #111;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-.controlButton:hover {
-    background: #ffe890;
-}
-
-.controlButton:disabled {
-    opacity: .35;
-    cursor: not-allowed;
-}
-
-.clearButton {
-    background: #bd2c2c;
-    color: white;
-}
-
-.newRound {
-    background: #238b50;
-    color: white;
-}
-
-.info {
-    text-align: center;
-    margin-top: 12px;
-    color: rgba(255,255,255,.5);
-    font-size: 12px;
-}
-
-/* =========================
-   MODALS
-========================= */
-
-.modal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 10;
-    background: rgba(0,0,0,.75);
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
-}
-
-.modalBox {
-    width: 100%;
-    max-width: 550px;
-    background: #10251a;
-    border: 2px solid #f5d76e;
-    border-radius: 15px;
-    padding: 30px;
-    box-shadow: 0 15px 40px black;
-}
-
-.modalBox h2 {
-    color: #f5d76e;
-    margin-bottom: 20px;
-}
-
-.modalBox p {
-    color: #ddd;
-    line-height: 1.7;
-}
-
-.closeButton {
-    margin-top: 20px;
-    padding: 10px 18px;
-    border: none;
-    border-radius: 8px;
-    background: #f5d76e;
-    color: #111;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* =========================
-   REFILL
-========================= */
-
-.refillNotice {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 20;
-    background: rgba(0,0,0,.75);
-    justify-content: center;
-    align-items: center;
-}
-
-.refillBox {
-    background: #10251a;
-    border: 3px solid #f5d76e;
-    border-radius: 18px;
-    padding: 30px 40px;
-    text-align: center;
-    box-shadow: 0 15px 50px black;
-}
-
-.refillBox h2 {
-    color: #f5d76e;
-    margin-bottom: 10px;
-}
-
-.refillBox p {
-    color: #ddd;
-}
-
-/* =========================
-   MOBILE
-========================= */
-
-@media(max-width: 650px) {
-
-    .logo {
-        font-size: 45px;
-    }
-
-    .table {
-        border-radius: 25px;
-        padding: 35px 10px 20px;
-    }
-
-    .card {
-        width: 62px;
-        height: 92px;
-        font-size: 17px;
-    }
-
-    .card .middle {
-        font-size: 28px;
-    }
-
-    .playerHandBox {
-        min-width: 260px;
-    }
-
-}
+:root{--gold:#f4c95d;--felt:#075b45;--dark:#07130f;--panel:#0d1d18;--muted:#a9bbb5}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:#050a08;color:#fff;overflow:hidden}button,input{font:inherit}.hidden{display:none!important}
+#home{height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#163c31 0,#07120e 45%,#020403 100%);position:relative}
+.home-card{text-align:center;width:min(720px,92vw);padding:40px 30px}.logo{font-size:clamp(58px,10vw,110px);font-weight:1000;letter-spacing:-5px;text-shadow:0 5px 30px #000}.logo span{color:var(--gold)}
+.tag{color:#c9d5d1;letter-spacing:4px;text-transform:uppercase;font-size:12px;margin:5px 0 28px}
+.play{border:1px solid #ffe9a0;background:linear-gradient(180deg,#ffe68a,#d9a92f);color:#1c1605;font-weight:900;border-radius:14px;padding:16px 70px;font-size:20px;cursor:pointer}
+.topbtn,.action{background:#14251f;color:#dbe5e1;border:1px solid #2b473d;border-radius:9px;padding:9px 14px;cursor:pointer}.topbtn:hover,.action:hover{background:#18392e}
+.how{margin:20px auto 0;color:#9caea8;font-size:11px;line-height:1.55;max-width:520px}
+#game{height:100vh;background:linear-gradient(#06100d,#020604)}.topbar{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#050c09ee;border-bottom:1px solid #ffffff0f}
+.brand{font-weight:950;letter-spacing:1px}.brand b{color:var(--gold)}.bank{display:flex;gap:10px;align-items:center}.fake-balance{background:#101e19;border:1px solid #28433a;padding:8px 13px;border-radius:10px;font-weight:800}
+.table-area{height:calc(100vh - 66px);display:grid;place-items:center;padding:18px}.table{width:min(1180px,96vw);height:min(720px,calc(100vh - 100px));min-height:570px;border-radius:50% 50% 22px 22px/30% 30% 18% 18%;background:radial-gradient(ellipse at 50% 42%,#ffffff12,transparent 52%),linear-gradient(135deg,#07513f,#087054 48%,#064b3a);border:14px solid #20180d;box-shadow:inset 0 0 0 2px #80621d,inset 0 0 70px #012c20,0 25px 80px #000;position:relative;overflow:hidden}
+.rules{position:absolute;top:38px;left:50%;transform:translateX(-50%);font-size:10px;color:#b9d2c8;letter-spacing:2px;text-transform:uppercase;text-align:center}
+.dealer{position:absolute;top:82px;left:50%;transform:translateX(-50%);text-align:center}.label{font-size:11px;color:#b8c9c3;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}.cards{display:flex;justify-content:center;min-height:92px}
+.card{width:60px;height:86px;background:#faf8f1;color:#101515;border-radius:7px;margin-left:-8px;border:1px solid #d8d3c7;box-shadow:0 6px 14px #001b12;font-weight:950;display:flex;flex-direction:column;justify-content:space-between;padding:6px;font-size:18px;text-align:left}.card:first-child{margin-left:0}.card.red{color:#c53030}.card.back{background:repeating-linear-gradient(45deg,#172b67 0 5px,#d6dff9 5px 7px);color:transparent;border:3px solid #f6f3e9}.card .suit{font-size:25px;text-align:center;align-self:center}.card .bottom{transform:rotate(180deg);align-self:flex-end}
+.player{position:absolute;bottom:105px;left:50%;transform:translateX(-50%);text-align:center;width:100%}.hand-wrap{display:flex;justify-content:center;gap:25px}.hand{min-width:180px}.hand.active{filter:drop-shadow(0 0 12px #f4c95d8c)}.hand-title{font-size:10px;color:#b8c9c3;margin-bottom:6px;text-transform:uppercase;letter-spacing:1.5px}.total{font-size:12px;font-weight:900;margin-top:5px}
+.message{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:10px 18px;border-radius:999px;background:#040d0ad1;border:1px solid #f4c95d4d;font-weight:900;font-size:15px;white-space:nowrap;z-index:4}
+.controls{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;width:94%;z-index:4}.action{font-weight:850;min-width:80px;box-shadow:0 4px 12px #0005}.action.gold{background:linear-gradient(180deg,#ffe58a,#c99628);color:#211805;border-color:#ffeca6}.action.red{background:#542322;border-color:#87403d}.action:disabled{opacity:.35;cursor:not-allowed}
+.chips{position:absolute;bottom:63px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:4}.chip{width:45px;height:45px;border-radius:50%;border:4px dashed #fff;box-shadow:0 4px 10px #0008;cursor:pointer;font-size:11px;font-weight:1000;color:#fff}.c5{background:#dc4a4a}.c10{background:#3c76d8}.c25{background:#35a45d}.c50{background:#8c51c4}.c100{background:#20262a}.c500{background:#d08b28}
+.bet-info{position:absolute;bottom:55px;left:22px;font-size:11px;color:#aec0ba;line-height:1.5}.shoe{position:absolute;right:22px;bottom:55px;color:#aec0ba;font-size:10px;text-align:right}
+.modal{position:fixed;inset:0;background:#000b;display:grid;place-items:center;z-index:20}.modal-box{width:min(520px,92vw);background:#0d1c17;border:1px solid #355248;border-radius:18px;padding:25px;box-shadow:0 25px 80px #000}.close{float:right;background:none;border:0;color:#9eb0aa;font-size:22px;cursor:pointer}.modal-box h2{margin:0 0 8px}.modal-box p{color:#b7c8c2;font-size:13px;line-height:1.6}
+.room-actions{display:grid;gap:10px;margin-top:18px}.room-actions input{background:#07110d;border:1px solid #345247;color:#fff;border-radius:9px;padding:12px;width:100%}.room-row{display:flex;gap:8px}.room-row>*{flex:1}.room-status{margin-top:14px;padding:12px;border-radius:10px;background:#07110d;border:1px solid #28443a;color:#cbd8d4;font-size:13px}.players{margin:10px 0 0;padding-left:20px}
+@media(max-height:680px){.table{min-height:500px}.dealer{top:55px}.player{bottom:90px}.chips{bottom:50px}.bet-info,.shoe{display:none}}
 </style>
 </head>
 
 <body>
 
+<section id="home">
+  <div class="home-card">
+    <div class="logo">BLACK<span>JACK</span></div>
+    <div class="tag">ROYAL TABLE • PLAY MONEY ONLY</div>
 
-<!-- =========================
-     HOME
-========================= -->
+    <button class="play" id="playBtn">PLAY</button>
 
-<div id="home">
-
-    <div class="logo">
-        BLACKJACK
+    <div style="margin-top:12px">
+      <button class="topbtn" id="homeMultiBtn">👥 Samenspelen</button>
     </div>
 
-    <div class="subtitle">
-        Probeer zo dicht mogelijk bij 21 te komen zonder eroverheen te gaan.
-        Je speelt tegen de dealer.
+    <div class="how">
+      <b>Hoe werkt blackjack?</b>
+      Probeer dichter bij 21 te komen dan de dealer, zonder boven 21 uit te komen.
+      Kies <b>Hit</b>, <b>Stand</b>, <b>Double</b> of <b>Split</b>.
+      Alles gebruikt uitsluitend nepcredits.
+    </div>
+  </div>
+</section>
+
+<section id="game" class="hidden">
+
+<header class="topbar">
+  <div class="brand">BLACK<b>JACK</b> ROYALE</div>
+
+  <div class="bank">
+    <div class="fake-balance">
+      🪙 <span id="balance">1000</span> credits
     </div>
 
-    <button class="mainButton" onclick="startGame()">
-        PLAY
-    </button>
+    <button class="topbtn" id="rulesBtn">Regels</button>
+    <button class="topbtn" id="multiGameBtn">👥 Kamer</button>
+  </div>
+</header>
 
-    <button
-        class="mainButton secondaryButton"
-        onclick="openMultiplayer()">
-        SAMENSPELEN
-    </button>
+<main class="table-area">
+<div class="table">
 
-    <button
-        class="mainButton secondaryButton"
-        onclick="openRules()">
-        REGELS
-    </button>
+  <div class="rules">
+    Dealer stands on 17 • Blackjack pays 3:2 • Play money
+  </div>
+
+  <div class="dealer">
+    <div class="label">
+      Dealer <span id="dealerTotal"></span>
+    </div>
+
+    <div class="cards" id="dealerCards"></div>
+  </div>
+
+  <div class="message" id="message">
+    Kies je inzet
+  </div>
+
+  <div class="player">
+    <div class="hand-wrap" id="playerHands"></div>
+  </div>
+
+  <div class="bet-info">
+    INZET: <b>🪙 <span id="bet">0</span></b>
+    <br>
+    FAKE CREDITS ONLY
+  </div>
+
+  <div class="shoe">
+    DEMO SHOE
+    <br>
+    <span id="cardsLeft">312</span> kaarten
+  </div>
+
+  <div class="chips">
+    <button class="chip c5" data-value="5">5</button>
+    <button class="chip c10" data-value="10">10</button>
+    <button class="chip c25" data-value="25">25</button>
+    <button class="chip c50" data-value="50">50</button>
+    <button class="chip c100" data-value="100">100</button>
+    <button class="chip c500" data-value="500">500</button>
+  </div>
+
+  <div class="controls">
+    <button class="action" id="clearBtn">Clear</button>
+    <button class="action gold" id="dealBtn">Deal</button>
+    <button class="action" id="hitBtn" disabled>Hit</button>
+    <button class="action" id="standBtn" disabled>Stand</button>
+    <button class="action" id="doubleBtn" disabled>Double</button>
+    <button class="action" id="splitBtn" disabled>Split</button>
+    <button class="action red" id="newBtn">Nieuwe ronde</button>
+  </div>
 
 </div>
+</main>
+</section>
 
+<div class="modal hidden" id="modal">
+<div class="modal-box">
 
-<!-- =========================
-     GAME
-========================= -->
+<button class="close" id="closeModal">×</button>
 
-<div id="game">
+<h2 id="modalTitle">Samenspelen</h2>
 
-    <div class="topbar">
-
-        <div class="balance">
-            🪙 Credits:
-            <span id="balance">1000</span>
-        </div>
-
-        <button class="rulesButton" onclick="openRules()">
-            Regels
-        </button>
-
-    </div>
-
-
-    <div class="table">
-
-        <div class="tableTitle">
-            BLACKJACK • DEALER MUST STAND ON 17
-        </div>
-
-
-        <!-- DEALER -->
-
-        <div class="handArea">
-
-            <div class="handTitle">
-                DEALER —
-                <span
-                    class="handValue"
-                    id="dealerValue">
-                    ?
-                </span>
-            </div>
-
-            <div
-                class="cards"
-                id="dealerCards">
-            </div>
-
-        </div>
-
-
-        <div
-            class="message"
-            id="message">
-            Kies je inzet
-        </div>
-
-
-        <!-- PLAYER -->
-
-        <div
-            class="handArea"
-            id="playerArea">
-
-            <div class="handTitle">
-                JIJ
-            </div>
-
-            <div
-                id="playerHands"
-                class="splitContainer">
-            </div>
-
-        </div>
-
-
-        <!-- BET -->
-
-        <div class="betArea">
-
-            <div class="betText">
-                Inzet:
-                <span
-                    class="currentBet"
-                    id="currentBet">
-                    0
-                </span>
-                credits
-            </div>
-
-            <div class="chips">
-
-                <button
-                    class="chip chip10"
-                    onclick="addBet(10)">
-                    10
-                </button>
-
-                <button
-                    class="chip chip25"
-                    onclick="addBet(25)">
-                    25
-                </button>
-
-                <button
-                    class="chip chip50"
-                    onclick="addBet(50)">
-                    50
-                </button>
-
-                <button
-                    class="chip chip100"
-                    onclick="addBet(100)">
-                    100
-                </button>
-
-                <button
-                    class="chip chip500"
-                    onclick="addBet(500)">
-                    500
-                </button>
-
-            </div>
-
-        </div>
-
-
-        <!-- CONTROLS -->
-
-        <div class="controls">
-
-            <button
-                class="controlButton"
-                id="dealButton"
-                onclick="deal()">
-                DEAL
-            </button>
-
-            <button
-                class="controlButton"
-                id="hitButton"
-                onclick="hit()"
-                disabled>
-                HIT
-            </button>
-
-            <button
-                class="controlButton"
-                id="standButton"
-                onclick="stand()"
-                disabled>
-                STAND
-            </button>
-
-            <button
-                class="controlButton"
-                id="doubleButton"
-                onclick="doubleDown()"
-                disabled>
-                DOUBLE
-            </button>
-
-            <button
-                class="controlButton"
-                id="splitButton"
-                onclick="split()"
-                disabled>
-                SPLIT
-            </button>
-
-            <button
-                class="controlButton clearButton"
-                id="clearButton"
-                onclick="clearBet()">
-                CLEAR
-            </button>
-
-            <button
-                class="controlButton newRound"
-                id="newRoundButton"
-                onclick="newRound()"
-                style="display:none;">
-                NIEUWE RONDE
-            </button>
-
-        </div>
-
-
-        <div class="info">
-            Alleen neppe credits • Geen echt geld
-        </div>
-
-    </div>
+<div id="modalBody"></div>
 
 </div>
-
-
-<!-- =========================
-     RULES MODAL
-========================= -->
-
-<div
-    class="modal"
-    id="rulesModal">
-
-    <div class="modalBox">
-
-        <h2>♠ Blackjack regels</h2>
-
-        <p>
-            • Het doel is zo dicht mogelijk bij 21 te komen.<br>
-            • Een aas telt als 1 of 11.<br>
-            • Boer, vrouw en heer zijn 10 waard.<br>
-            • Ga je boven 21, dan verlies je.<br>
-            • De dealer moet doorgaan tot minimaal 17.<br>
-            • Blackjack met je eerste twee kaarten betaalt 3:2.<br>
-            • Bij dezelfde score is het een push.<br>
-            • DOUBLE verdubbelt je inzet en geeft één extra kaart.<br>
-            • SPLIT maakt twee aparte handen wanneer je twee kaarten van dezelfde waarde hebt.
-        </p>
-
-        <button
-            class="closeButton"
-            onclick="closeRules()">
-            SLUITEN
-        </button>
-
-    </div>
-
 </div>
 
-
-<!-- =========================
-     MULTIPLAYER MODAL
-========================= -->
-
-<div
-    class="modal"
-    id="multiplayerModal">
-
-    <div class="modalBox">
-
-        <h2>👥 Samenspelen</h2>
-
-        <p>
-            Samenspelen komt in een volgende update.
-            <br><br>
-            Deze versie is voor één speler op één apparaat.
-            Later kunnen er maximaal 4 spelers tegelijk in een kamer.
-        </p>
-
-        <button
-            class="closeButton"
-            onclick="closeMultiplayer()">
-            OKÉ
-        </button>
-
-    </div>
-
-</div>
-
-
-<!-- =========================
-     REFILL POPUP
-========================= -->
-
-<div
-    class="refillNotice"
-    id="refillNotice">
-
-    <div class="refillBox">
-
-        <h2>🪙 Credits aangevuld!</h2>
-
-        <p>
-            Je credits waren op.<br>
-            Je hebt automatisch <b>1000 credits</b> gekregen.
-        </p>
-
-        <button
-            class="closeButton"
-            onclick="closeRefill()">
-            DOORGAAN
-        </button>
-
-    </div>
-
-</div>
-
+<script src="/socket.io/socket.io.js"></script>
 
 <script>
 
-/* =====================================================
-   VARIABLES
-===================================================== */
+const $ = s => document.querySelector(s);
+
+const home = $('#home');
+const game = $('#game');
 
 let balance = 1000;
-
-let currentBet = 0;
-
+let bet = 0;
 let deck = [];
-
-let dealerHand = [];
-
-/*
-   Iedere hand heeft:
-   cards
-   bet
-   finished
-   result
-*/
-
-let playerHands = [];
-
-let activeHandIndex = 0;
-
+let dealer = [];
+let hands = [];
+let active = 0;
 let roundOver = true;
 
-let dealerTurnStarted = false;
+const suits = ['♠','♥','♦','♣'];
 
+const ranks = [
+  ['A',11],
+  ['2',2],
+  ['3',3],
+  ['4',4],
+  ['5',5],
+  ['6',6],
+  ['7',7],
+  ['8',8],
+  ['9',9],
+  ['10',10],
+  ['J',10],
+  ['Q',10],
+  ['K',10]
+];
 
-/* =====================================================
-   DECK
-===================================================== */
+function buildDeck(){
 
-function createDeck() {
+  deck = [];
 
-    deck = [];
+  for(let n=0;n<6;n++){
 
-    const suits = [
-        "♠",
-        "♥",
-        "♦",
-        "♣"
-    ];
+    for(const s of suits){
 
-    const ranks = [
-        "A",
-        "2",
-        "3",
-        "4",
-        "5",
-        "6",
-        "7",
-        "8",
-        "9",
-        "10",
-        "J",
-        "Q",
-        "K"
-    ];
+      for(const r of ranks){
 
-    /*
-       6 decks = 312 kaarten
-    */
+        deck.push({
+          rank:r[0],
+          value:r[1],
+          suit:s
+        });
 
-    for (let d = 0; d < 6; d++) {
-
-        for (const suit of suits) {
-
-            for (const rank of ranks) {
-
-                deck.push({
-                    suit: suit,
-                    rank: rank
-                });
-
-            }
-
-        }
+      }
 
     }
 
-    shuffle(deck);
+  }
+
+  for(let i=deck.length-1;i>0;i--){
+
+    let j=Math.floor(Math.random()*(i+1));
+
+    [deck[i],deck[j]]=[deck[j],deck[i]];
+
+  }
 
 }
 
+function draw(){
 
-/* =====================================================
-   SHUFFLE
-===================================================== */
+  if(!deck.length){
+    buildDeck();
+  }
 
-function shuffle(array) {
-
-    for (
-        let i = array.length - 1;
-        i > 0;
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random() * (i + 1)
-            );
-
-        [
-            array[i],
-            array[j]
-        ] = [
-            array[j],
-            array[i]
-        ];
-
-    }
+  return deck.pop();
 
 }
 
+function handValue(h){
 
-/* =====================================================
-   DRAW
-===================================================== */
+  let total=h.reduce((a,c)=>a+c.value,0);
 
-function drawCard() {
+  let aces=h.filter(c=>c.rank==='A').length;
 
-    if (deck.length < 30) {
+  while(total>21 && aces--){
+    total-=10;
+  }
 
-        createDeck();
-
-    }
-
-    return deck.pop();
+  return total;
 
 }
 
+function blackjack(h){
 
-/* =====================================================
-   HAND VALUE
-===================================================== */
-
-function handValue(hand) {
-
-    let value = 0;
-
-    let aces = 0;
-
-    for (const card of hand) {
-
-        if (card.rank === "A") {
-
-            value += 11;
-
-            aces++;
-
-        } else if (
-            card.rank === "K" ||
-            card.rank === "Q" ||
-            card.rank === "J"
-        ) {
-
-            value += 10;
-
-        } else {
-
-            value += Number(card.rank);
-
-        }
-
-    }
-
-    while (
-        value > 21 &&
-        aces > 0
-    ) {
-
-        value -= 10;
-
-        aces--;
-
-    }
-
-    return value;
+  return h.length===2 && handValue(h)===21;
 
 }
 
+function cardHTML(c,back=false){
 
-/* =====================================================
-   BLACKJACK
-===================================================== */
+  if(back){
+    return '<div class="card back">?</div>';
+  }
 
-function isBlackjack(hand) {
+  let red=(c.suit==='♥'||c.suit==='♦')?' red':'';
 
-    return (
-        hand.length === 2 &&
-        handValue(hand) === 21
+  return `
+    <div class="card${red}">
+      <span>${c.rank}</span>
+      <span class="suit">${c.suit}</span>
+      <span class="bottom">${c.rank}</span>
+    </div>
+  `;
+
+}
+
+function render(){
+
+  $('#balance').textContent=balance;
+  $('#bet').textContent=bet;
+
+  $('#dealerCards').innerHTML=
+    dealer.map((c,i)=>
+      cardHTML(c,!roundOver&&i===1)
+    ).join('');
+
+  $('#dealerTotal').textContent=
+    dealer.length
+      ?
+      (
+        roundOver
+          ? handValue(dealer)
+          : handValue([dealer[0]])+' + ?'
+      )
+      :
+      '';
+
+  $('#playerHands').innerHTML=
+
+    hands.map((h,i)=>`
+
+      <div class="hand ${i===active&&!roundOver?'active':''}">
+
+        <div class="hand-title">
+          Hand ${i+1}${h.bet?' • 🪙 '+h.bet:''}
+        </div>
+
+        <div class="cards">
+          ${h.cards.map(cardHTML).join('')}
+        </div>
+
+        <div class="total">
+          ${handValue(h.cards)}
+          ${handValue(h.cards)>21?' • BUST':''}
+        </div>
+
+      </div>
+
+    `).join('');
+
+  $('#cardsLeft').textContent=deck.length;
+
+  const p=
+    !roundOver &&
+    hands.length &&
+    active<hands.length;
+
+  $('#hitBtn').disabled=!p;
+  $('#standBtn').disabled=!p;
+
+  $('#doubleBtn').disabled=
+    !p ||
+    hands[active].cards.length!==2 ||
+    balance<hands[active].bet;
+
+  $('#splitBtn').disabled=
+    !p ||
+    hands[active].cards.length!==2 ||
+    hands[active].cards[0].value!==hands[active].cards[1].value ||
+    balance<hands[active].bet;
+
+  $('#dealBtn').disabled=
+    !roundOver ||
+    bet<=0 ||
+    bet>balance;
+
+  $('#clearBtn').disabled=
+    !roundOver ||
+    bet===0;
+
+}
+
+function msg(t){
+
+  $('#message').textContent=t;
+
+}
+
+function startRound(){
+
+  if(bet<=0 || bet>balance)return;
+
+  balance-=bet;
+
+  roundOver=false;
+  active=0;
+
+  dealer=[
+    draw(),
+    draw()
+  ];
+
+  hands=[
+    {
+      cards:[
+        draw(),
+        draw()
+      ],
+      bet:bet,
+      done:false
+    }
+  ];
+
+  if(blackjack(hands[0])){
+    finishRound();
+  }else{
+
+    msg(
+      'Jouw beurt — Hit, Stand, Double of Split'
     );
-
-}
-
-
-/* =====================================================
-   CREATE CARD ELEMENT
-===================================================== */
-
-function createCardElement(card) {
-
-    const element =
-        document.createElement("div");
-
-    const isRed =
-        card.suit === "♥" ||
-        card.suit === "♦";
-
-    element.className =
-        isRed
-            ? "card red"
-            : "card";
-
-    const top =
-        document.createElement("div");
-
-    top.textContent =
-        card.rank + card.suit;
-
-    const middle =
-        document.createElement("div");
-
-    middle.className = "middle";
-
-    middle.textContent =
-        card.suit;
-
-    const bottom =
-        document.createElement("div");
-
-    bottom.className = "bottom";
-
-    bottom.textContent =
-        card.rank + card.suit;
-
-    element.appendChild(top);
-
-    element.appendChild(middle);
-
-    element.appendChild(bottom);
-
-    return element;
-
-}
-
-
-/* =====================================================
-   RENDER
-===================================================== */
-
-function render() {
-
-    document.getElementById("balance")
-        .textContent = balance;
-
-    document.getElementById("currentBet")
-        .textContent = currentBet;
-
-
-    /* DEALER */
-
-    const dealerCards =
-        document.getElementById(
-            "dealerCards"
-        );
-
-    dealerCards.innerHTML = "";
-
-
-    dealerHand.forEach(
-        (card, index) => {
-
-            if (
-                index === 1 &&
-                !dealerTurnStarted
-            ) {
-
-                const back =
-                    document.createElement("div");
-
-                back.className =
-                    "card back";
-
-                back.textContent = "?";
-
-                dealerCards.appendChild(back);
-
-            } else {
-
-                dealerCards.appendChild(
-                    createCardElement(card)
-                );
-
-            }
-
-        }
-    );
-
-
-    if (dealerHand.length === 0) {
-
-        document.getElementById(
-            "dealerValue"
-        ).textContent = "?";
-
-    } else if (!dealerTurnStarted) {
-
-        document.getElementById(
-            "dealerValue"
-        ).textContent =
-            handValue([dealerHand[0]]) + "+?";
-
-    } else {
-
-        document.getElementById(
-            "dealerValue"
-        ).textContent =
-            handValue(dealerHand);
-
-    }
-
-
-    /* PLAYER HANDS */
-
-    const handsContainer =
-        document.getElementById(
-            "playerHands"
-        );
-
-    handsContainer.innerHTML = "";
-
-
-    playerHands.forEach(
-        (hand, index) => {
-
-            const box =
-                document.createElement("div");
-
-            box.className =
-                "playerHandBox";
-
-            if (
-                !roundOver &&
-                index === activeHandIndex
-            ) {
-
-                box.classList.add(
-                    "activeHand"
-                );
-
-            }
-
-
-            const number =
-                document.createElement("div");
-
-            number.className =
-                "handNumber";
-
-            if (playerHands.length > 1) {
-
-                number.textContent =
-                    "HAND " + (index + 1);
-
-            } else {
-
-                number.textContent =
-                    "JOUW HAND";
-
-            }
-
-
-            const cards =
-                document.createElement("div");
-
-            cards.className = "cards";
-
-
-            hand.cards.forEach(
-                card => {
-
-                    cards.appendChild(
-                        createCardElement(card)
-                    );
-
-                }
-            );
-
-
-            const value =
-                document.createElement("div");
-
-            value.className =
-                "handValue";
-
-            value.textContent =
-                "Score: " +
-                handValue(hand.cards);
-
-
-            const result =
-                document.createElement("div");
-
-            result.className =
-                "handResult";
-
-            result.textContent =
-                hand.result || "";
-
-
-            box.appendChild(number);
-
-            box.appendChild(cards);
-
-            box.appendChild(value);
-
-            box.appendChild(result);
-
-            handsContainer.appendChild(box);
-
-        }
-    );
-
-
-    updateButtons();
-
-}
-
-
-/* =====================================================
-   START GAME
-===================================================== */
-
-function startGame() {
-
-    document.getElementById(
-        "home"
-    ).style.display = "none";
-
-    document.getElementById(
-        "game"
-    ).style.display = "block";
-
-    createDeck();
-
-    newRound();
-
-}
-
-
-/* =====================================================
-   NEW ROUND
-===================================================== */
-
-function newRound() {
-
-    currentBet = 0;
-
-    dealerHand = [];
-
-    playerHands = [];
-
-    activeHandIndex = 0;
-
-    roundOver = true;
-
-    dealerTurnStarted = false;
-
-    document.getElementById(
-        "message"
-    ).textContent =
-        "Kies je inzet";
-
-    document.getElementById(
-        "newRoundButton"
-    ).style.display =
-        "none";
 
     render();
 
-}
-
-
-/* =====================================================
-   ADD BET
-===================================================== */
-
-function addBet(amount) {
-
-    if (!roundOver) return;
-
-    if (
-        currentBet + amount >
-        balance
-    ) {
-
-        document.getElementById(
-            "message"
-        ).textContent =
-            "Je hebt niet genoeg credits.";
-
-        return;
-
-    }
-
-    currentBet += amount;
-
-    document.getElementById(
-        "message"
-    ).textContent =
-        "Inzet: " + currentBet;
-
-    render();
+  }
 
 }
 
+function finishRound(){
 
-/* =====================================================
-   CLEAR BET
-===================================================== */
+  roundOver=true;
 
-function clearBet() {
+  while(handValue(dealer)<17){
+    dealer.push(draw());
+  }
 
-    if (!roundOver) return;
+  const dv=handValue(dealer);
+  const dbj=blackjack(dealer);
 
-    currentBet = 0;
+  let wins=0;
 
-    document.getElementById(
-        "message"
-    ).textContent =
-        "Kies je inzet";
+  hands.forEach(h=>{
 
-    render();
+    const pv=handValue(h.cards);
+
+    if(pv>21)return;
+
+    if(dbj&&!blackjack(h.cards))return;
+
+    if(blackjack(h.cards)&&!dbj){
+
+      balance+=Math.floor(h.bet*2.5);
+
+      wins++;
+
+      return;
+
+    }
+
+    if(dv>21 || pv>dv){
+
+      balance+=h.bet*2;
+
+      wins++;
+
+    }
+
+    else if(pv===dv){
+
+      balance+=h.bet;
+
+    }
+
+  });
+
+  msg(
+    wins
+      ? 'Je wint! 🔥'
+      : 'Dealer wint.'
+  );
+
+  render();
 
 }
 
+function nextHand(){
 
-/* =====================================================
-   DEAL
-===================================================== */
+  active++;
 
-function deal() {
-
-    if (!roundOver) return;
-
-    if (currentBet <= 0) {
-
-        document.getElementById(
-            "message"
-        ).textContent =
-            "Kies eerst je inzet.";
-
-        return;
-
-    }
-
-    if (currentBet > balance) {
-
-        document.getElementById(
-            "message"
-        ).textContent =
-            "Je hebt niet genoeg credits.";
-
-        return;
-
-    }
-
-
-    /* BET AFREKENEN */
-
-    balance -= currentBet;
-
-
-    /* PLAYER */
-
-    playerHands = [
-
-        {
-            cards: [
-                drawCard(),
-                drawCard()
-            ],
-
-            bet: currentBet,
-
-            finished: false,
-
-            result: ""
-        }
-
-    ];
-
-
-    /* DEALER */
-
-    dealerHand = [
-        drawCard(),
-        drawCard()
-    ];
-
-
-    activeHandIndex = 0;
-
-    roundOver = false;
-
-    dealerTurnStarted = false;
-
-
-    /* BLACKJACK */
-
-    if (
-        isBlackjack(
-            playerHands[0].cards
-        )
-    ) {
-
-        dealerTurn();
-
-        return;
-
-    }
-
-
-    document.getElementById(
-        "message"
-    ).textContent =
-        "Jouw beurt";
-
-    render();
-
-}
-
-
-/* =====================================================
-   CURRENT HAND
-===================================================== */
-
-function getActiveHand() {
-
-    return playerHands[
-        activeHandIndex
-    ];
-
-}
-
-
-/* =====================================================
-   HIT
-===================================================== */
-
-function hit() {
-
-    if (roundOver) return;
-
-    const hand =
-        getActiveHand();
-
-    if (!hand || hand.finished)
-        return;
-
-
-    hand.cards.push(
-        drawCard()
-    );
-
-
-    const value =
-        handValue(hand.cards);
-
-
-    if (value > 21) {
-
-        hand.finished = true;
-
-        hand.result =
-            "BUST!";
-
-        nextHand();
-
-        return;
-
-    }
-
-
-    if (value === 21) {
-
-        hand.finished = true;
-
-        hand.result =
-            "21!";
-
-        nextHand();
-
-        return;
-
-    }
-
-
-    document.getElementById(
-        "message"
-    ).textContent =
-        "Jouw beurt";
-
-    render();
-
-}
-
-
-/* =====================================================
-   STAND
-===================================================== */
-
-function stand() {
-
-    if (roundOver) return;
-
-    const hand =
-        getActiveHand();
-
-    if (!hand) return;
-
-    hand.finished = true;
-
-    hand.result =
-        "STAND";
-
-    nextHand();
-
-}
-
-
-/* =====================================================
-   DOUBLE
-===================================================== */
-
-function doubleDown() {
-
-    if (roundOver) return;
-
-    const hand =
-        getActiveHand();
-
-    if (!hand) return;
-
-
-    /*
-       Double mag alleen met
-       precies twee kaarten.
-    */
-
-    if (hand.cards.length !== 2) {
-
-        document.getElementById(
-            "message"
-        ).textContent =
-            "DOUBLE kan alleen met je eerste twee kaarten.";
-
-        return;
-
-    }
-
-
-    /*
-       Bij splitten heeft deze hand
-       zijn eigen inzet.
-    */
-
-    if (balance < hand.bet) {
-
-        document.getElementById(
-            "message"
-        ).textContent =
-            "Niet genoeg credits voor DOUBLE.";
-
-        return;
-
-    }
-
-
-    /* EXTRA INZET BETALEN */
-
-    balance -= hand.bet;
-
-    hand.bet *= 2;
-
-
-    /* PRECIES ÉÉN KAART */
-
-    hand.cards.push(
-        drawCard()
-    );
-
-
-    const value =
-        handValue(hand.cards);
-
-
-    if (value > 21) {
-
-        hand.finished = true;
-
-        hand.result =
-            "DOUBLE — BUST!";
-
-    } else {
-
-        hand.finished = true;
-
-        hand.result =
-            "DOUBLE";
-
-    }
-
-
-    /*
-       Daarna automatisch naar
-       de volgende hand / dealer.
-    */
-
-    nextHand();
-
-}
-
-
-/* =====================================================
-   SPLIT
-===================================================== */
-
-function split() {
-
-    if (roundOver) return;
-
-    const hand =
-        getActiveHand();
-
-    if (!hand) return;
-
-
-    /*
-       Alleen een eerste hand met
-       precies twee kaarten kan splitten.
-    */
-
-    if (hand.cards.length !== 2) {
-
-        document.getElementById(
-            "message"
-        ).textContent =
-            "Je kunt alleen met twee kaarten splitten.";
-
-        return;
-
-    }
-
-
-    const card1 =
-        hand.cards[0];
-
-    const card2 =
-        hand.cards[1];
-
-
-    /*
-       Zelfde waarde.
-       Hierdoor kunnen bijvoorbeeld
-       K + Q NIET splitten.
-       8 + 8 WEL.
-    */
-
-    if (
-        getCardNumericValue(card1) !==
-        getCardNumericValue(card2)
-    ) {
-
-        document.getElementById(
-            "message"
-        ).textContent =
-            "Je kunt alleen gelijke kaarten splitten.";
-
-        return;
-
-    }
-
-
-    /*
-       Voor de tweede hand moet
-       opnieuw dezelfde inzet worden betaald.
-    */
-
-    if (balance < hand.bet) {
-
-        document.getElementById(
-            "message"
-        ).textContent =
-            "Niet genoeg credits om te splitten.";
-
-        return;
-
-    }
-
-
-    balance -= hand.bet;
-
-
-    const originalBet =
-        hand.bet;
-
-
-    /*
-       Eerste kaart blijft in
-       de eerste hand.
-    */
-
-    const firstCard =
-        hand.cards[0];
-
-
-    /*
-       Tweede kaart gaat naar
-       de nieuwe tweede hand.
-    */
-
-    const secondCard =
-        hand.cards[1];
-
-
-    const firstHand = {
-
-        cards: [
-            firstCard,
-            drawCard()
-        ],
-
-        bet: originalBet,
-
-        finished: false,
-
-        result: ""
-
-    };
-
-
-    const secondHand = {
-
-        cards: [
-            secondCard,
-            drawCard()
-        ],
-
-        bet: originalBet,
-
-        finished: false,
-
-        result: ""
-
-    };
-
-
-    /*
-       Vervang de originele hand
-       door de twee handen.
-    */
-
-    playerHands.splice(
-        activeHandIndex,
-        1,
-        firstHand,
-        secondHand
-    );
-
-
-    document.getElementById(
-        "message"
-    ).textContent =
-        "SPLIT! Hand 1 is aan de beurt.";
-
-    render();
-
-}
-
-
-/* =====================================================
-   NEXT HAND
-===================================================== */
-
-function nextHand() {
-
-    /*
-       Zoek de volgende hand die
-       nog niet klaar is.
-    */
-
-    for (
-        let i = activeHandIndex + 1;
-        i < playerHands.length;
-        i++
-    ) {
-
-        if (
-            !playerHands[i].finished
-        ) {
-
-            activeHandIndex = i;
-
-            document.getElementById(
-                "message"
-            ).textContent =
-                "Hand " +
-                (i + 1) +
-                " is aan de beurt.";
-
-            render();
-
-            return;
-
-        }
-
-    }
-
-
-    /*
-       Geen handen meer over:
-       dealer is aan de beurt.
-    */
-
-    dealerTurn();
-
-}
-
-
-/* =====================================================
-   DEALER TURN
-===================================================== */
-
-function dealerTurn() {
-
-    if (roundOver) return;
-
-    dealerTurnStarted = true;
-
-    render();
-
-
-    setTimeout(
-        () => {
-
-            dealerPlay();
-
-        },
-        700
-    );
-
-}
-
-
-/* =====================================================
-   DEALER PLAY
-===================================================== */
-
-function dealerPlay() {
-
-    let value =
-        handValue(dealerHand);
-
-
-    while (value < 17) {
-
-        dealerHand.push(
-            drawCard()
-        );
-
-        value =
-            handValue(dealerHand);
-
-    }
-
+  if(active>=hands.length){
 
     finishRound();
 
-}
+  }else{
 
-
-/* =====================================================
-   FINISH ROUND
-===================================================== */
-
-function finishRound() {
-
-    dealerTurnStarted = true;
-
-    const dealerValue =
-        handValue(dealerHand);
-
-    const dealerBlackjack =
-        isBlackjack(dealerHand);
-
-
-    /*
-       Iedere hand wordt
-       afzonderlijk afgerekend.
-    */
-
-    playerHands.forEach(
-        hand => {
-
-            const playerValue =
-                handValue(hand.cards);
-
-            let payout = 0;
-
-            let result = "";
-
-
-            /* BUST */
-
-            if (playerValue > 21) {
-
-                result =
-                    "Verloren — BUST";
-
-                payout = 0;
-
-            }
-
-
-            /* DEALER BUST */
-
-            else if (
-                dealerValue > 21
-            ) {
-
-                result =
-                    "Gewonnen! 🏆";
-
-                payout =
-                    hand.bet * 2;
-
-            }
-
-
-            /* BLACKJACK */
-
-            else if (
-                isBlackjack(hand.cards) &&
-                !dealerBlackjack
-            ) {
-
-                result =
-                    "BLACKJACK! 🃏";
-
-                payout =
-                    hand.bet * 2.5;
-
-            }
-
-
-            /* DEALER BLACKJACK */
-
-            else if (
-                dealerBlackjack &&
-                !isBlackjack(hand.cards)
-            ) {
-
-                result =
-                    "Dealer heeft blackjack.";
-
-                payout = 0;
-
-            }
-
-
-            /* PUSH */
-
-            else if (
-                playerValue === dealerValue
-            ) {
-
-                result =
-                    "Push — gelijke score.";
-
-                payout =
-                    hand.bet;
-
-            }
-
-
-            /* PLAYER WIN */
-
-            else if (
-                playerValue > dealerValue
-            ) {
-
-                result =
-                    "Gewonnen! 🏆";
-
-                payout =
-                    hand.bet * 2;
-
-            }
-
-
-            /* PLAYER LOSS */
-
-            else {
-
-                result =
-                    "Dealer wint.";
-
-                payout = 0;
-
-            }
-
-
-            balance += payout;
-
-            hand.result =
-                result;
-
-            hand.finished = true;
-
-        }
+    msg(
+      'Hand '+(active+1)+': jouw beurt'
     );
-
-
-    roundOver = true;
-
-    currentBet = 0;
-
-
-    document.getElementById(
-        "message"
-    ).textContent =
-        "Ronde afgelopen";
-
-
-    document.getElementById(
-        "newRoundButton"
-    ).style.display =
-        "inline-block";
-
 
     render();
 
-
-    /*
-       AUTOMATISCHE CREDIT REFILL
-    */
-
-    checkCredits();
+  }
 
 }
 
+function hit(){
 
-/* =====================================================
-   CARD NUMERIC VALUE
-===================================================== */
+  const h=hands[active];
 
-function getCardNumericValue(card) {
+  h.cards.push(draw());
 
-    if (card.rank === "A") {
-        return 11;
+  if(handValue(h.cards)>21){
+
+    msg('Bust 😵');
+
+    setTimeout(nextHand,500);
+
+  }else{
+
+    msg('Nog een kaart of Stand?');
+
+    render();
+
+  }
+
+}
+
+function stand(){
+
+  hands[active].done=true;
+
+  nextHand();
+
+}
+
+function double(){
+
+  const h=hands[active];
+
+  if(
+    balance<h.bet ||
+    h.cards.length!==2
+  )return;
+
+  balance-=h.bet;
+
+  h.bet*=2;
+
+  h.cards.push(draw());
+
+  setTimeout(nextHand,500);
+
+  render();
+
+}
+
+function split(){
+
+  const h=hands[active];
+
+  if(
+    balance<h.bet ||
+    h.cards.length!==2 ||
+    h.cards[0].value!==h.cards[1].value
+  )return;
+
+  balance-=h.bet;
+
+  const [a,b]=h.cards;
+
+  hands.splice(
+    active,
+    1,
+
+    {
+      cards:[a,draw()],
+      bet:h.bet,
+      done:false
+    },
+
+    {
+      cards:[b,draw()],
+      bet:h.bet,
+      done:false
     }
 
-    if (
-        card.rank === "K" ||
-        card.rank === "Q" ||
-        card.rank === "J"
-    ) {
+  );
 
-        return 10;
+  msg('Gesplitst! Speel Hand 1.');
 
-    }
-
-    return Number(card.rank);
+  render();
 
 }
 
+function newRound(){
 
-/* =====================================================
-   AUTOMATIC REFILL
-===================================================== */
+  bet=0;
+  hands=[];
+  dealer=[];
+  active=0;
+  roundOver=true;
 
-function checkCredits() {
+  msg('Kies je inzet');
 
-    if (balance <= 0) {
-
-        balance = 1000;
-
-        render();
-
-        document.getElementById(
-            "refillNotice"
-        ).style.display =
-            "flex";
-
-    }
+  render();
 
 }
 
+document.querySelectorAll('.chip').forEach(b=>{
 
-/* =====================================================
-   CLOSE REFILL
-===================================================== */
+  b.onclick=()=>{
 
-function closeRefill() {
+    if(roundOver){
 
-    document.getElementById(
-        "refillNotice"
-    ).style.display =
-        "none";
+      let v=+b.dataset.value;
 
-    newRound();
+      if(bet+v<=balance){
 
-}
+        bet+=v;
 
+      }
 
-/* =====================================================
-   BUTTON STATES
-===================================================== */
-
-function updateButtons() {
-
-    const activeHand =
-        getActiveHand();
-
-
-    /*
-       DEAL
-    */
-
-    document.getElementById(
-        "dealButton"
-    ).disabled =
-        !roundOver;
-
-
-    /*
-       HIT / STAND
-    */
-
-    document.getElementById(
-        "hitButton"
-    ).disabled =
-        roundOver ||
-        !activeHand ||
-        activeHand.finished;
-
-
-    document.getElementById(
-        "standButton"
-    ).disabled =
-        roundOver ||
-        !activeHand ||
-        activeHand.finished;
-
-
-    /*
-       DOUBLE
-    */
-
-    document.getElementById(
-        "doubleButton"
-    ).disabled =
-        roundOver ||
-        !activeHand ||
-        activeHand.finished ||
-        activeHand.cards.length !== 2 ||
-        balance < activeHand.bet;
-
-
-    /*
-       SPLIT
-    */
-
-    let canSplit = false;
-
-    if (
-        !roundOver &&
-        activeHand &&
-        !activeHand.finished &&
-        activeHand.cards.length === 2 &&
-        playerHands.length < 4 &&
-        balance >= activeHand.bet
-    ) {
-
-        canSplit =
-            getCardNumericValue(
-                activeHand.cards[0]
-            ) ===
-            getCardNumericValue(
-                activeHand.cards[1]
-            );
+      render();
 
     }
 
+  }
 
-    document.getElementById(
-        "splitButton"
-    ).disabled =
-        !canSplit;
+});
 
+$('#clearBtn').onclick=()=>{
 
-    /*
-       CLEAR
-    */
+  if(roundOver){
 
-    document.getElementById(
-        "clearButton"
-    ).disabled =
-        !roundOver ||
-        currentBet === 0;
+    balance+=bet;
+    bet=0;
 
+    render();
+
+  }
+
+};
+
+$('#dealBtn').onclick=startRound;
+$('#hitBtn').onclick=hit;
+$('#standBtn').onclick=stand;
+$('#doubleBtn').onclick=double;
+$('#splitBtn').onclick=split;
+$('#newBtn').onclick=newRound;
+
+$('#playBtn').onclick=()=>{
+
+  home.classList.add('hidden');
+  game.classList.remove('hidden');
+
+  buildDeck();
+
+  render();
+
+};
+
+$('#rulesBtn').onclick=()=>{
+
+  openModal(
+    'Blackjack regels',
+
+    `
+    <p>
+      Je speelt met 1000 gratis demo-credits.
+      Aas is 1 of 11, plaatjes zijn 10.
+      De dealer staat op 17.
+      Blackjack betaalt 3:2.
+      Er is geen echt geld en niets kan worden gestort of opgenomen.
+    </p>
+    `
+  );
+
+};
+
+$('#closeModal').onclick=()=>{
+
+  $('#modal').classList.add('hidden');
+
+};
+
+let socket=null;
+let roomCode='';
+let playerName='Speler';
+
+function openMultiplayer(){
+
+  $('#modalTitle').textContent='👥 Samenspelen';
+
+  $('#modalBody').innerHTML=`
+
+    <p>
+      Maak een kamer en stuur de code naar je vriend.
+      Dit gebruikt alleen nepcredits.
+    </p>
+
+    <div class="room-actions">
+
+      <input
+        id="nameInput"
+        placeholder="Jouw naam"
+        maxlength="16"
+      >
+
+      <button
+        class="action gold"
+        id="createRoom"
+      >
+        ➕ Kamer maken
+      </button>
+
+      <div class="room-row">
+
+        <input
+          id="joinInput"
+          placeholder="Voer kamercode in"
+          maxlength="6"
+          autocomplete="off"
+        >
+
+        <button
+          class="action"
+          id="joinRoom"
+        >
+          🚪 Join
+        </button>
+
+      </div>
+
+      <div
+        class="room-status"
+        id="roomStatus"
+      >
+        Nog niet verbonden.
+      </div>
+
+    </div>
+
+  `;
+
+  $('#modal').classList.remove('hidden');
+
+  $('#createRoom').onclick=()=>createRoom();
+
+  $('#joinRoom').onclick=()=>joinRoom();
 
 }
 
+function connect(){
 
-/* =====================================================
-   RULES MODAL
-===================================================== */
+  if(socket)return;
 
-function openRules() {
+  socket=io();
 
-    document.getElementById(
-        "rulesModal"
-    ).style.display =
-        "flex";
+  socket.on(
+    'connect',
+    ()=>setStatus('Verbonden met server.')
+  );
+
+  socket.on(
+    'roomCreated',
+    d=>{
+
+      roomCode=d.code;
+
+      setStatus(
+        'Kamer '+d.code+
+        ' aangemaakt. Stuur deze code naar je vriend.'
+      );
+
+    }
+  );
+
+  socket.on(
+    'roomJoined',
+    d=>{
+
+      roomCode=d.code;
+
+      setStatus(
+        'Je zit in kamer '+d.code+'.'
+      );
+
+    }
+  );
+
+  socket.on(
+    'roomUpdate',
+    d=>{
+
+      roomCode=d.code;
+
+      let names=d.players.map(
+        (p,i)=>
+          `<li>${p.name}${i===0?' (host)':''}</li>`
+      ).join('');
+
+      setStatus(`
+
+        <b>Kamer ${d.code}</b>
+
+        <ul class="players">
+          ${names}
+        </ul>
+
+        ${
+          d.players.length<2
+            ? 'Wacht op speler 2…'
+            : 'Beide spelers zijn verbonden ✓'
+        }
+
+      `);
+
+    }
+  );
+
+  socket.on(
+    'roomError',
+    m=>setStatus('⚠️ '+m)
+  );
 
 }
 
+function getName(){
 
-function closeRules() {
-
-    document.getElementById(
-        "rulesModal"
-    ).style.display =
-        "none";
-
-}
-
-
-/* =====================================================
-   MULTIPLAYER MODAL
-===================================================== */
-
-function openMultiplayer() {
-
-    document.getElementById(
-        "multiplayerModal"
-    ).style.display =
-        "flex";
+  return(
+    ($('#nameInput')?.value||'Speler')
+      .trim()
+      .slice(0,16)
+      ||
+    'Speler'
+  );
 
 }
 
+function createRoom(){
 
-function closeMultiplayer() {
+  connect();
 
-    document.getElementById(
-        "multiplayerModal"
-    ).style.display =
-        "none";
+  setTimeout(
+    ()=>{
+      socket.emit(
+        'createRoom',
+        {
+          name:getName()
+        }
+      );
+    },
+    100
+  );
 
 }
 
+function joinRoom(){
 
-/* =====================================================
-   INITIAL RENDER
-===================================================== */
+  const c=
+    ($('#joinInput')?.value||'')
+      .trim()
+      .toUpperCase();
 
-render();
+  if(!c)return;
+
+  connect();
+
+  setTimeout(
+    ()=>{
+      socket.emit(
+        'joinRoom',
+        {
+          code:c,
+          name:getName()
+        }
+      );
+    },
+    100
+  );
+
+}
+
+function setStatus(t){
+
+  const e=$('#roomStatus');
+
+  if(e){
+    e.innerHTML=t;
+  }
+
+}
+
+function openModal(title,body){
+
+  $('#modalTitle').textContent=title;
+  $('#modalBody').innerHTML=body;
+  $('#modal').classList.remove('hidden');
+
+}
+
+$('#homeMultiBtn').onclick=openMultiplayer;
+$('#multiGameBtn').onclick=openMultiplayer;
+
+newRound();
 
 </script>
 
