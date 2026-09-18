@@ -3,856 +3,968 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackjack Royale — Online</title>
+<title>Blackjack Royale</title>
+
 <style>
-:root{--gold:#f4c95d;--felt:#075b45;--dark:#07130f;--panel:#0d1d18;--muted:#a9bbb5}
-*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:#050a08;color:#fff;overflow:hidden}button,input{font:inherit}.hidden{display:none!important}
-#home{height:100vh;display:grid;place-items:center;background:radial-gradient(circle at 50% 45%,#163c31 0,#07120e 45%,#020403 100%);position:relative}
-.home-card{text-align:center;width:min(720px,92vw);padding:40px 30px}.logo{font-size:clamp(58px,10vw,110px);font-weight:1000;letter-spacing:-5px;text-shadow:0 5px 30px #000}.logo span{color:var(--gold)}
-.tag{color:#c9d5d1;letter-spacing:4px;text-transform:uppercase;font-size:12px;margin:5px 0 28px}
-.play{border:1px solid #ffe9a0;background:linear-gradient(180deg,#ffe68a,#d9a92f);color:#1c1605;font-weight:900;border-radius:14px;padding:16px 70px;font-size:20px;cursor:pointer}
-.topbtn,.action{background:#14251f;color:#dbe5e1;border:1px solid #2b473d;border-radius:9px;padding:9px 14px;cursor:pointer}.topbtn:hover,.action:hover{background:#18392e}
-.how{margin:20px auto 0;color:#9caea8;font-size:11px;line-height:1.55;max-width:520px}
-#game{height:100vh;background:linear-gradient(#06100d,#020604)}.topbar{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;background:#050c09ee;border-bottom:1px solid #ffffff0f}
-.brand{font-weight:950;letter-spacing:1px}.brand b{color:var(--gold)}.bank{display:flex;gap:10px;align-items:center}.fake-balance{background:#101e19;border:1px solid #28433a;padding:8px 13px;border-radius:10px;font-weight:800}
-.table-area{height:calc(100vh - 66px);display:grid;place-items:center;padding:18px}.table{width:min(1180px,96vw);height:min(720px,calc(100vh - 100px));min-height:570px;border-radius:50% 50% 22px 22px/30% 30% 18% 18%;background:radial-gradient(ellipse at 50% 42%,#ffffff12,transparent 52%),linear-gradient(135deg,#07513f,#087054 48%,#064b3a);border:14px solid #20180d;box-shadow:inset 0 0 0 2px #80621d,inset 0 0 70px #012c20,0 25px 80px #000;position:relative;overflow:hidden}
-.rules{position:absolute;top:38px;left:50%;transform:translateX(-50%);font-size:10px;color:#b9d2c8;letter-spacing:2px;text-transform:uppercase;text-align:center}
-.dealer{position:absolute;top:82px;left:50%;transform:translateX(-50%);text-align:center}.label{font-size:11px;color:#b8c9c3;text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}.cards{display:flex;justify-content:center;min-height:92px}
-.card{width:60px;height:86px;background:#faf8f1;color:#101515;border-radius:7px;margin-left:-8px;border:1px solid #d8d3c7;box-shadow:0 6px 14px #001b12;font-weight:950;display:flex;flex-direction:column;justify-content:space-between;padding:6px;font-size:18px;text-align:left}.card:first-child{margin-left:0}.card.red{color:#c53030}.card.back{background:repeating-linear-gradient(45deg,#172b67 0 5px,#d6dff9 5px 7px);color:transparent;border:3px solid #f6f3e9}.card .suit{font-size:25px;text-align:center;align-self:center}.card .bottom{transform:rotate(180deg);align-self:flex-end}
-.player{position:absolute;bottom:105px;left:50%;transform:translateX(-50%);text-align:center;width:100%}.hand-wrap{display:flex;justify-content:center;gap:25px}.hand{min-width:180px}.hand.active{filter:drop-shadow(0 0 12px #f4c95d8c)}.hand-title{font-size:10px;color:#b8c9c3;margin-bottom:6px;text-transform:uppercase;letter-spacing:1.5px}.total{font-size:12px;font-weight:900;margin-top:5px}
-.message{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);padding:10px 18px;border-radius:999px;background:#040d0ad1;border:1px solid #f4c95d4d;font-weight:900;font-size:15px;white-space:nowrap;z-index:4}
-.controls{position:absolute;bottom:14px;left:50%;transform:translateX(-50%);display:flex;gap:7px;align-items:center;justify-content:center;flex-wrap:wrap;width:94%;z-index:4}.action{font-weight:850;min-width:80px;box-shadow:0 4px 12px #0005}.action.gold{background:linear-gradient(180deg,#ffe58a,#c99628);color:#211805;border-color:#ffeca6}.action.red{background:#542322;border-color:#87403d}.action:disabled{opacity:.35;cursor:not-allowed}
-.chips{position:absolute;bottom:63px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:4}.chip{width:45px;height:45px;border-radius:50%;border:4px dashed #fff;box-shadow:0 4px 10px #0008;cursor:pointer;font-size:11px;font-weight:1000;color:#fff}.c5{background:#dc4a4a}.c10{background:#3c76d8}.c25{background:#35a45d}.c50{background:#8c51c4}.c100{background:#20262a}.c500{background:#d08b28}
-.bet-info{position:absolute;bottom:55px;left:22px;font-size:11px;color:#aec0ba;line-height:1.5}.shoe{position:absolute;right:22px;bottom:55px;color:#aec0ba;font-size:10px;text-align:right}
-.modal{position:fixed;inset:0;background:#000b;display:grid;place-items:center;z-index:20}.modal-box{width:min(520px,92vw);background:#0d1c17;border:1px solid #355248;border-radius:18px;padding:25px;box-shadow:0 25px 80px #000}.close{float:right;background:none;border:0;color:#9eb0aa;font-size:22px;cursor:pointer}.modal-box h2{margin:0 0 8px}.modal-box p{color:#b7c8c2;font-size:13px;line-height:1.6}
-.room-actions{display:grid;gap:10px;margin-top:18px}.room-actions input{background:#07110d;border:1px solid #345247;color:#fff;border-radius:9px;padding:12px;width:100%}.room-row{display:flex;gap:8px}.room-row>*{flex:1}.room-status{margin-top:14px;padding:12px;border-radius:10px;background:#07110d;border:1px solid #28443a;color:#cbd8d4;font-size:13px}.players{margin:10px 0 0;padding-left:20px}
-@media(max-height:680px){.table{min-height:500px}.dealer{top:55px}.player{bottom:90px}.chips{bottom:50px}.bet-info,.shoe{display:none}}
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background:
+        radial-gradient(circle at top, #17613d, #06140d 70%);
+    color: white;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.container {
+    width: min(1000px, 95%);
+    min-height: 600px;
+    background: rgba(5, 25, 16, 0.96);
+    border: 2px solid #d6ad50;
+    border-radius: 25px;
+    padding: 30px;
+    box-shadow: 0 0 45px rgba(0,0,0,.7);
+}
+
+h1 {
+    text-align: center;
+    color: #e7bf5c;
+    font-size: clamp(35px, 7vw, 60px);
+    margin: 20px 0;
+    letter-spacing: 2px;
+}
+
+h2 {
+    color: #e7bf5c;
+    text-align: center;
+}
+
+.screen {
+    text-align: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+button {
+    border: none;
+    border-radius: 12px;
+    padding: 14px 23px;
+    margin: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: .15s;
+}
+
+button:hover {
+    transform: scale(1.04);
+}
+
+.primary {
+    background: #e7bf5c;
+    color: #111;
+}
+
+.secondary {
+    background: #123b2a;
+    color: white;
+    border: 1px solid #d6ad50;
+}
+
+.chip {
+    background: #162f25;
+    color: white;
+    border: 1px solid #d6ad50;
+    min-width: 70px;
+}
+
+input {
+    width: min(400px, 100%);
+    padding: 15px;
+    margin: 7px auto;
+    display: block;
+    border-radius: 10px;
+    border: 1px solid #d6ad50;
+    background: #07150e;
+    color: white;
+    font-size: 17px;
+    text-align: center;
+}
+
+input::placeholder {
+    color: #aaa;
+}
+
+.room {
+    background: #07150e;
+    border: 1px solid #315b45;
+    padding: 22px;
+    border-radius: 15px;
+    margin: 20px auto;
+    max-width: 600px;
+}
+
+.code {
+    color: #e7bf5c;
+    font-size: 42px;
+    font-weight: bold;
+    letter-spacing: 8px;
+    margin: 15px 0;
+}
+
+.players {
+    margin-top: 15px;
+}
+
+.player {
+    background: #123b2a;
+    border-radius: 8px;
+    padding: 11px;
+    margin: 6px 0;
+}
+
+.balance {
+    text-align: center;
+    color: #e7bf5c;
+    font-size: 21px;
+    margin-bottom: 15px;
+}
+
+.cards {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    min-height: 105px;
+    margin: 15px;
+}
+
+.card {
+    width: 70px;
+    height: 95px;
+    background: white;
+    color: #111;
+    border-radius: 9px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 27px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px #0008;
+}
+
+.message {
+    min-height: 30px;
+    text-align: center;
+    margin: 15px;
+    color: #ddd;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid #315b45;
+    margin: 25px auto;
+    max-width: 450px;
+}
+
+.small {
+    color: #aaa;
+    font-size: 14px;
+}
 </style>
 </head>
 
 <body>
 
-<section id="home">
-  <div class="home-card">
-    <div class="logo">BLACK<span>JACK</span></div>
-    <div class="tag">ROYAL TABLE • PLAY MONEY ONLY</div>
+<div class="container">
 
-    <button class="play" id="playBtn">PLAY</button>
+    <!-- HOME -->
+    <div id="home" class="screen">
 
-    <div style="margin-top:12px">
-      <button class="topbtn" id="homeMultiBtn">👥 Samenspelen</button>
+        <h1>BLACKJACK<br>ROYALE</h1>
+
+        <p style="font-size:40px;">♠ ♥ ♣ ♦</p>
+
+        <button class="primary" onclick="showGame()">
+            PLAY
+        </button>
+
+        <br>
+
+        <button class="secondary" onclick="showMultiplayer()">
+            👥 Samenspelen
+        </button>
+
+        <p class="small">
+            Speel met fictieve credits — geen echt geld.
+        </p>
+
     </div>
 
-    <div class="how">
-      <b>Hoe werkt blackjack?</b>
-      Probeer dichter bij 21 te komen dan de dealer, zonder boven 21 uit te komen.
-      Kies <b>Hit</b>, <b>Stand</b>, <b>Double</b> of <b>Split</b>.
-      Alles gebruikt uitsluitend nepcredits.
+
+    <!-- MULTIPLAYER -->
+    <div id="multiplayer" class="screen hidden">
+
+        <h1>👥 SAMENSPELEN</h1>
+
+        <input
+            id="name"
+            type="text"
+            maxlength="20"
+            placeholder="Jouw naam"
+        >
+
+        <button class="primary" onclick="createRoom()">
+            ➕ Kamer maken
+        </button>
+
+        <hr class="divider">
+
+        <p>Heb je al een kamercode?</p>
+
+        <input
+            id="roomCode"
+            type="text"
+            maxlength="6"
+            placeholder="KAMERCODE"
+            style="text-transform:uppercase;"
+        >
+
+        <button class="secondary" onclick="joinRoom()">
+            🚪 Join met code
+        </button>
+
+        <div id="roomMessage" class="message"></div>
+
+        <div id="roomInfo" class="room hidden">
+
+            <h2>Jouw kamer</h2>
+
+            <div id="displayCode" class="code"></div>
+
+            <p>
+                Deel deze code met je vrienden.
+            </p>
+
+            <div id="players" class="players"></div>
+
+            <p id="waiting">
+                Wachten op spelers...
+            </p>
+
+            <button class="primary" onclick="showGame()">
+                🎰 START GAME
+            </button>
+
+        </div>
+
+        <button class="secondary" onclick="goHome()">
+            ← Terug
+        </button>
+
     </div>
-  </div>
-</section>
 
-<section id="game" class="hidden">
 
-<header class="topbar">
-  <div class="brand">BLACK<b>JACK</b> ROYALE</div>
+    <!-- GAME -->
+    <div id="game" class="hidden">
 
-  <div class="bank">
-    <div class="fake-balance">
-      🪙 <span id="balance">1000</span> credits
+        <h1 style="font-size:45px;">
+            ♠ BLACKJACK ♠
+        </h1>
+
+        <div class="balance">
+            Credits:
+            <span id="balance">1000</span>
+        </div>
+
+        <div
+            id="onlineRoom"
+            style="text-align:center;color:#aaa;margin-bottom:20px;"
+        >
+            Solo game
+        </div>
+
+
+        <h2>Dealer</h2>
+
+        <div id="dealerCards" class="cards"></div>
+
+
+        <h2>Jij</h2>
+
+        <div id="playerCards" class="cards"></div>
+
+
+        <div id="gameMessage" class="message">
+            Kies een inzet om te beginnen.
+        </div>
+
+
+        <!-- GAME BUTTONS -->
+        <div style="text-align:center;">
+
+            <button class="primary" onclick="hit()">
+                HIT
+            </button>
+
+            <button class="secondary" onclick="stand()">
+                STAND
+            </button>
+
+            <button class="secondary" onclick="doubleDown()">
+                DOUBLE
+            </button>
+
+            <button class="secondary" onclick="newRound()">
+                NEW ROUND
+            </button>
+
+        </div>
+
+
+        <!-- CHIPS -->
+        <div style="text-align:center;margin-top:20px;">
+
+            <p style="color:#aaa;">
+                Kies je inzet:
+            </p>
+
+            <button class="chip" onclick="bet(5)">
+                5
+            </button>
+
+            <button class="chip" onclick="bet(10)">
+                10
+            </button>
+
+            <button class="chip" onclick="bet(25)">
+                25
+            </button>
+
+            <button class="chip" onclick="bet(50)">
+                50
+            </button>
+
+            <button class="chip" onclick="bet(100)">
+                100
+            </button>
+
+            <button class="chip" onclick="bet(500)">
+                500
+            </button>
+
+        </div>
+
+
+        <div style="text-align:center;margin-top:25px;">
+
+            <button
+                class="secondary"
+                onclick="goHome()"
+            >
+                ← Home
+            </button>
+
+        </div>
+
     </div>
-
-    <button class="topbtn" id="rulesBtn">Regels</button>
-    <button class="topbtn" id="multiGameBtn">👥 Kamer</button>
-  </div>
-</header>
-
-<main class="table-area">
-<div class="table">
-
-  <div class="rules">
-    Dealer stands on 17 • Blackjack pays 3:2 • Play money
-  </div>
-
-  <div class="dealer">
-    <div class="label">
-      Dealer <span id="dealerTotal"></span>
-    </div>
-
-    <div class="cards" id="dealerCards"></div>
-  </div>
-
-  <div class="message" id="message">
-    Kies je inzet
-  </div>
-
-  <div class="player">
-    <div class="hand-wrap" id="playerHands"></div>
-  </div>
-
-  <div class="bet-info">
-    INZET: <b>🪙 <span id="bet">0</span></b>
-    <br>
-    FAKE CREDITS ONLY
-  </div>
-
-  <div class="shoe">
-    DEMO SHOE
-    <br>
-    <span id="cardsLeft">312</span> kaarten
-  </div>
-
-  <div class="chips">
-    <button class="chip c5" data-value="5">5</button>
-    <button class="chip c10" data-value="10">10</button>
-    <button class="chip c25" data-value="25">25</button>
-    <button class="chip c50" data-value="50">50</button>
-    <button class="chip c100" data-value="100">100</button>
-    <button class="chip c500" data-value="500">500</button>
-  </div>
-
-  <div class="controls">
-    <button class="action" id="clearBtn">Clear</button>
-    <button class="action gold" id="dealBtn">Deal</button>
-    <button class="action" id="hitBtn" disabled>Hit</button>
-    <button class="action" id="standBtn" disabled>Stand</button>
-    <button class="action" id="doubleBtn" disabled>Double</button>
-    <button class="action" id="splitBtn" disabled>Split</button>
-    <button class="action red" id="newBtn">Nieuwe ronde</button>
-  </div>
 
 </div>
-</main>
-</section>
 
-<div class="modal hidden" id="modal">
-<div class="modal-box">
 
-<button class="close" id="closeModal">×</button>
-
-<h2 id="modalTitle">Samenspelen</h2>
-
-<div id="modalBody"></div>
-
-</div>
-</div>
-
+<!-- SOCKET.IO -->
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
 
-const $ = s => document.querySelector(s);
-
-const home = $('#home');
-const game = $('#game');
+const socket = io();
 
 let balance = 1000;
-let bet = 0;
-let deck = [];
-let dealer = [];
-let hands = [];
-let active = 0;
-let roundOver = true;
+let betAmount = 0;
 
-const suits = ['♠','♥','♦','♣'];
+let playerCards = [];
+let dealerCards = [];
 
-const ranks = [
-  ['A',11],
-  ['2',2],
-  ['3',3],
-  ['4',4],
-  ['5',5],
-  ['6',6],
-  ['7',7],
-  ['8',8],
-  ['9',9],
-  ['10',10],
-  ['J',10],
-  ['Q',10],
-  ['K',10]
+let gameStarted = false;
+let playerTurn = false;
+
+
+// ==========================
+// KAARTEN
+// ==========================
+
+const suits = ["♠", "♥", "♦", "♣"];
+
+const values = [
+    { v: "A", n: 11 },
+    { v: "2", n: 2 },
+    { v: "3", n: 3 },
+    { v: "4", n: 4 },
+    { v: "5", n: 5 },
+    { v: "6", n: 6 },
+    { v: "7", n: 7 },
+    { v: "8", n: 8 },
+    { v: "9", n: 9 },
+    { v: "10", n: 10 },
+    { v: "J", n: 10 },
+    { v: "Q", n: 10 },
+    { v: "K", n: 10 }
 ];
 
-function buildDeck(){
 
-  deck = [];
+function drawCard() {
 
-  for(let n=0;n<6;n++){
+    const value =
+        values[Math.floor(Math.random() * values.length)];
 
-    for(const s of suits){
+    const suit =
+        suits[Math.floor(Math.random() * suits.length)];
 
-      for(const r of ranks){
+    return {
+        v: value.v,
+        n: value.n,
+        s: suit
+    };
+}
 
-        deck.push({
-          rank:r[0],
-          value:r[1],
-          suit:s
-        });
 
-      }
+function getScore(cards) {
+
+    let total = 0;
+
+    let aces = 0;
+
+    cards.forEach(card => {
+
+        total += card.n;
+
+        if (card.v === "A") {
+            aces++;
+        }
+
+    });
+
+    while (total > 21 && aces > 0) {
+
+        total -= 10;
+
+        aces--;
 
     }
 
-  }
+    return total;
+}
 
-  for(let i=deck.length-1;i>0;i--){
 
-    let j=Math.floor(Math.random()*(i+1));
+// ==========================
+// KAARTEN WEERGEVEN
+// ==========================
 
-    [deck[i],deck[j]]=[deck[j],deck[i]];
+function renderCards() {
 
-  }
+    document.getElementById("playerCards").innerHTML =
+        playerCards.map(card => {
+
+            return `
+                <div class="card">
+                    ${card.v}${card.s}
+                </div>
+            `;
+
+        }).join("");
+
+
+    document.getElementById("dealerCards").innerHTML =
+        dealerCards.map(card => {
+
+            return `
+                <div class="card">
+                    ${card.v}${card.s}
+                </div>
+            `;
+
+        }).join("");
+
+
+    document.getElementById("balance").textContent =
+        balance;
 
 }
 
-function draw(){
 
-  if(!deck.length){
-    buildDeck();
-  }
+// ==========================
+// NAVIGATIE
+// ==========================
 
-  return deck.pop();
+function showGame() {
 
-}
+    document.getElementById("home")
+        .classList.add("hidden");
 
-function handValue(h){
+    document.getElementById("multiplayer")
+        .classList.add("hidden");
 
-  let total=h.reduce((a,c)=>a+c.value,0);
+    document.getElementById("game")
+        .classList.remove("hidden");
 
-  let aces=h.filter(c=>c.rank==='A').length;
 
-  while(total>21 && aces--){
-    total-=10;
-  }
+    if (socket.roomCode) {
 
-  return total;
+        document.getElementById("onlineRoom")
+            .textContent =
+            "🌐 Online kamer: " +
+            socket.roomCode;
 
-}
+    } else {
 
-function blackjack(h){
-
-  return h.length===2 && handValue(h)===21;
-
-}
-
-function cardHTML(c,back=false){
-
-  if(back){
-    return '<div class="card back">?</div>';
-  }
-
-  let red=(c.suit==='♥'||c.suit==='♦')?' red':'';
-
-  return `
-    <div class="card${red}">
-      <span>${c.rank}</span>
-      <span class="suit">${c.suit}</span>
-      <span class="bottom">${c.rank}</span>
-    </div>
-  `;
-
-}
-
-function render(){
-
-  $('#balance').textContent=balance;
-  $('#bet').textContent=bet;
-
-  $('#dealerCards').innerHTML=
-    dealer.map((c,i)=>
-      cardHTML(c,!roundOver&&i===1)
-    ).join('');
-
-  $('#dealerTotal').textContent=
-    dealer.length
-      ?
-      (
-        roundOver
-          ? handValue(dealer)
-          : handValue([dealer[0]])+' + ?'
-      )
-      :
-      '';
-
-  $('#playerHands').innerHTML=
-
-    hands.map((h,i)=>`
-
-      <div class="hand ${i===active&&!roundOver?'active':''}">
-
-        <div class="hand-title">
-          Hand ${i+1}${h.bet?' • 🪙 '+h.bet:''}
-        </div>
-
-        <div class="cards">
-          ${h.cards.map(cardHTML).join('')}
-        </div>
-
-        <div class="total">
-          ${handValue(h.cards)}
-          ${handValue(h.cards)>21?' • BUST':''}
-        </div>
-
-      </div>
-
-    `).join('');
-
-  $('#cardsLeft').textContent=deck.length;
-
-  const p=
-    !roundOver &&
-    hands.length &&
-    active<hands.length;
-
-  $('#hitBtn').disabled=!p;
-  $('#standBtn').disabled=!p;
-
-  $('#doubleBtn').disabled=
-    !p ||
-    hands[active].cards.length!==2 ||
-    balance<hands[active].bet;
-
-  $('#splitBtn').disabled=
-    !p ||
-    hands[active].cards.length!==2 ||
-    hands[active].cards[0].value!==hands[active].cards[1].value ||
-    balance<hands[active].bet;
-
-  $('#dealBtn').disabled=
-    !roundOver ||
-    bet<=0 ||
-    bet>balance;
-
-  $('#clearBtn').disabled=
-    !roundOver ||
-    bet===0;
-
-}
-
-function msg(t){
-
-  $('#message').textContent=t;
-
-}
-
-function startRound(){
-
-  if(bet<=0 || bet>balance)return;
-
-  balance-=bet;
-
-  roundOver=false;
-  active=0;
-
-  dealer=[
-    draw(),
-    draw()
-  ];
-
-  hands=[
-    {
-      cards:[
-        draw(),
-        draw()
-      ],
-      bet:bet,
-      done:false
-    }
-  ];
-
-  if(blackjack(hands[0])){
-    finishRound();
-  }else{
-
-    msg(
-      'Jouw beurt — Hit, Stand, Double of Split'
-    );
-
-    render();
-
-  }
-
-}
-
-function finishRound(){
-
-  roundOver=true;
-
-  while(handValue(dealer)<17){
-    dealer.push(draw());
-  }
-
-  const dv=handValue(dealer);
-  const dbj=blackjack(dealer);
-
-  let wins=0;
-
-  hands.forEach(h=>{
-
-    const pv=handValue(h.cards);
-
-    if(pv>21)return;
-
-    if(dbj&&!blackjack(h.cards))return;
-
-    if(blackjack(h.cards)&&!dbj){
-
-      balance+=Math.floor(h.bet*2.5);
-
-      wins++;
-
-      return;
+        document.getElementById("onlineRoom")
+            .textContent =
+            "🎮 Solo game";
 
     }
 
-    if(dv>21 || pv>dv){
+}
 
-      balance+=h.bet*2;
 
-      wins++;
+function showMultiplayer() {
+
+    document.getElementById("home")
+        .classList.add("hidden");
+
+    document.getElementById("game")
+        .classList.add("hidden");
+
+    document.getElementById("multiplayer")
+        .classList.remove("hidden");
+
+}
+
+
+function goHome() {
+
+    document.getElementById("home")
+        .classList.remove("hidden");
+
+    document.getElementById("multiplayer")
+        .classList.add("hidden");
+
+    document.getElementById("game")
+        .classList.add("hidden");
+
+}
+
+
+// ==========================
+// KAMER MAKEN
+// ==========================
+
+function createRoom() {
+
+    const name =
+        document.getElementById("name")
+            .value
+            .trim() || "Speler";
+
+
+    document.getElementById("roomMessage")
+        .textContent =
+        "Kamer wordt gemaakt...";
+
+
+    socket.emit("createRoom", {
+        name: name
+    });
+
+}
+
+
+// ==========================
+// KAMER JOINEN
+// ==========================
+
+function joinRoom() {
+
+    const name =
+        document.getElementById("name")
+            .value
+            .trim() || "Speler";
+
+
+    const code =
+        document.getElementById("roomCode")
+            .value
+            .trim()
+            .toUpperCase();
+
+
+    if (code.length !== 6) {
+
+        document.getElementById("roomMessage")
+            .textContent =
+            "Vul een 6-letterige kamercode in.";
+
+        return;
 
     }
 
-    else if(pv===dv){
 
-      balance+=h.bet;
+    document.getElementById("roomMessage")
+        .textContent =
+        "Kamer zoeken...";
 
-    }
 
-  });
-
-  msg(
-    wins
-      ? 'Je wint! 🔥'
-      : 'Dealer wint.'
-  );
-
-  render();
+    socket.emit("joinRoom", {
+        name: name,
+        code: code
+    });
 
 }
 
-function nextHand(){
 
-  active++;
+// ==========================
+// SERVER EVENTS
+// ==========================
 
-  if(active>=hands.length){
+socket.on("roomCreated", data => {
 
-    finishRound();
+    socket.roomCode = data.code;
 
-  }else{
 
-    msg(
-      'Hand '+(active+1)+': jouw beurt'
-    );
+    document.getElementById("roomMessage")
+        .textContent =
+        "✅ Kamer aangemaakt!";
 
-    render();
 
-  }
-
-}
-
-function hit(){
-
-  const h=hands[active];
-
-  h.cards.push(draw());
-
-  if(handValue(h.cards)>21){
-
-    msg('Bust 😵');
-
-    setTimeout(nextHand,500);
-
-  }else{
-
-    msg('Nog een kaart of Stand?');
-
-    render();
-
-  }
-
-}
-
-function stand(){
-
-  hands[active].done=true;
-
-  nextHand();
-
-}
-
-function double(){
-
-  const h=hands[active];
-
-  if(
-    balance<h.bet ||
-    h.cards.length!==2
-  )return;
-
-  balance-=h.bet;
-
-  h.bet*=2;
-
-  h.cards.push(draw());
-
-  setTimeout(nextHand,500);
-
-  render();
-
-}
-
-function split(){
-
-  const h=hands[active];
-
-  if(
-    balance<h.bet ||
-    h.cards.length!==2 ||
-    h.cards[0].value!==h.cards[1].value
-  )return;
-
-  balance-=h.bet;
-
-  const [a,b]=h.cards;
-
-  hands.splice(
-    active,
-    1,
-
-    {
-      cards:[a,draw()],
-      bet:h.bet,
-      done:false
-    },
-
-    {
-      cards:[b,draw()],
-      bet:h.bet,
-      done:false
-    }
-
-  );
-
-  msg('Gesplitst! Speel Hand 1.');
-
-  render();
-
-}
-
-function newRound(){
-
-  bet=0;
-  hands=[];
-  dealer=[];
-  active=0;
-  roundOver=true;
-
-  msg('Kies je inzet');
-
-  render();
-
-}
-
-document.querySelectorAll('.chip').forEach(b=>{
-
-  b.onclick=()=>{
-
-    if(roundOver){
-
-      let v=+b.dataset.value;
-
-      if(bet+v<=balance){
-
-        bet+=v;
-
-      }
-
-      render();
-
-    }
-
-  }
+    document.getElementById("roomInfo")
+        .classList.remove("hidden");
 
 });
 
-$('#clearBtn').onclick=()=>{
 
-  if(roundOver){
+socket.on("roomJoined", data => {
 
-    balance+=bet;
-    bet=0;
+    socket.roomCode = data.code;
 
-    render();
 
-  }
+    document.getElementById("roomMessage")
+        .textContent =
+        "✅ Je bent gejoined!";
 
-};
 
-$('#dealBtn').onclick=startRound;
-$('#hitBtn').onclick=hit;
-$('#standBtn').onclick=stand;
-$('#doubleBtn').onclick=double;
-$('#splitBtn').onclick=split;
-$('#newBtn').onclick=newRound;
+    document.getElementById("roomInfo")
+        .classList.remove("hidden");
 
-$('#playBtn').onclick=()=>{
+});
 
-  home.classList.add('hidden');
-  game.classList.remove('hidden');
 
-  buildDeck();
+socket.on("joinError", message => {
 
-  render();
+    document.getElementById("roomMessage")
+        .textContent =
+        "❌ " + message;
 
-};
+});
 
-$('#rulesBtn').onclick=()=>{
 
-  openModal(
-    'Blackjack regels',
+socket.on("roomUpdate", room => {
 
-    `
-    <p>
-      Je speelt met 1000 gratis demo-credits.
-      Aas is 1 of 11, plaatjes zijn 10.
-      De dealer staat op 17.
-      Blackjack betaalt 3:2.
-      Er is geen echt geld en niets kan worden gestort of opgenomen.
-    </p>
-    `
-  );
+    document.getElementById("roomInfo")
+        .classList.remove("hidden");
 
-};
 
-$('#closeModal').onclick=()=>{
+    document.getElementById("displayCode")
+        .textContent =
+        socket.roomCode || "";
 
-  $('#modal').classList.add('hidden');
 
-};
+    document.getElementById("players")
+        .innerHTML =
+        room.players.map(player => {
 
-let socket=null;
-let roomCode='';
-let playerName='Speler';
+            return `
+                <div class="player">
+                    👤 ${escapeHTML(player.name)}
+                </div>
+            `;
 
-function openMultiplayer(){
+        }).join("");
 
-  $('#modalTitle').textContent='👥 Samenspelen';
 
-  $('#modalBody').innerHTML=`
+    document.getElementById("waiting")
+        .textContent =
+        room.players.length +
+        " speler(s) in deze kamer";
 
-    <p>
-      Maak een kamer en stuur de code naar je vriend.
-      Dit gebruikt alleen nepcredits.
-    </p>
+});
 
-    <div class="room-actions">
 
-      <input
-        id="nameInput"
-        placeholder="Jouw naam"
-        maxlength="16"
-      >
+function escapeHTML(text) {
 
-      <button
-        class="action gold"
-        id="createRoom"
-      >
-        ➕ Kamer maken
-      </button>
-
-      <div class="room-row">
-
-        <input
-          id="joinInput"
-          placeholder="Voer kamercode in"
-          maxlength="6"
-          autocomplete="off"
-        >
-
-        <button
-          class="action"
-          id="joinRoom"
-        >
-          🚪 Join
-        </button>
-
-      </div>
-
-      <div
-        class="room-status"
-        id="roomStatus"
-      >
-        Nog niet verbonden.
-      </div>
-
-    </div>
-
-  `;
-
-  $('#modal').classList.remove('hidden');
-
-  $('#createRoom').onclick=()=>createRoom();
-
-  $('#joinRoom').onclick=()=>joinRoom();
+    return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
 
 }
 
-function connect(){
 
-  if(socket)return;
+// ==========================
+// BLACKJACK
+// ==========================
 
-  socket=io();
+function bet(amount) {
 
-  socket.on(
-    'connect',
-    ()=>setStatus('Verbonden met server.')
-  );
+    if (gameStarted) {
 
-  socket.on(
-    'roomCreated',
-    d=>{
+        document.getElementById("gameMessage")
+            .textContent =
+            "Maak eerst de huidige ronde af.";
 
-      roomCode=d.code;
-
-      setStatus(
-        'Kamer '+d.code+
-        ' aangemaakt. Stuur deze code naar je vriend.'
-      );
+        return;
 
     }
-  );
 
-  socket.on(
-    'roomJoined',
-    d=>{
 
-      roomCode=d.code;
+    if (amount > balance) {
 
-      setStatus(
-        'Je zit in kamer '+d.code+'.'
-      );
+        document.getElementById("gameMessage")
+            .textContent =
+            "Niet genoeg credits.";
+
+        return;
 
     }
-  );
 
-  socket.on(
-    'roomUpdate',
-    d=>{
 
-      roomCode=d.code;
+    betAmount = amount;
 
-      let names=d.players.map(
-        (p,i)=>
-          `<li>${p.name}${i===0?' (host)':''}</li>`
-      ).join('');
+    balance -= amount;
 
-      setStatus(`
 
-        <b>Kamer ${d.code}</b>
+    playerCards = [
+        drawCard(),
+        drawCard()
+    ];
 
-        <ul class="players">
-          ${names}
-        </ul>
 
-        ${
-          d.players.length<2
-            ? 'Wacht op speler 2…'
-            : 'Beide spelers zijn verbonden ✓'
-        }
+    dealerCards = [
+        drawCard(),
+        drawCard()
+    ];
 
-      `);
+
+    gameStarted = true;
+
+    playerTurn = true;
+
+
+    document.getElementById("gameMessage")
+        .textContent =
+        "Inzet: " +
+        amount +
+        " — jouw beurt.";
+
+
+    renderCards();
+
+
+    // Blackjack
+    if (getScore(playerCards) === 21) {
+
+        playerTurn = false;
+
+        balance += Math.floor(betAmount * 2.5);
+
+        endGame("BLACKJACK! 🃏🔥");
 
     }
-  );
-
-  socket.on(
-    'roomError',
-    m=>setStatus('⚠️ '+m)
-  );
 
 }
 
-function getName(){
 
-  return(
-    ($('#nameInput')?.value||'Speler')
-      .trim()
-      .slice(0,16)
-      ||
-    'Speler'
-  );
+function hit() {
 
-}
+    if (!gameStarted || !playerTurn) {
+        return;
+    }
 
-function createRoom(){
 
-  connect();
+    playerCards.push(drawCard());
 
-  setTimeout(
-    ()=>{
-      socket.emit(
-        'createRoom',
-        {
-          name:getName()
-        }
-      );
-    },
-    100
-  );
+    renderCards();
+
+
+    if (getScore(playerCards) > 21) {
+
+        playerTurn = false;
+
+        endGame("Je bent bust! 💥");
+
+    }
 
 }
 
-function joinRoom(){
 
-  const c=
-    ($('#joinInput')?.value||'')
-      .trim()
-      .toUpperCase();
+function stand() {
 
-  if(!c)return;
+    if (!gameStarted || !playerTurn) {
+        return;
+    }
 
-  connect();
 
-  setTimeout(
-    ()=>{
-      socket.emit(
-        'joinRoom',
-        {
-          code:c,
-          name:getName()
-        }
-      );
-    },
-    100
-  );
+    playerTurn = false;
+
+
+    while (getScore(dealerCards) < 17) {
+
+        dealerCards.push(drawCard());
+
+    }
+
+
+    renderCards();
+
+
+    const playerScore =
+        getScore(playerCards);
+
+    const dealerScore =
+        getScore(dealerCards);
+
+
+    if (dealerScore > 21) {
+
+        balance += betAmount * 2;
+
+        endGame("Dealer bust! Jij wint 🎉");
+
+    }
+
+    else if (playerScore > dealerScore) {
+
+        balance += betAmount * 2;
+
+        endGame("Jij wint! 🎉");
+
+    }
+
+    else if (playerScore === dealerScore) {
+
+        balance += betAmount;
+
+        endGame("Push — inzet terug.");
+
+    }
+
+    else {
+
+        endGame("Dealer wint.");
+
+    }
 
 }
 
-function setStatus(t){
 
-  const e=$('#roomStatus');
+function doubleDown() {
 
-  if(e){
-    e.innerHTML=t;
-  }
+    if (!gameStarted || !playerTurn) {
+        return;
+    }
+
+
+    if (balance < betAmount) {
+
+        document.getElementById("gameMessage")
+            .textContent =
+            "Niet genoeg credits.";
+
+        return;
+
+    }
+
+
+    balance -= betAmount;
+
+    betAmount *= 2;
+
+
+    playerCards.push(drawCard());
+
+    renderCards();
+
+
+    if (getScore(playerCards) > 21) {
+
+        playerTurn = false;
+
+        endGame("Je bent bust! 💥");
+
+        return;
+
+    }
+
+
+    stand();
 
 }
 
-function openModal(title,body){
 
-  $('#modalTitle').textContent=title;
-  $('#modalBody').innerHTML=body;
-  $('#modal').classList.remove('hidden');
+function endGame(message) {
+
+    gameStarted = false;
+
+    playerTurn = false;
+
+
+    document.getElementById("gameMessage")
+        .textContent =
+        message +
+        " | Balans: " +
+        balance;
+
+
+    renderCards();
 
 }
 
-$('#homeMultiBtn').onclick=openMultiplayer;
-$('#multiGameBtn').onclick=openMultiplayer;
 
-newRound();
+function newRound() {
+
+    playerCards = [];
+
+    dealerCards = [];
+
+    betAmount = 0;
+
+    gameStarted = false;
+
+    playerTurn = false;
+
+
+    renderCards();
+
+
+    document.getElementById("gameMessage")
+        .textContent =
+        "Kies een inzet om te beginnen.";
+
+}
+
+
+renderCards();
 
 </script>
 
 </body>
 </html>
- 
