@@ -229,8 +229,11 @@ input {
 }
 
 .hand-info {
-    color: #ddd;
-    margin-bottom: 5px;
+    color: #f1f1f1;
+    margin-bottom: 6px;
+    font-size: 16px;
+    font-weight: 600;
+    text-shadow: 0 1px 3px #0008;
 }
 
 .message {
@@ -392,9 +395,7 @@ input {
 
 <body>
 
-<!-- =========================
-     HOOFDMENU
-========================= -->
+<!-- HOOFDMENU -->
 
 <section id="homeScreen" class="screen active">
 
@@ -411,9 +412,7 @@ input {
 </section>
 
 
-<!-- =========================
-     MULTIPLAYER
-========================= -->
+<!-- MULTIPLAYER -->
 
 <section id="multiScreen" class="screen">
 
@@ -492,9 +491,7 @@ input {
 </section>
 
 
-<!-- =========================
-     GAME
-========================= -->
+<!-- GAME -->
 
 <section
     id="gameScreen"
@@ -716,9 +713,7 @@ input {
 </section>
 
 
-<!-- =========================
-     REGELS
-========================= -->
+<!-- REGELS -->
 
 <div
     id="rulesModal"
@@ -821,9 +816,7 @@ function showScreen(id) {
 
     document.querySelectorAll(".screen")
         .forEach(screen => {
-
             screen.classList.remove("active");
-
         });
 
     document
@@ -963,9 +956,7 @@ function startMultiplayerGame() {
 
     if (!currentRoom) {
 
-        alert(
-            "Maak of join eerst een kamer."
-        );
+        alert("Maak of join eerst een kamer.");
 
         return;
     }
@@ -983,9 +974,7 @@ function startMultiplayerGame() {
 
 socket.on("connect", () => {
 
-    console.log(
-        "Verbonden met Render."
-    );
+    console.log("Verbonden met Render.");
 
 });
 
@@ -1044,14 +1033,16 @@ function refillCreditsIfNeeded() {
 
         balance = 1000;
 
-        setMessage(
-            "Je credits waren op — je hebt weer 1000 credits gekregen."
-        );
-
         updateBalance();
 
+        setMessage(
+            "Je hebt geen credits meer! Je hebt 1000 credits gekregen."
+        );
+
+        return true;
     }
 
+    return false;
 }
 
 
@@ -1085,9 +1076,6 @@ function createDeck() {
     ];
 
     deck = [];
-
-
-    /* 6 decks */
 
     for (
         let d = 0;
@@ -1159,9 +1147,7 @@ function drawCard() {
 function cardValue(card) {
 
     if (card.rank === "A") {
-
         return 11;
-
     }
 
     if (
@@ -1169,9 +1155,7 @@ function cardValue(card) {
         card.rank === "Q" ||
         card.rank === "J"
     ) {
-
         return 10;
-
     }
 
     return Number(card.rank);
@@ -1184,19 +1168,15 @@ function handValue(hand) {
 
     let aces = 0;
 
-
     hand.forEach(card => {
 
         value += cardValue(card);
 
         if (card.rank === "A") {
-
             aces++;
-
         }
 
     });
-
 
     while (
         value > 21 &&
@@ -1208,7 +1188,6 @@ function handValue(hand) {
         aces--;
 
     }
-
 
     return value;
 }
@@ -1229,12 +1208,6 @@ function isBlackjack(hand) {
 ========================= */
 
 function newRound() {
-
-    /*
-       Alleen aanvullen wanneer
-       de vorige ronde klaar is
-       en je 0 credits hebt.
-    */
 
     refillCreditsIfNeeded();
 
@@ -1288,14 +1261,10 @@ function newRound() {
 function placeBet(amount) {
 
     if (playing) {
-
         return;
     }
 
-
-    if (
-        balance < amount
-    ) {
+    if (balance < amount) {
 
         setMessage(
             "Niet genoeg credits."
@@ -1304,32 +1273,21 @@ function placeBet(amount) {
         return;
     }
 
-
-    /*
-       De chip wordt alleen toegevoegd.
-       De ronde begint pas wanneer
-       je op DEAL drukt.
-    */
-
     bet += amount;
 
     balance -= amount;
 
     handBets[0] = bet;
 
-
     updateBalance();
-
 
     document
         .getElementById("currentBet")
         .textContent = bet;
 
-
     setMessage(
         "Inzet: " + bet + " credits"
     );
-
 
     document
         .getElementById("dealBtn")
@@ -1348,30 +1306,24 @@ function startDeal() {
         bet <= 0 ||
         playing
     ) {
-
         return;
     }
-
 
     dealerHand = [
         drawCard(),
         drawCard()
     ];
 
-
     playerHands[0] = [
         drawCard(),
         drawCard()
     ];
 
-
     playing = true;
 
     currentHand = 0;
 
-
     render();
-
 
     if (
         isBlackjack(playerHands[0]) ||
@@ -1382,7 +1334,6 @@ function startDeal() {
 
         return;
     }
-
 
     updateActions();
 
@@ -1397,27 +1348,17 @@ function finishInitialBlackjack() {
 
     playing = false;
 
-
     const playerBJ =
-        isBlackjack(
-            playerHands[0]
-        );
-
+        isBlackjack(playerHands[0]);
 
     const dealerBJ =
-        isBlackjack(
-            dealerHand
-        );
+        isBlackjack(dealerHand);
 
 
     if (
         playerBJ &&
         dealerBJ
     ) {
-
-        /*
-           inzet terug
-        */
 
         balance += bet;
 
@@ -1428,12 +1369,6 @@ function finishInitialBlackjack() {
     }
 
     else if (playerBJ) {
-
-        /*
-           3:2 winst
-           oorspronkelijke inzet
-           + 1.5x winst
-        */
 
         balance +=
             bet * 2.5;
@@ -1456,15 +1391,31 @@ function finishInitialBlackjack() {
 
     updateBalance();
 
+
+    /* Oude inzet volledig resetten */
+
+    bet = 0;
+
+    handBets = [0];
+
+    document
+        .getElementById("currentBet")
+        .textContent = "0";
+
+
+    if (balance <= 0) {
+
+        balance = 1000;
+
+        updateBalance();
+
+        setMessage(
+            "Je hebt geen credits meer! Je hebt 1000 credits gekregen."
+        );
+    }
+
+
     render();
-
-
-    /*
-       Als je hierdoor op 0 komt:
-       automatisch 1000 erbij.
-    */
-
-    refillCreditsIfNeeded();
 
 }
 
@@ -1476,22 +1427,17 @@ function finishInitialBlackjack() {
 function hit() {
 
     if (!playing) {
-
         return;
     }
 
-
     const hand =
         playerHands[currentHand];
-
 
     hand.push(
         drawCard()
     );
 
-
     render();
-
 
     if (
         handValue(hand) > 21
@@ -1501,12 +1447,10 @@ function hit() {
             `Hand ${currentHand + 1} is bust.`
         );
 
-
         nextHand();
 
         return;
     }
-
 
     updateActions();
 
@@ -1520,10 +1464,8 @@ function hit() {
 function stand() {
 
     if (!playing) {
-
         return;
     }
-
 
     nextHand();
 
@@ -1537,14 +1479,11 @@ function stand() {
 function doubleDown() {
 
     if (!playing) {
-
         return;
     }
 
-
     const currentBet =
         handBets[currentHand];
-
 
     if (
         balance < currentBet
@@ -1557,24 +1496,19 @@ function doubleDown() {
         return;
     }
 
-
     balance -= currentBet;
-
 
     handBets[currentHand] =
         currentBet * 2;
-
 
     playerHands[currentHand]
         .push(
             drawCard()
         );
 
-
     updateBalance();
 
     render();
-
 
     if (
         handValue(
@@ -1587,7 +1521,6 @@ function doubleDown() {
         );
 
     }
-
 
     nextHand();
 
@@ -1603,36 +1536,15 @@ function canSplit() {
     const hand =
         playerHands[currentHand];
 
-
-    /*
-       Je mag alleen splitten
-       met precies 2 kaarten.
-    */
-
     if (
         hand.length !== 2
     ) {
-
         return false;
     }
-
-
-    /*
-       Na een split mag je
-       niet nog een keer splitten.
-    */
 
     if (isSplitHand) {
-
         return false;
     }
-
-
-    /*
-       Zelfde waarde:
-       bijvoorbeeld 8 + 8
-       of K + Q.
-    */
 
     return (
         cardValue(hand[0]) ===
@@ -1645,10 +1557,8 @@ function canSplit() {
 function split() {
 
     if (!playing) {
-
         return;
     }
-
 
     if (!canSplit()) {
 
@@ -1659,16 +1569,8 @@ function split() {
         return;
     }
 
-
     const oldBet =
         handBets[currentHand];
-
-
-    /*
-       Voor de tweede hand
-       moet je dezelfde inzet
-       nogmaals kunnen betalen.
-    */
 
     if (
         balance < oldBet
@@ -1681,58 +1583,27 @@ function split() {
         return;
     }
 
-
-    /*
-       Tweede inzet betalen.
-    */
-
     balance -= oldBet;
-
 
     const firstCard =
         playerHands[currentHand][0];
 
-
     const secondCard =
         playerHands[currentHand][1];
 
-
-    /*
-       Twee aparte handen maken.
-    */
-
     playerHands = [
-
         [firstCard],
-
         [secondCard]
-
     ];
-
-
-    /*
-       Beide handen hebben
-       hun eigen inzet.
-    */
 
     handBets = [
-
         oldBet,
-
         oldBet
-
     ];
-
 
     currentHand = 0;
 
     isSplitHand = true;
-
-
-    /*
-       Iedere gesplitste hand
-       krijgt één nieuwe kaart.
-    */
 
     playerHands[0].push(
         drawCard()
@@ -1742,16 +1613,13 @@ function split() {
         drawCard()
     );
 
-
     updateBalance();
 
     render();
 
-
     setMessage(
         "Split! Speel hand 1."
     );
-
 
     updateActions();
 
@@ -1764,23 +1632,12 @@ function split() {
 
 function nextHand() {
 
-    /*
-       Geen split:
-       meteen naar dealer.
-    */
-
     if (!isSplitHand) {
 
         finishPlayerTurn();
 
         return;
     }
-
-
-    /*
-       Hand 1 klaar:
-       naar hand 2.
-    */
 
     if (
         currentHand === 0
@@ -1789,12 +1646,6 @@ function nextHand() {
         currentHand = 1;
 
         render();
-
-
-        /*
-           Als hand 2 al bust is,
-           meteen naar dealer.
-        */
 
         if (
             handValue(
@@ -1811,21 +1662,14 @@ function nextHand() {
             return;
         }
 
-
         setMessage(
             "Nu speel je hand 2."
         );
-
 
         updateActions();
 
         return;
     }
-
-
-    /*
-       Beide handen klaar.
-    */
 
     finishPlayerTurn();
 
@@ -1849,11 +1693,6 @@ function finishPlayerTurn() {
 
 function dealerPlay() {
 
-    /*
-       Dealer trekt totdat hij
-       minimaal 17 heeft.
-    */
-
     while (
         handValue(dealerHand) < 17
     ) {
@@ -1863,7 +1702,6 @@ function dealerPlay() {
         );
 
     }
-
 
     dealerFinished = true;
 
@@ -1890,27 +1728,20 @@ function calculateResults() {
             const handBet =
                 handBets[index];
 
-
             const playerValue =
                 handValue(hand);
 
 
-            /*
-               Bust = inzet kwijt.
-            */
+            /* Speler bust */
 
             if (
                 playerValue > 21
             ) {
-
                 return;
             }
 
 
-            /*
-               Dealer bust =
-               dubbele inzet terug.
-            */
+            /* Dealer bust */
 
             if (
                 dealerValue > 21
@@ -1923,9 +1754,7 @@ function calculateResults() {
             }
 
 
-            /*
-               Player hoger.
-            */
+            /* Speler hoger */
 
             if (
                 playerValue >
@@ -1939,10 +1768,7 @@ function calculateResults() {
             }
 
 
-            /*
-               Gelijk =
-               inzet terug.
-            */
+            /* Gelijkspel */
 
             if (
                 playerValue ===
@@ -1955,33 +1781,22 @@ function calculateResults() {
                 return;
             }
 
-
-            /*
-               Dealer hoger =
-               niets terug.
-            */
-
         }
     );
 
 
     balance += totalWin;
 
-
     updateBalance();
 
 
-    if (
-        isSplitHand
-    ) {
+    if (isSplitHand) {
 
         setMessage(
             `Split klaar! Dealer: ${dealerValue}`
         );
 
-    }
-
-    else {
+    } else {
 
         setMessage(
             `Dealer: ${dealerValue} — ronde klaar`
@@ -1990,15 +1805,39 @@ function calculateResults() {
     }
 
 
+    /*
+       HEEL BELANGRIJK:
+       de oude inzet wordt hier
+       volledig weggehaald.
+    */
+
+    bet = 0;
+
+    handBets = [0];
+
+    document
+        .getElementById("currentBet")
+        .textContent = "0";
+
+
     updateActions();
 
 
     /*
-       Als je alles kwijt bent,
-       meteen weer 1000 credits.
+       Als de speler alles kwijt is,
+       direct 1000 nieuwe credits.
     */
 
-    refillCreditsIfNeeded();
+    if (balance <= 0) {
+
+        balance = 1000;
+
+        updateBalance();
+
+        setMessage(
+            "Je hebt geen credits meer! Je hebt 1000 credits gekregen."
+        );
+    }
 
 }
 
@@ -2012,10 +1851,8 @@ function createCardElement(card) {
     const div =
         document.createElement("div");
 
-
     div.className =
         "card";
-
 
     if (
         card.suit === "♥" ||
@@ -2026,9 +1863,7 @@ function createCardElement(card) {
 
     }
 
-
     div.innerHTML = `
-
         <div>
             ${card.rank}
         </div>
@@ -2036,9 +1871,7 @@ function createCardElement(card) {
         <div>
             ${card.suit}
         </div>
-
     `;
-
 
     return div;
 
@@ -2056,9 +1889,7 @@ function renderCards(
             elementId
         );
 
-
     container.innerHTML = "";
-
 
     hand.forEach(
         (card, index) => {
@@ -2073,23 +1904,18 @@ function renderCards(
                         "div"
                     );
 
-
                 back.className =
                     "card back";
 
-
                 back.textContent =
                     "♠";
-
 
                 container.appendChild(
                     back
                 );
 
-
                 return;
             }
-
 
             container.appendChild(
                 createCardElement(card)
@@ -2104,7 +1930,7 @@ function renderCards(
 function render() {
 
     /*
-       Dealer.
+       Dealer
     */
 
     renderCards(
@@ -2138,14 +1964,13 @@ function render() {
 
 
     /*
-       Player.
+       Speler
     */
 
     const container =
         document.getElementById(
             "playerCards"
         );
-
 
     container.innerHTML = "";
 
@@ -2175,25 +2000,18 @@ function render() {
             : "";
 
 
-    /*
-       Hand nummer bij split.
-    */
-
     document
         .getElementById("handLabel")
         .textContent =
         isSplitHand
-
             ? `Hand ${currentHand + 1} van 2`
-
             : "";
 
 
     document
         .getElementById("currentBet")
         .textContent =
-        handBets[currentHand] ||
-        bet;
+        handBets[currentHand] || 0;
 
 
     updateBalance();
@@ -2232,11 +2050,6 @@ function updateActions() {
         !canPlay;
 
 
-    /*
-       Double alleen bij
-       eerste 2 kaarten.
-    */
-
     document
         .getElementById("doubleBtn")
         .disabled =
@@ -2247,12 +2060,6 @@ function updateActions() {
                 handBets[currentHand]
         );
 
-
-    /*
-       Split alleen wanneer
-       de twee kaarten dezelfde
-       waarde hebben.
-    */
 
     document
         .getElementById("splitBtn")
@@ -2265,11 +2072,6 @@ function updateActions() {
         );
 
 
-    /*
-       Chips kunnen alleen
-       vóór de deal worden gebruikt.
-    */
-
     document
         .querySelectorAll(".chip")
         .forEach(chip => {
@@ -2279,10 +2081,6 @@ function updateActions() {
 
         });
 
-
-    /*
-       Deal-knop.
-    */
 
     document
         .getElementById("dealBtn")
