@@ -193,7 +193,6 @@ function roomState(room) {
 
           })),
 
-        // Voor compatibiliteit
         cards:
           activeHand(player)
             ? activeHand(player).cards
@@ -362,7 +361,6 @@ function moveToNextTurn(room) {
   }
 
 
-  // Tweede hand na split
   if (
     currentPlayer.activeHand <
     currentPlayer.hands.length - 1
@@ -385,7 +383,6 @@ function moveToNextTurn(room) {
   }
 
 
-  // Volgende speler
   for (
     let i = currentIndex + 1;
     i < room.players.length;
@@ -468,8 +465,6 @@ function finishRound(room) {
       }
 
 
-      // Alleen de originele hand kan een natuurlijke blackjack hebben.
-      // Gesplitste 21 telt als normale 21.
       if (
         player.hands.length === 1 &&
         playerBJ &&
@@ -526,7 +521,13 @@ function finishRound(room) {
 
   room.currentPlayerId = null;
 
+
   for (const player of room.players) {
+
+    // Automatisch 1000 credits geven als alles op is.
+    if (player.balance <= 0) {
+      player.balance = 1000;
+    }
 
     player.stood = false;
 
@@ -1195,7 +1196,6 @@ io.on("connection", socket => {
       if (player.balance < hand.bet) return;
 
 
-      // Tweede inzet betalen.
       player.balance -= hand.bet;
 
 
