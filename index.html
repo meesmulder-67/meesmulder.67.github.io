@@ -1,387 +1,3 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blackjack Royale</title>
-
-<style>
-* {
-    box-sizing: border-box;
-}
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background:
-        radial-gradient(circle at top, #17613d, #06140d 70%);
-    color: white;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.container {
-    width: min(1000px, 95%);
-    min-height: 600px;
-    background: rgba(5, 25, 16, 0.96);
-    border: 2px solid #d6ad50;
-    border-radius: 25px;
-    padding: 30px;
-    box-shadow: 0 0 45px rgba(0,0,0,.7);
-}
-
-h1 {
-    text-align: center;
-    color: #e7bf5c;
-    font-size: clamp(35px, 7vw, 60px);
-    margin: 20px 0;
-    letter-spacing: 2px;
-}
-
-h2 {
-    color: #e7bf5c;
-    text-align: center;
-}
-
-.screen {
-    text-align: center;
-}
-
-.hidden {
-    display: none !important;
-}
-
-button {
-    border: none;
-    border-radius: 12px;
-    padding: 14px 23px;
-    margin: 6px;
-    font-size: 16px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: .15s;
-}
-
-button:hover {
-    transform: scale(1.04);
-}
-
-.primary {
-    background: #e7bf5c;
-    color: #111;
-}
-
-.secondary {
-    background: #123b2a;
-    color: white;
-    border: 1px solid #d6ad50;
-}
-
-.chip {
-    background: #162f25;
-    color: white;
-    border: 1px solid #d6ad50;
-    min-width: 70px;
-}
-
-input {
-    width: min(400px, 100%);
-    padding: 15px;
-    margin: 7px auto;
-    display: block;
-    border-radius: 10px;
-    border: 1px solid #d6ad50;
-    background: #07150e;
-    color: white;
-    font-size: 17px;
-    text-align: center;
-}
-
-input::placeholder {
-    color: #aaa;
-}
-
-.room {
-    background: #07150e;
-    border: 1px solid #315b45;
-    padding: 22px;
-    border-radius: 15px;
-    margin: 20px auto;
-    max-width: 600px;
-}
-
-.code {
-    color: #e7bf5c;
-    font-size: 42px;
-    font-weight: bold;
-    letter-spacing: 8px;
-    margin: 15px 0;
-}
-
-.players {
-    margin-top: 15px;
-}
-
-.player {
-    background: #123b2a;
-    border-radius: 8px;
-    padding: 11px;
-    margin: 6px 0;
-}
-
-.balance {
-    text-align: center;
-    color: #e7bf5c;
-    font-size: 21px;
-    margin-bottom: 15px;
-}
-
-.cards {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 10px;
-    min-height: 105px;
-    margin: 15px;
-}
-
-.card {
-    width: 70px;
-    height: 95px;
-    background: white;
-    color: #111;
-    border-radius: 9px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 27px;
-    font-weight: bold;
-    box-shadow: 0 4px 10px #0008;
-}
-
-.message {
-    min-height: 30px;
-    text-align: center;
-    margin: 15px;
-    color: #ddd;
-}
-
-.divider {
-    border: none;
-    border-top: 1px solid #315b45;
-    margin: 25px auto;
-    max-width: 450px;
-}
-
-.small {
-    color: #aaa;
-    font-size: 14px;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-    <!-- HOME -->
-    <div id="home" class="screen">
-
-        <h1>BLACKJACK<br>ROYALE</h1>
-
-        <p style="font-size:40px;">♠ ♥ ♣ ♦</p>
-
-        <button class="primary" onclick="showGame()">
-            PLAY
-        </button>
-
-        <br>
-
-        <button class="secondary" onclick="showMultiplayer()">
-            👥 Samenspelen
-        </button>
-
-        <p class="small">
-            Speel met fictieve credits — geen echt geld.
-        </p>
-
-    </div>
-
-
-    <!-- MULTIPLAYER -->
-    <div id="multiplayer" class="screen hidden">
-
-        <h1>👥 SAMENSPELEN</h1>
-
-        <input
-            id="name"
-            type="text"
-            maxlength="20"
-            placeholder="Jouw naam"
-        >
-
-        <button class="primary" onclick="createRoom()">
-            ➕ Kamer maken
-        </button>
-
-        <hr class="divider">
-
-        <p>Heb je al een kamercode?</p>
-
-        <input
-            id="roomCode"
-            type="text"
-            maxlength="6"
-            placeholder="KAMERCODE"
-            style="text-transform:uppercase;"
-        >
-
-        <button class="secondary" onclick="joinRoom()">
-            🚪 Join met code
-        </button>
-
-        <div id="roomMessage" class="message"></div>
-
-        <div id="roomInfo" class="room hidden">
-
-            <h2>Jouw kamer</h2>
-
-            <div id="displayCode" class="code"></div>
-
-            <p>
-                Deel deze code met je vrienden.
-            </p>
-
-            <div id="players" class="players"></div>
-
-            <p id="waiting">
-                Wachten op spelers...
-            </p>
-
-            <button class="primary" onclick="showGame()">
-                🎰 START GAME
-            </button>
-
-        </div>
-
-        <button class="secondary" onclick="goHome()">
-            ← Terug
-        </button>
-
-    </div>
-
-
-    <!-- GAME -->
-    <div id="game" class="hidden">
-
-        <h1 style="font-size:45px;">
-            ♠ BLACKJACK ♠
-        </h1>
-
-        <div class="balance">
-            Credits:
-            <span id="balance">1000</span>
-        </div>
-
-        <div
-            id="onlineRoom"
-            style="text-align:center;color:#aaa;margin-bottom:20px;"
-        >
-            Solo game
-        </div>
-
-
-        <h2>Dealer</h2>
-
-        <div id="dealerCards" class="cards"></div>
-
-
-        <h2>Jij</h2>
-
-        <div id="playerCards" class="cards"></div>
-
-
-        <div id="gameMessage" class="message">
-            Kies een inzet om te beginnen.
-        </div>
-
-
-        <!-- GAME BUTTONS -->
-        <div style="text-align:center;">
-
-            <button class="primary" onclick="hit()">
-                HIT
-            </button>
-
-            <button class="secondary" onclick="stand()">
-                STAND
-            </button>
-
-            <button class="secondary" onclick="doubleDown()">
-                DOUBLE
-            </button>
-
-            <button class="secondary" onclick="newRound()">
-                NEW ROUND
-            </button>
-
-        </div>
-
-
-        <!-- CHIPS -->
-        <div style="text-align:center;margin-top:20px;">
-
-            <p style="color:#aaa;">
-                Kies je inzet:
-            </p>
-
-            <button class="chip" onclick="bet(5)">
-                5
-            </button>
-
-            <button class="chip" onclick="bet(10)">
-                10
-            </button>
-
-            <button class="chip" onclick="bet(25)">
-                25
-            </button>
-
-            <button class="chip" onclick="bet(50)">
-                50
-            </button>
-
-            <button class="chip" onclick="bet(100)">
-                100
-            </button>
-
-            <button class="chip" onclick="bet(500)">
-                500
-            </button>
-
-        </div>
-
-
-        <div style="text-align:center;margin-top:25px;">
-
-            <button
-                class="secondary"
-                onclick="goHome()"
-            >
-                ← Home
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- SOCKET.IO -->
 <script src="/socket.io/socket.io.js"></script>
 
 <script>
@@ -394,32 +10,144 @@ let betAmount = 0;
 let playerCards = [];
 let dealerCards = [];
 
+let splitHands = [];
+let currentHand = 0;
+let isSplit = false;
+
 let gameStarted = false;
 let playerTurn = false;
 
 
-// ==========================
-// KAARTEN
-// ==========================
+// ======================
+// NAVIGATIE
+// ======================
 
-const suits = ["♠", "♥", "♦", "♣"];
+function showGame() {
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("multiplayer").classList.add("hidden");
+    document.getElementById("game").classList.remove("hidden");
+}
+
+function showMultiplayer() {
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("game").classList.add("hidden");
+    document.getElementById("multiplayer").classList.remove("hidden");
+}
+
+function goHome() {
+    document.getElementById("home").classList.remove("hidden");
+    document.getElementById("multiplayer").classList.add("hidden");
+    document.getElementById("game").classList.add("hidden");
+}
+
+
+// ======================
+// MULTIPLAYER
+// ======================
+
+function createRoom() {
+
+    const name =
+        document.getElementById("name").value.trim() || "Speler";
+
+    document.getElementById("roomMessage").textContent =
+        "Kamer wordt gemaakt...";
+
+    socket.emit("createRoom", { name });
+}
+
+function joinRoom() {
+
+    const name =
+        document.getElementById("name").value.trim() || "Speler";
+
+    const code =
+        document.getElementById("roomCode")
+        .value.trim()
+        .toUpperCase();
+
+    if (code.length !== 6) {
+        document.getElementById("roomMessage").textContent =
+            "Vul een geldige 6-cijferige code in.";
+        return;
+    }
+
+    socket.emit("joinRoom", {
+        name,
+        code
+    });
+
+    document.getElementById("roomMessage").textContent =
+        "Kamer zoeken...";
+}
+
+socket.on("roomCreated", data => {
+
+    socket.roomCode = data.code;
+
+    document.getElementById("roomMessage").textContent =
+        "Kamer aangemaakt!";
+
+    document.getElementById("roomInfo")
+        .classList.remove("hidden");
+});
+
+socket.on("roomJoined", data => {
+
+    socket.roomCode = data.code;
+
+    document.getElementById("roomMessage").textContent =
+        "Je bent gejoined!";
+
+    document.getElementById("roomInfo")
+        .classList.remove("hidden");
+});
+
+socket.on("joinError", message => {
+
+    document.getElementById("roomMessage").textContent =
+        message;
+});
+
+socket.on("roomUpdate", room => {
+
+    document.getElementById("roomInfo")
+        .classList.remove("hidden");
+
+    document.getElementById("displayCode")
+        .textContent = socket.roomCode || "";
+
+    document.getElementById("players")
+        .innerHTML =
+        room.players.map(player => `
+            <div class="player">
+                👤 ${player.name}
+            </div>
+        `).join("");
+});
+
+
+// ======================
+// KAARTEN
+// ======================
+
+const suits = ["♠","♥","♦","♣"];
 
 const values = [
-    { v: "A", n: 11 },
-    { v: "2", n: 2 },
-    { v: "3", n: 3 },
-    { v: "4", n: 4 },
-    { v: "5", n: 5 },
-    { v: "6", n: 6 },
-    { v: "7", n: 7 },
-    { v: "8", n: 8 },
-    { v: "9", n: 9 },
-    { v: "10", n: 10 },
-    { v: "J", n: 10 },
-    { v: "Q", n: 10 },
-    { v: "K", n: 10 }
+    ["A",11],
+    ["2",2],
+    ["3",3],
+    ["4",4],
+    ["5",5],
+    ["6",6],
+    ["7",7],
+    ["8",8],
+    ["9",9],
+    ["10",10],
+    ["J",10],
+    ["Q",10],
+    ["K",10]
 ];
-
 
 function drawCard() {
 
@@ -430,17 +158,15 @@ function drawCard() {
         suits[Math.floor(Math.random() * suits.length)];
 
     return {
-        v: value.v,
-        n: value.n,
+        v: value[0],
+        n: value[1],
         s: suit
     };
 }
 
-
 function getScore(cards) {
 
     let total = 0;
-
     let aces = 0;
 
     cards.forEach(card => {
@@ -450,291 +176,60 @@ function getScore(cards) {
         if (card.v === "A") {
             aces++;
         }
-
     });
 
     while (total > 21 && aces > 0) {
 
         total -= 10;
-
         aces--;
-
     }
 
     return total;
 }
 
 
-// ==========================
+// ======================
 // KAARTEN WEERGEVEN
-// ==========================
+// ======================
 
 function renderCards() {
 
-    document.getElementById("playerCards").innerHTML =
-        playerCards.map(card => {
+    let cardsToShow;
 
-            return `
-                <div class="card">
-                    ${card.v}${card.s}
-                </div>
-            `;
-
-        }).join("");
-
-
-    document.getElementById("dealerCards").innerHTML =
-        dealerCards.map(card => {
-
-            return `
-                <div class="card">
-                    ${card.v}${card.s}
-                </div>
-            `;
-
-        }).join("");
-
-
-    document.getElementById("balance").textContent =
-        balance;
-
-}
-
-
-// ==========================
-// NAVIGATIE
-// ==========================
-
-function showGame() {
-
-    document.getElementById("home")
-        .classList.add("hidden");
-
-    document.getElementById("multiplayer")
-        .classList.add("hidden");
-
-    document.getElementById("game")
-        .classList.remove("hidden");
-
-
-    if (socket.roomCode) {
-
-        document.getElementById("onlineRoom")
-            .textContent =
-            "🌐 Online kamer: " +
-            socket.roomCode;
-
+    if (isSplit) {
+        cardsToShow = splitHands[currentHand];
     } else {
-
-        document.getElementById("onlineRoom")
-            .textContent =
-            "🎮 Solo game";
-
+        cardsToShow = playerCards;
     }
 
-}
-
-
-function showMultiplayer() {
-
-    document.getElementById("home")
-        .classList.add("hidden");
-
-    document.getElementById("game")
-        .classList.add("hidden");
-
-    document.getElementById("multiplayer")
-        .classList.remove("hidden");
-
-}
-
-
-function goHome() {
-
-    document.getElementById("home")
-        .classList.remove("hidden");
-
-    document.getElementById("multiplayer")
-        .classList.add("hidden");
-
-    document.getElementById("game")
-        .classList.add("hidden");
-
-}
-
-
-// ==========================
-// KAMER MAKEN
-// ==========================
-
-function createRoom() {
-
-    const name =
-        document.getElementById("name")
-            .value
-            .trim() || "Speler";
-
-
-    document.getElementById("roomMessage")
-        .textContent =
-        "Kamer wordt gemaakt...";
-
-
-    socket.emit("createRoom", {
-        name: name
-    });
-
-}
-
-
-// ==========================
-// KAMER JOINEN
-// ==========================
-
-function joinRoom() {
-
-    const name =
-        document.getElementById("name")
-            .value
-            .trim() || "Speler";
-
-
-    const code =
-        document.getElementById("roomCode")
-            .value
-            .trim()
-            .toUpperCase();
-
-
-    if (code.length !== 6) {
-
-        document.getElementById("roomMessage")
-            .textContent =
-            "Vul een 6-letterige kamercode in.";
-
-        return;
-
-    }
-
-
-    document.getElementById("roomMessage")
-        .textContent =
-        "Kamer zoeken...";
-
-
-    socket.emit("joinRoom", {
-        name: name,
-        code: code
-    });
-
-}
-
-
-// ==========================
-// SERVER EVENTS
-// ==========================
-
-socket.on("roomCreated", data => {
-
-    socket.roomCode = data.code;
-
-
-    document.getElementById("roomMessage")
-        .textContent =
-        "✅ Kamer aangemaakt!";
-
-
-    document.getElementById("roomInfo")
-        .classList.remove("hidden");
-
-});
-
-
-socket.on("roomJoined", data => {
-
-    socket.roomCode = data.code;
-
-
-    document.getElementById("roomMessage")
-        .textContent =
-        "✅ Je bent gejoined!";
-
-
-    document.getElementById("roomInfo")
-        .classList.remove("hidden");
-
-});
-
-
-socket.on("joinError", message => {
-
-    document.getElementById("roomMessage")
-        .textContent =
-        "❌ " + message;
-
-});
-
-
-socket.on("roomUpdate", room => {
-
-    document.getElementById("roomInfo")
-        .classList.remove("hidden");
-
-
-    document.getElementById("displayCode")
-        .textContent =
-        socket.roomCode || "";
-
-
-    document.getElementById("players")
+    document.getElementById("playerCards")
         .innerHTML =
-        room.players.map(player => {
+        cardsToShow.map(card => `
+            <div class="card">
+                ${card.v}${card.s}
+            </div>
+        `).join("");
 
-            return `
-                <div class="player">
-                    👤 ${escapeHTML(player.name)}
-                </div>
-            `;
+    document.getElementById("dealerCards")
+        .innerHTML =
+        dealerCards.map(card => `
+            <div class="card">
+                ${card.v}${card.s}
+            </div>
+        `).join("");
 
-        }).join("");
-
-
-    document.getElementById("waiting")
-        .textContent =
-        room.players.length +
-        " speler(s) in deze kamer";
-
-});
-
-
-function escapeHTML(text) {
-
-    return String(text)
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-
+    document.getElementById("balance")
+        .textContent = balance;
 }
 
 
-// ==========================
-// BLACKJACK
-// ==========================
+// ======================
+// INZETTEN
+// ======================
 
 function bet(amount) {
 
-    if (gameStarted) {
-
-        document.getElementById("gameMessage")
-            .textContent =
-            "Maak eerst de huidige ronde af.";
-
-        return;
-
-    }
-
+    if (gameStarted) return;
 
     if (amount > balance) {
 
@@ -743,98 +238,209 @@ function bet(amount) {
             "Niet genoeg credits.";
 
         return;
-
     }
-
 
     betAmount = amount;
 
     balance -= amount;
-
 
     playerCards = [
         drawCard(),
         drawCard()
     ];
 
-
     dealerCards = [
         drawCard(),
         drawCard()
     ];
 
+    splitHands = [];
+    currentHand = 0;
+    isSplit = false;
 
     gameStarted = true;
-
     playerTurn = true;
-
 
     document.getElementById("gameMessage")
         .textContent =
-        "Inzet: " +
-        amount +
-        " — jouw beurt.";
-
+        "Inzet: " + amount + " — jouw beurt.";
 
     renderCards();
-
-
-    // Blackjack
-    if (getScore(playerCards) === 21) {
-
-        playerTurn = false;
-
-        balance += Math.floor(betAmount * 2.5);
-
-        endGame("BLACKJACK! 🃏🔥");
-
-    }
-
 }
 
 
+// ======================
+// HIT
+// ======================
+
 function hit() {
 
-    if (!gameStarted || !playerTurn) {
+    if (!gameStarted || !playerTurn) return;
+
+    if (isSplit) {
+
+        splitHands[currentHand].push(drawCard());
+
+        renderCards();
+
+        if (getScore(splitHands[currentHand]) > 21) {
+
+            document.getElementById("gameMessage")
+                .textContent =
+                "Hand " + (currentHand + 1) +
+                " is bust!";
+
+            nextSplitHand();
+        }
+
         return;
     }
-
 
     playerCards.push(drawCard());
 
     renderCards();
-
 
     if (getScore(playerCards) > 21) {
 
         playerTurn = false;
 
         endGame("Je bent bust! 💥");
-
     }
-
 }
 
 
+// ======================
+// STAND
+// ======================
+
 function stand() {
 
-    if (!gameStarted || !playerTurn) {
+    if (!gameStarted || !playerTurn) return;
+
+    if (isSplit) {
+
+        nextSplitHand();
         return;
     }
 
+    finishDealer();
+
+    calculateResult();
+}
+
+
+// ======================
+// SPLIT
+// ======================
+
+function split() {
+
+    if (!gameStarted || !playerTurn) return;
+
+    if (isSplit) {
+
+        document.getElementById("gameMessage")
+            .textContent =
+            "Je hebt al gesplit.";
+
+        return;
+    }
+
+    if (playerCards.length !== 2) {
+
+        document.getElementById("gameMessage")
+            .textContent =
+            "Je kunt alleen met precies 2 kaarten splitten.";
+
+        return;
+    }
+
+    if (playerCards[0].v !== playerCards[1].v) {
+
+        document.getElementById("gameMessage")
+            .textContent =
+            "Je kunt alleen gelijke kaarten splitten.";
+
+        return;
+    }
+
+    // Tweede inzet betalen
+    if (balance < betAmount) {
+
+        document.getElementById("gameMessage")
+            .textContent =
+            "Niet genoeg credits voor een tweede inzet.";
+
+        return;
+    }
+
+    balance -= betAmount;
+
+    splitHands = [
+        [playerCards[0], drawCard()],
+        [playerCards[1], drawCard()]
+    ];
+
+    currentHand = 0;
+    isSplit = true;
+
+    document.getElementById("gameMessage")
+        .textContent =
+        "Hand 1 van 2 — jouw beurt.";
+
+    renderCards();
+}
+
+
+// ======================
+// VOLGENDE SPLIT HAND
+// ======================
+
+function nextSplitHand() {
+
+    if (!isSplit) return;
+
+    if (currentHand === 0) {
+
+        currentHand = 1;
+
+        document.getElementById("gameMessage")
+            .textContent =
+            "Hand 2 van 2 — jouw beurt.";
+
+        renderCards();
+
+        return;
+    }
 
     playerTurn = false;
 
+    finishDealer();
+
+    calculateSplitResults();
+}
+
+
+// ======================
+// DEALER
+// ======================
+
+function finishDealer() {
 
     while (getScore(dealerCards) < 17) {
 
         dealerCards.push(drawCard());
-
     }
 
-
     renderCards();
+}
 
+
+// ======================
+// NORMALE UITSLAG
+// ======================
+
+function calculateResult() {
 
     const playerScore =
         getScore(playerCards);
@@ -842,46 +448,122 @@ function stand() {
     const dealerScore =
         getScore(dealerCards);
 
-
     if (dealerScore > 21) {
 
         balance += betAmount * 2;
 
         endGame("Dealer bust! Jij wint 🎉");
 
-    }
-
-    else if (playerScore > dealerScore) {
+    } else if (playerScore > dealerScore) {
 
         balance += betAmount * 2;
 
         endGame("Jij wint! 🎉");
 
-    }
-
-    else if (playerScore === dealerScore) {
+    } else if (playerScore === dealerScore) {
 
         balance += betAmount;
 
-        endGame("Push — inzet terug.");
+        endGame("Gelijkspel — inzet terug.");
 
-    }
-
-    else {
+    } else {
 
         endGame("Dealer wint.");
 
     }
-
 }
 
 
+// ======================
+// SPLIT UITSLAG
+// ======================
+
+function calculateSplitResults() {
+
+    const dealerScore =
+        getScore(dealerCards);
+
+    let winnings = 0;
+
+    splitHands.forEach(hand => {
+
+        const score = getScore(hand);
+
+        if (score > 21) {
+
+            // Verloren
+            return;
+        }
+
+        if (dealerScore > 21) {
+
+            winnings += betAmount * 2;
+            return;
+        }
+
+        if (score > dealerScore) {
+
+            winnings += betAmount * 2;
+            return;
+        }
+
+        if (score === dealerScore) {
+
+            winnings += betAmount;
+            return;
+        }
+
+    });
+
+    balance += winnings;
+
+    gameStarted = false;
+    playerTurn = false;
+
+    document.getElementById("gameMessage")
+        .textContent =
+        "Splitronde afgelopen! Balans: " + balance;
+
+    renderCards();
+}
+
+
+// ======================
+// DOUBLE
+// ======================
+
 function doubleDown() {
 
-    if (!gameStarted || !playerTurn) {
+    if (!gameStarted || !playerTurn) return;
+
+    if (isSplit) {
+
+        if (balance < betAmount) {
+
+            document.getElementById("gameMessage")
+                .textContent =
+                "Niet genoeg credits.";
+
+            return;
+        }
+
+        balance -= betAmount;
+
+        splitHands[currentHand].push(drawCard());
+
+        renderCards();
+
+        if (getScore(splitHands[currentHand]) > 21) {
+
+            nextSplitHand();
+
+        } else {
+
+            nextSplitHand();
+        }
+
         return;
     }
-
 
     if (balance < betAmount) {
 
@@ -890,19 +572,15 @@ function doubleDown() {
             "Niet genoeg credits.";
 
         return;
-
     }
-
 
     balance -= betAmount;
 
     betAmount *= 2;
 
-
     playerCards.push(drawCard());
 
     renderCards();
-
 
     if (getScore(playerCards) > 21) {
 
@@ -911,21 +589,20 @@ function doubleDown() {
         endGame("Je bent bust! 💥");
 
         return;
-
     }
 
-
     stand();
-
 }
 
+
+// ======================
+// EINDE SPEL
+// ======================
 
 function endGame(message) {
 
     gameStarted = false;
-
     playerTurn = false;
-
 
     document.getElementById("gameMessage")
         .textContent =
@@ -933,38 +610,38 @@ function endGame(message) {
         " | Balans: " +
         balance;
 
-
     renderCards();
-
 }
 
+
+// ======================
+// NIEUWE RONDE
+// ======================
 
 function newRound() {
 
     playerCards = [];
-
     dealerCards = [];
+
+    splitHands = [];
+
+    currentHand = 0;
+
+    isSplit = false;
 
     betAmount = 0;
 
     gameStarted = false;
-
     playerTurn = false;
 
-
     renderCards();
-
 
     document.getElementById("gameMessage")
         .textContent =
         "Kies een inzet om te beginnen.";
-
 }
 
 
 renderCards();
 
 </script>
-
-</body>
-</html>
