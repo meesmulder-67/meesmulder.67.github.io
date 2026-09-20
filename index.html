@@ -10,514 +10,556 @@
 
 <style>
 * {
-    box-sizing: border-box;
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    min-height: 100vh;
-    font-family: Arial, sans-serif;
-    color: white;
-    background:
-        radial-gradient(circle at top, #176b45, #063522 60%, #021b11);
+  margin: 0;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background:
+    radial-gradient(circle at top, #164f35, #061b12 65%);
+  color: white;
 }
 
 button,
 input {
-    font: inherit;
+  font: inherit;
 }
 
 button {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .screen {
-    display: none;
-    min-height: 100vh;
-    padding: 25px;
+  display: none;
+  min-height: 100vh;
+  padding: 30px;
 }
 
 .screen.active {
-    display: flex;
+  display: flex;
+  flex-direction: column;
 }
 
 #home {
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    text-align: center;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 
 .logo {
-    font-size: 52px;
-    font-weight: 900;
-    margin-bottom: 40px;
+  font-size: clamp(42px, 8vw, 80px);
+  font-weight: 900;
+  margin-bottom: 50px;
 }
 
-.mainButton {
-    width: 280px;
-    padding: 18px;
-    margin: 10px;
-    border: 0;
-    border-radius: 15px;
-    font-size: 24px;
-    font-weight: bold;
-    background: white;
-    color: #073522;
+.home-buttons {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.main-btn {
+  border: none;
+  border-radius: 14px;
+  padding: 18px 35px;
+  font-size: 20px;
+  font-weight: bold;
+  background: #d8ad55;
+  color: #111;
+}
+
+.main-btn:hover {
+  transform: translateY(-2px);
+}
+
+.secondary-btn {
+  background: #ffffff18;
+  color: white;
+  border: 1px solid #ffffff35;
 }
 
 .panel {
-    width: min(500px, 95vw);
-    margin: auto;
-    padding: 30px;
-    border-radius: 22px;
-    background: #062c1cee;
-    text-align: center;
+  width: min(500px, 100%);
+  margin: auto;
+  background: #071b13e8;
+  border: 1px solid #ffffff22;
+  border-radius: 20px;
+  padding: 25px;
 }
 
-.back {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    padding: 10px 16px;
-    border: 0;
-    border-radius: 10px;
-    background: #ffffff22;
-    color: white;
+.panel h2 {
+  margin-top: 0;
 }
 
 input {
-    width: 100%;
-    padding: 15px;
-    margin: 7px 0;
-    border: 0;
-    border-radius: 10px;
+  width: 100%;
+  padding: 14px;
+  margin: 7px 0;
+  border-radius: 10px;
+  border: 1px solid #ffffff25;
+  background: #ffffff10;
+  color: white;
+  outline: none;
 }
 
-.actionButton {
-    width: 100%;
-    padding: 14px;
-    margin-top: 10px;
-    border: 0;
-    border-radius: 10px;
-    background: white;
-    color: #073522;
-    font-weight: bold;
+.panel button {
+  width: 100%;
+  margin-top: 10px;
 }
 
 .error {
-    min-height: 25px;
-    margin-top: 12px;
-    color: #ffb0b0;
-}
-
-.roomCode {
-    margin: 20px;
-    font-size: 38px;
-    font-weight: bold;
-    letter-spacing: 7px;
-}
-
-.player {
-    margin: 7px 0;
-    padding: 12px;
-    border-radius: 10px;
-    background: #ffffff12;
+  color: #ff8d8d;
+  min-height: 25px;
 }
 
 #game {
-    flex-direction: column;
+  padding: 15px;
 }
 
-.topInfo {
-    text-align: center;
-    margin-bottom: 10px;
-    font-size: 18px;
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 15px;
+}
+
+.info {
+  background: #00000045;
+  border: 1px solid #ffffff18;
+  border-radius: 12px;
+  padding: 10px 15px;
 }
 
 .table {
-    width: min(1100px, 100%);
-    min-height: 620px;
-    margin: auto;
-    padding: 25px;
-    border: 8px solid #4b2a12;
-    border-radius: 35px;
-    background:
-        radial-gradient(circle, #15804f, #075331);
-    box-shadow: inset 0 0 40px #0008;
+  width: min(1100px, 100%);
+  margin: auto;
+  background:
+    radial-gradient(circle, #197346, #0a4329);
+  border: 10px solid #533b1d;
+  border-radius: 45px;
+  padding: 25px;
+  min-height: 620px;
+  box-shadow: inset 0 0 50px #0008;
 }
 
 .dealer {
-    text-align: center;
-    margin-bottom: 25px;
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.dealer h2 {
+  margin: 5px;
 }
 
 .cards {
-    min-height: 82px;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 100px;
 }
 
 .card {
-    width: 55px;
-    height: 78px;
-    border-radius: 8px;
-    background: white;
-    color: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 21px;
-    font-weight: bold;
+  width: 62px;
+  height: 88px;
+  background: white;
+  color: #111;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 20px;
+  box-shadow: 0 3px 5px #0006;
 }
 
 .card.red {
-    color: #d00000;
+  color: #c22;
 }
 
-.hiddenCard {
-    background: #244b9b;
-    color: white;
+.card.hidden {
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #8e2222,
+      #8e2222 8px,
+      #b33131 8px,
+      #b33131 16px
+    );
+  color: white;
 }
 
-.playersTable {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
+.points {
+  margin-top: 8px;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.players {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 30px;
 }
 
 .seat {
-    min-height: 245px;
-    padding: 13px;
-    border: 2px solid transparent;
-    border-radius: 16px;
-    background: #0003;
-    text-align: center;
+  min-height: 190px;
+  background: #00000022;
+  border: 2px solid #ffffff18;
+  border-radius: 15px;
+  padding: 12px;
+  text-align: center;
+}
+
+.seat.me {
+  border-color: #d8ad55;
 }
 
 .seat.active {
-    border-color: #ffe45c;
-    box-shadow: 0 0 20px #ffe45c55;
+  box-shadow: 0 0 0 3px #d8ad55;
 }
 
-.seatName {
-    font-weight: bold;
-    font-size: 18px;
-}
-
-.balance {
-    margin-top: 5px;
+.seat-name {
+  font-weight: bold;
+  margin-bottom: 5px;
 }
 
 .bet {
-    margin: 5px;
-    font-weight: bold;
+  color: #e8c875;
+  margin: 5px 0;
 }
 
-.status {
-    min-height: 22px;
-    margin: 7px;
-    font-weight: bold;
+.small-cards .card {
+  width: 42px;
+  height: 60px;
+  font-size: 14px;
+}
+
+.small-cards {
+  min-height: 65px;
 }
 
 .controls {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 20px;
+  width: min(900px, 100%);
+  margin: 18px auto 0;
 }
 
-.gameButton,
-.chipButton {
-    padding: 13px 18px;
-    border: 0;
-    border-radius: 11px;
-    background: white;
-    color: #073522;
-    font-weight: bold;
+.balance {
+  text-align: center;
+  font-size: 21px;
+  font-weight: bold;
+  margin-bottom: 12px;
 }
 
-.gameButton:disabled {
-    opacity: .35;
-    cursor: not-allowed;
+.chips,
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
-.chips {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 7px;
-    margin: 15px;
+.chip,
+.action {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 17px;
+  font-weight: bold;
 }
 
-.message {
-    min-height: 28px;
-    margin: 12px;
-    text-align: center;
-    font-weight: bold;
+.chip {
+  background: #d8ad55;
+  color: #111;
 }
 
-@media(max-width:750px) {
-    .playersTable {
-        grid-template-columns: repeat(2, 1fr);
-    }
+.action {
+  background: #ffffff18;
+  border: 1px solid #ffffff25;
+  color: white;
+}
 
-    .logo {
-        font-size: 38px;
-    }
+.action.danger {
+  background: #8e2929;
+}
+
+.action:disabled,
+.chip:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.status {
+  text-align: center;
+  min-height: 28px;
+  margin: 10px;
+  font-weight: bold;
+}
+
+.ready {
+  color: #78e89a;
+}
+
+.waiting {
+  color: #f1cf76;
+}
+
+@media (max-width: 750px) {
+  .players {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .table {
+    border-width: 5px;
+    border-radius: 25px;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 450px) {
+  .players {
+    grid-template-columns: 1fr;
+  }
+
+  .screen {
+    padding: 15px;
+  }
+
+  .card {
+    width: 52px;
+    height: 76px;
+  }
 }
 </style>
 </head>
 
 <body>
 
+<!-- HOME -->
 <section id="home" class="screen active">
 
-    <div class="logo">
-        ♠ BLACKJACK ROYALE ♠
-    </div>
+  <div class="logo">♠ BLACKJACK</div>
 
-    <button
-        class="mainButton"
-        onclick="startSingleplayer()">
-        PLAY
+  <div class="home-buttons">
+    <button class="main-btn" id="playBtn">PLAY</button>
+    <button class="main-btn secondary-btn" id="multiBtn">
+      SAMENSPELEN
     </button>
-
-    <button
-        class="mainButton"
-        onclick="showMultiplayer()">
-        SAMENSPELEN
-    </button>
+  </div>
 
 </section>
 
 
-<section id="multiplayer" class="screen">
+<!-- MULTIPLAYER SETUP -->
+<section id="multiplayerSetup" class="screen">
 
-    <button class="back" onclick="goHome()">
-        ← TERUG
+  <div class="panel">
+
+    <h2>Samenspelen</h2>
+
+    <input
+      id="nameInput"
+      placeholder="Je naam"
+      maxlength="16"
+    >
+
+    <button class="main-btn" id="createBtn">
+      KAMER MAKEN
     </button>
 
-    <div class="panel">
+    <input
+      id="codeInput"
+      placeholder="Kamercode"
+      maxlength="6"
+      style="text-transform:uppercase"
+    >
 
-        <h1>👥 SAMENSPELEN</h1>
+    <button class="main-btn secondary-btn" id="joinBtn">
+      JOIN KAMER
+    </button>
 
-        <input
-            id="playerName"
-            maxlength="18"
-            placeholder="Jouw naam">
+    <button class="action" id="backFromSetup">
+      TERUG
+    </button>
 
-        <button
-            class="actionButton"
-            onclick="createRoom()">
-            KAMER MAKEN
-        </button>
+    <div class="error" id="setupError"></div>
 
-        <hr>
-
-        <input
-            id="joinCode"
-            maxlength="6"
-            placeholder="KAMERCODE"
-            style="text-transform:uppercase">
-
-        <button
-            class="actionButton"
-            onclick="joinRoom()">
-            JOIN KAMER
-        </button>
-
-        <div id="roomError" class="error"></div>
-
-    </div>
+  </div>
 
 </section>
 
 
+<!-- LOBBY -->
 <section id="lobby" class="screen">
 
-    <button class="back" onclick="leaveRoom()">
-        ← VERLATEN
+  <div class="panel">
+
+    <h2>Lobby</h2>
+
+    <p>
+      Kamercode:
+      <strong id="roomCode"></strong>
+    </p>
+
+    <p>
+      Spelers:
+      <strong id="lobbyPlayers"></strong>
+    </p>
+
+    <div id="lobbyList"></div>
+
+    <p class="waiting">
+      Iedereen moet op START SPEL klikken.
+    </p>
+
+    <button class="main-btn" id="startGameBtn">
+      START SPEL
     </button>
 
-    <div class="panel">
+    <button class="action" id="leaveLobbyBtn">
+      VERLATEN
+    </button>
 
-        <h1>🎮 KAMER</h1>
-
-        <div id="lobbyCode" class="roomCode"></div>
-
-        <div id="lobbyPlayers"></div>
-
-        <button
-            id="startGameButton"
-            class="actionButton"
-            onclick="startGame()">
-            START SPEL
-        </button>
-
-        <div id="lobbyError" class="error"></div>
-
-    </div>
+  </div>
 
 </section>
 
 
+<!-- GAME -->
 <section id="game" class="screen">
 
-    <div class="topInfo">
+  <div class="topbar">
 
-        <span id="roomInfo"></span>
-        &nbsp; | &nbsp;
-        <span id="balanceInfo"></span>
+    <div class="info">
+      Kamer:
+      <strong id="gameRoomCode">Singleplayer</strong>
+    </div>
+
+    <div class="info">
+      <span id="gamePhase">Wachten</span>
+    </div>
+
+    <button class="action danger" id="leaveGameBtn">
+      VERLATEN
+    </button>
+
+  </div>
+
+
+  <div class="table">
+
+    <!-- DEALER -->
+    <div class="dealer">
+
+      <h2>DEALER</h2>
+
+      <div id="dealerCards" class="cards"></div>
+
+      <div id="dealerPoints" class="points">
+        Punten: -
+      </div>
 
     </div>
 
-    <div class="table">
 
-        <div class="dealer">
+    <!-- PLAYERS -->
+    <div id="players" class="players"></div>
 
-            <h2>DEALER</h2>
 
-            <div
-                id="dealerCards"
-                class="cards">
-            </div>
+    <div class="status" id="gameStatus"></div>
 
-            <div id="dealerTotal"></div>
+  </div>
 
-        </div>
 
-        <div
-            id="playersTable"
-            class="playersTable">
-        </div>
+  <div class="controls">
 
-        <div
-            id="betControls"
-            style="display:none">
+    <div class="balance">
+      💰 Credits:
+      <span id="balance">1000</span>
+      |
+      Inzet:
+      <span id="bet">0</span>
+    </div>
 
-            <div class="chips">
+    <div class="chips">
 
-                <button class="chipButton"
-                    onclick="bet(5)">5</button>
+      <button class="chip" data-chip="5">5</button>
+      <button class="chip" data-chip="10">10</button>
+      <button class="chip" data-chip="25">25</button>
+      <button class="chip" data-chip="50">50</button>
+      <button class="chip" data-chip="100">100</button>
+      <button class="chip" data-chip="500">500</button>
 
-                <button class="chipButton"
-                    onclick="bet(10)">10</button>
-
-                <button class="chipButton"
-                    onclick="bet(25)">25</button>
-
-                <button class="chipButton"
-                    onclick="bet(50)">50</button>
-
-                <button class="chipButton"
-                    onclick="bet(100)">100</button>
-
-                <button class="chipButton"
-                    onclick="bet(500)">500</button>
-
-            </div>
-
-            <div class="controls">
-
-                <button
-                    id="startRoundButton"
-                    class="gameButton"
-                    onclick="startRound()">
-                    START RONDE
-                </button>
-
-            </div>
-
-        </div>
-
-        <div id="gameMessage" class="message"></div>
-
-        <div class="controls">
-
-            <button
-                id="hitButton"
-                class="gameButton"
-                onclick="hit()">
-                HIT
-            </button>
-
-            <button
-                id="standButton"
-                class="gameButton"
-                onclick="stand()">
-                STAND
-            </button>
-
-            <button
-                id="doubleButton"
-                class="gameButton"
-                onclick="doubleDown()">
-                DOUBLE
-            </button>
-
-            <button
-                id="splitButton"
-                class="gameButton"
-                onclick="split()">
-                SPLIT
-            </button>
-
-            <button
-                id="nextButton"
-                class="gameButton"
-                onclick="nextRound()"
-                style="display:none">
-                VOLGENDE RONDE
-            </button>
-
-        </div>
+      <button class="action" id="clearBetBtn">
+        INZET WISSEN
+      </button>
 
     </div>
+
+    <br>
+
+    <div class="actions">
+
+      <button class="action" id="readyBtn">
+        START SPEL
+      </button>
+
+      <button class="action" id="hitBtn">
+        HIT
+      </button>
+
+      <button class="action" id="standBtn">
+        STAND
+      </button>
+
+      <button class="action" id="doubleBtn">
+        DOUBLE
+      </button>
+
+      <button class="action" id="nextRoundBtn">
+        VOLGENDE RONDE
+      </button>
+
+    </div>
+
+  </div>
 
 </section>
 
 
 <script>
-
-const SERVER_URL =
-    "https://meesmulder-67-github-io.onrender.com";
+const SERVER_URL = "https://meesmulder-67-github-io.onrender.com";
 
 const socket = io(SERVER_URL, {
-    transports: ["websocket", "polling"]
+  transports: ["websocket", "polling"]
 });
 
-let state = null;
+let online = false;
+let myId = null;
+let currentRoom = null;
 
+let localGame = {
+  balance: 1000,
+  bet: 0,
+  deck: [],
+  dealer: [],
+  player: [],
+  phase: "waiting",
+  message: ""
+};
 
-/* =========================
-   NAVIGATION
-========================= */
+const $ = id => document.getElementById(id);
 
 function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(screen => {
+    screen.classList.remove("active");
+  });
 
-    document
-        .querySelectorAll(".screen")
-        .forEach(s => s.classList.remove("active"));
-
-    document
-        .getElementById(id)
-        .classList.add("active");
-}
-
-function goHome() {
-    showScreen("home");
-}
-
-function showMultiplayer() {
-    showScreen("multiplayer");
-
-    document.getElementById(
-        "roomError"
-    ).textContent = "";
+  $(id).classList.add("active");
 }
 
 
@@ -526,483 +568,174 @@ function showMultiplayer() {
 ========================= */
 
 socket.on("connect", () => {
-    console.log("Connected:", socket.id);
+  myId = socket.id;
 });
 
-socket.on("connect_error", error => {
+socket.on("roomCreated", data => {
+  online = true;
+  currentRoom = data.code;
 
-    console.error(error);
+  $("roomCode").textContent = data.code;
 
-    document.getElementById(
-        "roomError"
-    ).textContent =
-        "Serververbinding mislukt.";
+  showScreen("lobby");
 });
 
-socket.on("roomCreated", room => {
-    renderLobby(room);
+socket.on("joinedRoom", data => {
+  online = true;
+  currentRoom = data.code;
+
+  $("roomCode").textContent = data.code;
+
+  showScreen("lobby");
+});
+
+socket.on("errorMessage", message => {
+  $("setupError").textContent = message;
+});
+
+socket.on("roomState", state => {
+  online = true;
+
+  currentRoom = state.code;
+
+  if (state.phase === "waiting") {
     showScreen("lobby");
-});
-
-socket.on("roomJoined", room => {
-    renderLobby(room);
-    showScreen("lobby");
-});
-
-socket.on("roomUpdate", room => {
-    renderLobby(room);
-});
-
-socket.on("joinError", message => {
-    document.getElementById(
-        "roomError"
-    ).textContent = message;
-});
-
-socket.on("gameError", message => {
-    document.getElementById(
-        "gameMessage"
-    ).textContent = message;
-});
-
-socket.on("gameState", newState => {
-
-    state = newState;
-
+    renderLobby(state);
+  } else {
     showScreen("game");
-
-    renderGame(newState);
+    renderOnlineGame(state);
+  }
 });
 
 
 /* =========================
-   ROOM
+   HOME
 ========================= */
 
-function getName() {
+$("playBtn").addEventListener("click", () => {
+  online = false;
+  startSingleplayer();
+});
 
-    return document
-        .getElementById("playerName")
-        .value
-        .trim();
-}
+$("multiBtn").addEventListener("click", () => {
+  $("setupError").textContent = "";
+  showScreen("multiplayerSetup");
+});
 
-function createRoom() {
+$("backFromSetup").addEventListener("click", () => {
+  showScreen("home");
+});
 
-    const name = getName();
 
-    if (!name) {
+/* =========================
+   MULTIPLAYER
+========================= */
 
-        document.getElementById(
-            "roomError"
-        ).textContent =
-            "Vul eerst je naam in.";
+$("createBtn").addEventListener("click", () => {
+  const name = $("nameInput").value.trim();
 
-        return;
-    }
+  if (!name) {
+    $("setupError").textContent = "Vul eerst je naam in.";
+    return;
+  }
 
-    socket.emit(
-        "createRoom",
-        { name }
-    );
-}
+  $("setupError").textContent = "";
 
-function joinRoom() {
+  socket.emit("createRoom", {
+    name
+  });
+});
 
-    const name = getName();
+$("joinBtn").addEventListener("click", () => {
+  const name = $("nameInput").value.trim();
+  const code = $("codeInput").value.trim().toUpperCase();
 
-    const code = document
-        .getElementById("joinCode")
-        .value
-        .trim()
-        .toUpperCase();
+  if (!name) {
+    $("setupError").textContent = "Vul eerst je naam in.";
+    return;
+  }
 
-    if (!name) {
+  if (code.length !== 6) {
+    $("setupError").textContent = "De kamercode moet 6 tekens zijn.";
+    return;
+  }
 
-        document.getElementById(
-            "roomError"
-        ).textContent =
-            "Vul eerst je naam in.";
+  $("setupError").textContent = "";
 
-        return;
-    }
+  socket.emit("joinRoom", {
+    name,
+    code
+  });
+});
 
-    if (code.length !== 6) {
+$("startGameBtn").addEventListener("click", () => {
+  socket.emit("readyForGame");
+});
 
-        document.getElementById(
-            "roomError"
-        ).textContent =
-            "De code moet 6 tekens hebben.";
+$("leaveLobbyBtn").addEventListener("click", () => {
+  socket.emit("leaveRoom");
 
-        return;
-    }
+  online = false;
+  currentRoom = null;
 
-    socket.emit(
-        "joinRoom",
-        {
-            name,
-            code
-        }
-    );
-}
+  showScreen("home");
+});
 
-function renderLobby(room) {
-
-    document.getElementById(
-        "lobbyCode"
-    ).textContent = room.code;
-
-    const list =
-        document.getElementById(
-            "lobbyPlayers"
-        );
-
-    list.innerHTML = "";
-
-    room.players.forEach(player => {
-
-        const div =
-            document.createElement("div");
-
-        div.className = "player";
-
-        div.textContent =
-            player.name +
-            (
-                player.id === room.hostId
-                    ? " 👑 HOST"
-                    : ""
-            );
-
-        list.appendChild(div);
-    });
-
-    document.getElementById(
-        "startGameButton"
-    ).style.display =
-        room.hostId === socket.id
-            ? "block"
-            : "none";
-}
-
-function startGame() {
-    socket.emit("startGame");
-}
-
-function leaveRoom() {
+$("leaveGameBtn").addEventListener("click", () => {
+  if (online) {
     socket.emit("leaveRoom");
-    state = null;
-    showScreen("home");
-}
+  }
+
+  online = false;
+  currentRoom = null;
+
+  showScreen("home");
+});
 
 
 /* =========================
-   BETTING
+   LOBBY
 ========================= */
 
-function bet(amount) {
+function renderLobby(state) {
 
-    if (!state) return;
+  $("roomCode").textContent = state.code;
 
-    socket.emit(
-        "placeBet",
-        { amount }
-    );
-}
+  $("lobbyPlayers").textContent =
+    `${state.players.length}/4`;
 
-function startRound() {
-    socket.emit("startRound");
-}
+  $("lobbyList").innerHTML = "";
 
+  state.players.forEach(player => {
 
-/* =========================
-   GAME
-========================= */
+    const div = document.createElement("div");
 
-function renderGame(state) {
+    div.style.padding = "10px";
+    div.style.margin = "5px 0";
+    div.style.background = "#ffffff10";
+    div.style.borderRadius = "8px";
 
-    document.getElementById(
-        "roomInfo"
-    ).textContent =
-        "Kamer: " + state.code;
+    div.innerHTML =
+      `<strong>${escapeHtml(player.name)}</strong>
+       ${player.id === state.hostId ? " 👑" : ""}
+       ${
+         player.ready
+           ? '<span class="ready"> — Klaar ✓</span>'
+           : '<span class="waiting"> — Nog niet gestart</span>'
+       }`;
 
-    document.getElementById(
-        "balanceInfo"
-    ).textContent =
-        "Nepcredits: " + state.myBalance;
+    $("lobbyList").appendChild(div);
+  });
 
-    renderDealer(state);
+  const me = state.players.find(p => p.id === myId);
 
-    const table =
-        document.getElementById(
-            "playersTable"
-        );
+  $("startGameBtn").disabled = !!me?.ready;
 
-    table.innerHTML = "";
-
-    state.players.forEach(player => {
-
-        const seat =
-            document.createElement("div");
-
-        seat.className =
-            "seat" +
-            (
-                player.active
-                    ? " active"
-                    : ""
-            );
-
-        seat.innerHTML = `
-            <div class="seatName">
-                ${escapeHtml(player.name)}
-            </div>
-
-            <div class="balance">
-                💰 ${player.balance}
-            </div>
-
-            <div class="bet">
-                Inzet: ${player.bet}
-            </div>
-
-            <div class="status">
-                ${player.status}
-            </div>
-
-            <div class="cards"></div>
-        `;
-
-        renderCards(
-            seat.querySelector(".cards"),
-            player.cards
-        );
-
-        table.appendChild(seat);
-    });
-
-    const betting =
-        state.phase === "betting";
-
-    const playing =
-        state.phase === "playing";
-
-    const myTurn =
-        state.currentPlayerId === socket.id;
-
-    document.getElementById(
-        "betControls"
-    ).style.display =
-        betting ? "block" : "none";
-
-    document.getElementById(
-        "hitButton"
-    ).disabled =
-        !(playing && myTurn);
-
-    document.getElementById(
-        "standButton"
-    ).disabled =
-        !(playing && myTurn);
-
-    document.getElementById(
-        "doubleButton"
-    ).disabled =
-        !(playing && myTurn);
-
-    document.getElementById(
-        "splitButton"
-    ).disabled =
-        !(playing && myTurn);
-
-    document.getElementById(
-        "nextButton"
-    ).style.display =
-        state.phase === "finished" &&
-        state.hostId === socket.id
-            ? "inline-block"
-            : "none";
-
-    if (state.resultMessage) {
-
-        document.getElementById(
-            "gameMessage"
-        ).textContent =
-            state.resultMessage;
-
-    } else if (myTurn) {
-
-        document.getElementById(
-            "gameMessage"
-        ).textContent =
-            "Jij bent aan de beurt.";
-
-    } else if (betting) {
-
-        document.getElementById(
-            "gameMessage"
-        ).textContent =
-            "Plaats je nep-inzet.";
-
-    } else {
-
-        document.getElementById(
-            "gameMessage"
-        ).textContent =
-            "Wachten...";
-    }
-}
-
-function renderDealer(state) {
-
-    const container =
-        document.getElementById(
-            "dealerCards"
-        );
-
-    container.innerHTML = "";
-
-    state.dealerCards.forEach(
-        (card, index) => {
-
-            if (
-                state.dealerHidden &&
-                index === 1
-            ) {
-
-                const div =
-                    document.createElement("div");
-
-                div.className =
-                    "card hiddenCard";
-
-                div.textContent = "?";
-
-                container.appendChild(div);
-
-            } else {
-
-                addCard(
-                    container,
-                    card
-                );
-            }
-        }
-    );
-
-    document.getElementById(
-        "dealerTotal"
-    ).textContent =
-        state.dealerHidden
-            ? "Dealer: ?"
-            : "Dealer: " +
-              handValue(
-                  state.dealerCards
-              );
-}
-
-
-/* =========================
-   ACTIONS
-========================= */
-
-function hit() {
-    socket.emit("hit");
-}
-
-function stand() {
-    socket.emit("stand");
-}
-
-function doubleDown() {
-    socket.emit("double");
-}
-
-function split() {
-    socket.emit("split");
-}
-
-function nextRound() {
-    socket.emit("nextRound");
-}
-
-
-/* =========================
-   CARDS
-========================= */
-
-function renderCards(container, cards) {
-
-    container.innerHTML = "";
-
-    cards.forEach(card => {
-        addCard(container, card);
-    });
-}
-
-function addCard(container, card) {
-
-    const div =
-        document.createElement("div");
-
-    div.className = "card";
-
-    if (
-        card.suit === "♥" ||
-        card.suit === "♦"
-    ) {
-        div.classList.add("red");
-    }
-
-    div.textContent =
-        card.value + card.suit;
-
-    container.appendChild(div);
-}
-
-function handValue(cards) {
-
-    let total = 0;
-    let aces = 0;
-
-    cards.forEach(card => {
-
-        if (
-            ["J", "Q", "K"]
-                .includes(card.value)
-        ) {
-            total += 10;
-
-        } else if (
-            card.value === "A"
-        ) {
-            total += 11;
-            aces++;
-
-        } else {
-            total += Number(card.value);
-        }
-    });
-
-    while (
-        total > 21 &&
-        aces > 0
-    ) {
-        total -= 10;
-        aces--;
-    }
-
-    return total;
-}
-
-function escapeHtml(text) {
-
-    const div =
-        document.createElement("div");
-
-    div.textContent = text;
-
-    return div.innerHTML;
+  if (me?.ready) {
+    $("startGameBtn").textContent = "KLAAR ✓";
+  } else {
+    $("startGameBtn").textContent = "START SPEL";
+  }
 }
 
 
@@ -1012,10 +745,716 @@ function escapeHtml(text) {
 
 function startSingleplayer() {
 
-    alert(
-        "Singleplayer wordt geopend zodra de multiplayerverbinding werkt."
-    );
+  localGame = {
+    balance: 1000,
+    bet: 0,
+    deck: createLocalDeck(),
+    dealer: [],
+    player: [],
+    phase: "waiting",
+    message: ""
+  };
+
+  $("gameRoomCode").textContent = "Singleplayer";
+
+  showScreen("game");
+
+  renderLocalGame();
 }
+
+function createLocalDeck() {
+
+  const suits = ["♠", "♥", "♦", "♣"];
+
+  const ranks = [
+    ["A", 11],
+    ["2", 2],
+    ["3", 3],
+    ["4", 4],
+    ["5", 5],
+    ["6", 6],
+    ["7", 7],
+    ["8", 8],
+    ["9", 9],
+    ["10", 10],
+    ["J", 10],
+    ["Q", 10],
+    ["K", 10]
+  ];
+
+  let deck = [];
+
+  for (let d = 0; d < 6; d++) {
+
+    suits.forEach(suit => {
+
+      ranks.forEach(([name, value]) => {
+
+        deck.push({
+          name,
+          suit,
+          value
+        });
+
+      });
+
+    });
+
+  }
+
+  return shuffleLocal(deck);
+}
+
+function shuffleLocal(deck) {
+
+  for (let i = deck.length - 1; i > 0; i--) {
+
+    const j = Math.floor(Math.random() * (i + 1));
+
+    [deck[i], deck[j]] =
+      [deck[j], deck[i]];
+  }
+
+  return deck;
+}
+
+function localPoints(cards) {
+
+  let total =
+    cards.reduce(
+      (sum, card) => sum + card.value,
+      0
+    );
+
+  let aces =
+    cards.filter(
+      card => card.name === "A"
+    ).length;
+
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+
+  return total;
+}
+
+function localBlackjack(cards) {
+  return cards.length === 2 &&
+    localPoints(cards) === 21;
+}
+
+
+/* =========================
+   LOCAL START
+========================= */
+
+$("readyBtn").addEventListener("click", () => {
+
+  if (online) {
+    socket.emit("readyForGame");
+    return;
+  }
+
+  if (localGame.phase === "finished") {
+
+    localGame.phase = "waiting";
+    localGame.bet = 0;
+    localGame.player = [];
+    localGame.dealer = [];
+    localGame.deck = createLocalDeck();
+    localGame.message = "";
+
+    renderLocalGame();
+
+    return;
+  }
+
+  if (localGame.phase !== "waiting") return;
+
+  if (localGame.bet <= 0) {
+
+    localGame.message =
+      "Kies eerst je inzet.";
+
+    renderLocalGame();
+
+    return;
+  }
+
+  startLocalRound();
+});
+
+
+function startLocalRound() {
+
+  localGame.phase = "playing";
+  localGame.message = "";
+
+  if (localGame.deck.length < 20) {
+    localGame.deck = createLocalDeck();
+  }
+
+  localGame.player = [
+    localGame.deck.pop(),
+    localGame.deck.pop()
+  ];
+
+  localGame.dealer = [
+    localGame.deck.pop(),
+    localGame.deck.pop()
+  ];
+
+  if (localBlackjack(localGame.player)) {
+    finishLocalRound();
+    return;
+  }
+
+  renderLocalGame();
+}
+
+
+/* =========================
+   LOCAL HIT
+========================= */
+
+$("hitBtn").addEventListener("click", () => {
+
+  if (!online) {
+
+    if (localGame.phase !== "playing") return;
+
+    localGame.player.push(
+      localGame.deck.pop()
+    );
+
+    const points =
+      localPoints(localGame.player);
+
+    if (points >= 21) {
+      finishLocalRound();
+    } else {
+      renderLocalGame();
+    }
+
+    return;
+  }
+
+  socket.emit("hit");
+});
+
+
+/* =========================
+   LOCAL STAND
+========================= */
+
+$("standBtn").addEventListener("click", () => {
+
+  if (!online) {
+
+    if (localGame.phase !== "playing") return;
+
+    finishLocalRound();
+
+    return;
+  }
+
+  socket.emit("stand");
+});
+
+
+/* =========================
+   LOCAL DOUBLE
+========================= */
+
+$("doubleBtn").addEventListener("click", () => {
+
+  if (!online) {
+
+    if (localGame.phase !== "playing") return;
+
+    if (localGame.player.length !== 2) return;
+
+    if (localGame.balance < localGame.bet) {
+
+      localGame.message =
+        "Niet genoeg credits.";
+
+      renderLocalGame();
+
+      return;
+    }
+
+    localGame.balance -= localGame.bet;
+    localGame.bet *= 2;
+
+    localGame.player.push(
+      localGame.deck.pop()
+    );
+
+    finishLocalRound();
+
+    return;
+  }
+
+  socket.emit("double");
+});
+
+
+/* =========================
+   LOCAL DEALER
+========================= */
+
+function finishLocalRound() {
+
+  while (localPoints(localGame.dealer) < 17) {
+
+    localGame.dealer.push(
+      localGame.deck.pop()
+    );
+
+  }
+
+  const playerPoints =
+    localPoints(localGame.player);
+
+  const dealerPoints =
+    localPoints(localGame.dealer);
+
+  const playerBJ =
+    localBlackjack(localGame.player);
+
+  const dealerBJ =
+    localBlackjack(localGame.dealer);
+
+  if (playerPoints > 21) {
+
+    localGame.message =
+      "Je bent bust. Dealer wint.";
+
+  } else if (playerBJ && !dealerBJ) {
+
+    localGame.balance +=
+      Math.floor(localGame.bet * 2.5);
+
+    localGame.message =
+      "BLACKJACK! 🎉";
+
+  } else if (dealerBJ && !playerBJ) {
+
+    localGame.message =
+      "Dealer heeft blackjack.";
+
+  } else if (dealerPoints > 21) {
+
+    localGame.balance +=
+      localGame.bet * 2;
+
+    localGame.message =
+      "Dealer is bust. Jij wint!";
+
+  } else if (playerPoints > dealerPoints) {
+
+    localGame.balance +=
+      localGame.bet * 2;
+
+    localGame.message =
+      "Jij wint!";
+
+  } else if (playerPoints === dealerPoints) {
+
+    localGame.balance +=
+      localGame.bet;
+
+    localGame.message =
+      "Push — gelijkspel.";
+
+  } else {
+
+    localGame.message =
+      "Dealer wint.";
+
+  }
+
+  localGame.phase = "finished";
+
+  renderLocalGame();
+}
+
+
+/* =========================
+   BETS
+========================= */
+
+document.querySelectorAll("[data-chip]").forEach(button => {
+
+  button.addEventListener("click", () => {
+
+    const amount =
+      Number(button.dataset.chip);
+
+    if (online) {
+
+      socket.emit("placeBet", {
+        amount
+      });
+
+      return;
+    }
+
+    if (localGame.phase !== "waiting") return;
+
+    if (localGame.balance < amount) return;
+
+    localGame.balance -= amount;
+    localGame.bet += amount;
+
+    renderLocalGame();
+
+  });
+
+});
+
+
+$("clearBetBtn").addEventListener("click", () => {
+
+  if (online) {
+
+    socket.emit("clearBet");
+
+    return;
+  }
+
+  if (localGame.phase !== "waiting") return;
+
+  localGame.balance += localGame.bet;
+  localGame.bet = 0;
+
+  renderLocalGame();
+});
+
+
+$("nextRoundBtn").addEventListener("click", () => {
+
+  if (online) {
+
+    socket.emit("nextRound");
+
+    return;
+  }
+
+  if (localGame.phase !== "finished") return;
+
+  localGame.phase = "waiting";
+  localGame.bet = 0;
+  localGame.player = [];
+  localGame.dealer = [];
+  localGame.message = "";
+
+  localGame.deck = createLocalDeck();
+
+  renderLocalGame();
+});
+
+
+/* =========================
+   ONLINE GAME
+========================= */
+
+function renderOnlineGame(state) {
+
+  $("gameRoomCode").textContent = state.code;
+
+  $("gamePhase").textContent =
+    state.phase === "playing"
+      ? "Ronde bezig"
+      : "Ronde afgelopen";
+
+  const me =
+    state.players.find(
+      p => p.id === myId
+    );
+
+  if (!me) return;
+
+  $("balance").textContent =
+    me.balance;
+
+  $("bet").textContent =
+    me.bet;
+
+  $("dealerCards").innerHTML =
+    renderCards(
+      state.dealerCards,
+      state.dealerHidden
+    );
+
+  if (state.dealerHidden) {
+
+    const visible =
+      state.dealerCards.length > 0
+        ? state.dealerCards[0]
+        : null;
+
+    $("dealerPoints").textContent =
+      visible
+        ? `Punten: ${visible.value}`
+        : "Punten: -";
+
+  } else {
+
+    $("dealerPoints").textContent =
+      `Punten: ${points(state.dealerCards)}`;
+  }
+
+  $("players").innerHTML = "";
+
+  state.players.forEach(player => {
+
+    const seat =
+      document.createElement("div");
+
+    seat.className =
+      "seat" +
+      (player.id === myId ? " me" : "") +
+      (state.currentPlayerId === player.id
+        ? " active"
+        : "");
+
+    seat.innerHTML = `
+      <div class="seat-name">
+        ${escapeHtml(player.name)}
+        ${player.id === myId ? " (jij)" : ""}
+      </div>
+
+      <div class="bet">
+        Inzet: ${player.bet}
+      </div>
+
+      <div class="small-cards cards">
+        ${renderCards(player.cards, false)}
+      </div>
+
+      <div class="points">
+        Punten: ${player.points}
+      </div>
+
+      ${
+        player.ready
+          ? '<div class="ready">Klaar ✓</div>'
+          : ""
+      }
+
+      ${
+        state.currentPlayerId === player.id
+          ? '<div class="waiting">Aan de beurt</div>'
+          : ""
+      }
+    `;
+
+    $("players").appendChild(seat);
+  });
+
+  $("gameStatus").textContent =
+    state.resultMessage || "";
+
+  $("readyBtn").style.display =
+    state.phase === "finished"
+      ? "none"
+      : "inline-block";
+
+  $("nextRoundBtn").style.display =
+    state.phase === "finished"
+      ? "inline-block"
+      : "none";
+
+  $("readyBtn").textContent =
+    me.ready
+      ? "KLAAR ✓"
+      : "START SPEL";
+
+  $("readyBtn").disabled =
+    me.ready ||
+    state.phase === "playing";
+
+  const myTurn =
+    state.currentPlayerId === myId &&
+    state.phase === "playing";
+
+  $("hitBtn").disabled = !myTurn;
+  $("standBtn").disabled = !myTurn;
+  $("doubleBtn").disabled =
+    !myTurn ||
+    me.cards.length !== 2 ||
+    me.balance < me.bet;
+}
+
+
+/* =========================
+   LOCAL RENDER
+========================= */
+
+function renderLocalGame() {
+
+  $("balance").textContent =
+    localGame.balance;
+
+  $("bet").textContent =
+    localGame.bet;
+
+  $("gamePhase").textContent =
+    localGame.phase === "waiting"
+      ? "Kies je inzet"
+      : localGame.phase === "playing"
+        ? "Jij bent aan de beurt"
+        : "Ronde afgelopen";
+
+  $("dealerCards").innerHTML =
+    renderCards(
+      localGame.dealer,
+      localGame.phase === "playing"
+    );
+
+  if (
+    localGame.phase === "playing" &&
+    localGame.dealer.length
+  ) {
+
+    $("dealerPoints").textContent =
+      `Punten: ${localGame.dealer[0].value}`;
+
+  } else {
+
+    $("dealerPoints").textContent =
+      localGame.dealer.length
+        ? `Punten: ${localPoints(localGame.dealer)}`
+        : "Punten: -";
+  }
+
+  $("players").innerHTML = `
+    <div class="seat me" style="grid-column: 1 / -1">
+
+      <div class="seat-name">
+        JIJ
+      </div>
+
+      <div class="bet">
+        Inzet: ${localGame.bet}
+      </div>
+
+      <div class="cards">
+        ${renderCards(localGame.player, false)}
+      </div>
+
+      <div class="points">
+        Punten: ${
+          localGame.player.length
+            ? localPoints(localGame.player)
+            : "-"
+        }
+      </div>
+
+    </div>
+  `;
+
+  $("gameStatus").textContent =
+    localGame.message;
+
+  $("readyBtn").style.display =
+    localGame.phase === "finished"
+      ? "none"
+      : "inline-block";
+
+  $("nextRoundBtn").style.display =
+    localGame.phase === "finished"
+      ? "inline-block"
+      : "none";
+
+  $("hitBtn").disabled =
+    localGame.phase !== "playing";
+
+  $("standBtn").disabled =
+    localGame.phase !== "playing";
+
+  $("doubleBtn").disabled =
+    localGame.phase !== "playing" ||
+    localGame.player.length !== 2 ||
+    localGame.balance < localGame.bet;
+}
+
+
+/* =========================
+   CARDS
+========================= */
+
+function renderCards(cards, hiddenSecond) {
+
+  return cards.map((card, index) => {
+
+    if (hiddenSecond && index === 1) {
+
+      return `
+        <div class="card hidden">
+          ?
+        </div>
+      `;
+
+    }
+
+    const red =
+      card.suit === "♥" ||
+      card.suit === "♦";
+
+    return `
+      <div class="card ${red ? "red" : ""}">
+        <div>${card.name}</div>
+        <div>${card.suit}</div>
+      </div>
+    `;
+
+  }).join("");
+}
+
+function points(cards) {
+
+  let total =
+    cards.reduce(
+      (sum, card) =>
+        sum + card.value,
+      0
+    );
+
+  let aces =
+    cards.filter(
+      card => card.name === "A"
+    ).length;
+
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
+
+  return total;
+}
+
+function escapeHtml(text) {
+
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+
+/* =========================
+   INITIAL STATE
+========================= */
+
+$("hitBtn").disabled = true;
+$("standBtn").disabled = true;
+$("doubleBtn").disabled = true;
 
 </script>
 
