@@ -1182,6 +1182,11 @@ function finishLocalRound() {
 
   localGame.phase = "finished";
 
+  // Automatisch bijvullen wanneer alle credits op zijn
+  if (localGame.balance <= 0) {
+    localGame.balance = 1000;
+  }
+
   localGame.message =
     `Dealer: ${dealerPoints} punten — ${results.join(" | ")}`;
 
