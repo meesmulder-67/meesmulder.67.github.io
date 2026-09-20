@@ -18,9 +18,10 @@ app.get("/", (req, res) => {
 
 const rooms = new Map();
 
-const CHIP_VALUES = [5, 10, 25, 50, 100, 500];
+const CHIP_VALUES =
+  [5, 10, 25, 50, 100, 500];
+
 const STARTING_CREDITS = 1000;
-const RESULT_TIME = 3000;
 
 
 /* =========================
@@ -29,9 +30,11 @@ const RESULT_TIME = 3000;
 
 function createDeck() {
 
-  const suits = ["♠", "♥", "♦", "♣"];
+  const suits =
+    ["♠", "♥", "♦", "♣"];
 
   const ranks = [
+
     { name: "A", value: 11 },
     { name: "2", value: 2 },
     { name: "3", value: 3 },
@@ -45,20 +48,29 @@ function createDeck() {
     { name: "J", value: 10 },
     { name: "Q", value: 10 },
     { name: "K", value: 10 }
+
   ];
+
 
   const deck = [];
 
-  for (let d = 0; d < 6; d++) {
+
+  for (
+    let d = 0;
+    d < 6;
+    d++
+  ) {
 
     for (const suit of suits) {
 
       for (const rank of ranks) {
 
         deck.push({
+
           name: rank.name,
           suit,
           value: rank.value
+
         });
 
       }
@@ -67,22 +79,39 @@ function createDeck() {
 
   }
 
+
   return shuffle(deck);
+
 }
 
 
 function shuffle(array) {
 
-  for (let i = array.length - 1; i > 0; i--) {
+  for (
+    let i = array.length - 1;
+    i > 0;
+    i--
+  ) {
 
     const j =
-      Math.floor(Math.random() * (i + 1));
+      Math.floor(
+        Math.random() * (i + 1)
+      );
 
-    [array[i], array[j]] =
-      [array[j], array[i]];
+
+    [
+      array[i],
+      array[j]
+    ] = [
+      array[j],
+      array[i]
+    ];
+
   }
 
+
   return array;
+
 }
 
 
@@ -94,22 +123,31 @@ function handValue(cards) {
 
   let total =
     cards.reduce(
-      (sum, card) => sum + card.value,
+      (sum, card) =>
+        sum + card.value,
       0
     );
+
 
   let aces =
     cards.filter(
       card => card.name === "A"
     ).length;
 
-  while (total > 21 && aces > 0) {
+
+  while (
+    total > 21 &&
+    aces > 0
+  ) {
 
     total -= 10;
     aces--;
+
   }
 
+
   return total;
+
 }
 
 
@@ -119,6 +157,7 @@ function isBlackjack(cards) {
     cards.length === 2 &&
     handValue(cards) === 21
   );
+
 }
 
 
@@ -126,35 +165,48 @@ function isBlackjack(cards) {
    HAND
 ========================= */
 
-function createHand(cards = [], bet = 0) {
+function createHand(
+  cards = [],
+  bet = 0
+) {
 
   return {
+
     cards,
     bet,
     stood: false
+
   };
+
 }
 
 
 function activeHand(player) {
-  return player.hands[player.activeHand];
+
+  return player.hands[
+    player.activeHand
+  ];
+
 }
 
 
 /* =========================
-   AUTOMATISCHE BIJVULLING
+   BIJVULLEN
 ========================= */
 
 function refillPlayer(player) {
 
   if (player.balance <= 0) {
 
-    player.balance = STARTING_CREDITS;
+    player.balance =
+      STARTING_CREDITS;
 
     return true;
+
   }
 
   return false;
+
 }
 
 
@@ -166,15 +218,20 @@ function roomState(room) {
 
   return {
 
-    code: room.code,
+    code:
+      room.code,
 
-    hostId: room.hostId,
+    hostId:
+      room.hostId,
 
-    phase: room.phase,
+    phase:
+      room.phase,
 
-    dealerCards: room.dealerCards,
+    dealerCards:
+      room.dealerCards,
 
-    dealerHidden: room.dealerHidden,
+    dealerHidden:
+      room.dealerHidden,
 
     currentPlayerId:
       room.currentPlayerId,
@@ -183,52 +240,70 @@ function roomState(room) {
       room.resultMessage,
 
     players:
-      room.players.map(player => ({
+      room.players.map(
+        player => ({
 
-        id: player.id,
+          id:
+            player.id,
 
-        name: player.name,
+          name:
+            player.name,
 
-        balance: player.balance,
+          balance:
+            player.balance,
 
-        bet: player.bet,
+          bet:
+            player.bet,
 
-        ready: player.ready,
+          ready:
+            player.ready,
 
-        activeHand: player.activeHand,
+          activeHand:
+            player.activeHand,
 
-        hands:
-          player.hands.map(hand => ({
+          hands:
+            player.hands.map(
+              hand => ({
 
-            cards: hand.cards,
+                cards:
+                  hand.cards,
 
-            bet: hand.bet,
+                bet:
+                  hand.bet,
 
-            stood: hand.stood,
+                stood:
+                  hand.stood,
 
-            points:
-              handValue(hand.cards)
+                points:
+                  handValue(
+                    hand.cards
+                  )
 
-          })),
+              })
+            ),
 
-        cards:
-          activeHand(player)
-            ? activeHand(player).cards
-            : [],
+          cards:
+            activeHand(player)
+              ? activeHand(player).cards
+              : [],
 
-        points:
-          activeHand(player)
-            ? handValue(activeHand(player).cards)
-            : 0,
+          points:
+            activeHand(player)
+              ? handValue(
+                  activeHand(player).cards
+                )
+              : 0,
 
-        stood:
-          activeHand(player)
-            ? activeHand(player).stood
-            : false
+          stood:
+            activeHand(player)
+              ? activeHand(player).stood
+              : false
 
-      }))
+        })
+      )
 
   };
+
 }
 
 
@@ -238,6 +313,7 @@ function sendRoom(room) {
     "roomState",
     roomState(room)
   );
+
 }
 
 
@@ -248,24 +324,36 @@ function sendRoom(room) {
 function allPlayersReady(room) {
 
   return (
+
     room.players.length > 0 &&
+
     room.players.every(
-      player => player.ready
+      player =>
+        player.ready
     )
+
   );
+
 }
 
 
 function allPlayersHaveBets(room) {
 
   return (
+
     room.players.length > 0 &&
+
     room.players.every(
       player =>
+
         player.hands.length > 0 &&
+
         player.hands[0].bet > 0
+
     )
+
   );
+
 }
 
 
@@ -275,57 +363,96 @@ function allPlayersHaveBets(room) {
 
 function startRound(room) {
 
-  if (room.players.length === 0) return;
+  if (
+    room.players.length === 0
+  ) {
+    return;
+  }
 
-  room.deck = createDeck();
+
+  room.deck =
+    createDeck();
+
 
   room.dealerCards = [
+
     room.deck.pop(),
     room.deck.pop()
+
   ];
 
-  room.dealerHidden = true;
 
-  room.phase = "playing";
-
-  room.resultMessage = "";
-
-  room.currentPlayerId = null;
+  room.dealerHidden =
+    true;
 
 
-  for (const player of room.players) {
+  room.phase =
+    "playing";
+
+
+  room.resultMessage =
+    "";
+
+
+  room.currentPlayerId =
+    null;
+
+
+  for (
+    const player of room.players
+  ) {
 
     const bet =
       player.hands[0].bet;
 
+
     player.hands = [
-      createHand([
-        room.deck.pop(),
-        room.deck.pop()
-      ], bet)
+
+      createHand(
+        [
+          room.deck.pop(),
+          room.deck.pop()
+        ],
+        bet
+      )
+
     ];
 
-    player.activeHand = 0;
 
-    player.ready = false;
+    player.activeHand =
+      0;
+
+
+    player.ready =
+      false;
+
   }
 
 
-  let firstPlayer = null;
+  let firstPlayer =
+    null;
 
-  for (const player of room.players) {
 
-    const hand = activeHand(player);
+  for (
+    const player of room.players
+  ) {
+
+    const hand =
+      activeHand(player);
+
 
     if (
       hand &&
       !isBlackjack(hand.cards)
     ) {
 
-      firstPlayer = player;
+      firstPlayer =
+        player;
 
       break;
+
     }
+
   }
 
 
@@ -337,16 +464,19 @@ function startRound(room) {
   } else {
 
     finishRound(room);
+
     return;
+
   }
 
 
   sendRoom(room);
+
 }
 
 
 /* =========================
-   VOLGENDE HAND / SPELER
+   VOLGENDE BEURT
 ========================= */
 
 function moveToNextTurn(room) {
@@ -354,18 +484,23 @@ function moveToNextTurn(room) {
   const currentIndex =
     room.players.findIndex(
       player =>
-        player.id === room.currentPlayerId
+        player.id ===
+        room.currentPlayerId
     );
+
 
   if (currentIndex === -1) {
 
     finishRound(room);
+
     return;
+
   }
 
 
   const currentPlayer =
     room.players[currentIndex];
+
 
   const currentHand =
     activeHand(currentPlayer);
@@ -378,7 +513,9 @@ function moveToNextTurn(room) {
   ) {
 
     sendRoom(room);
+
     return;
+
   }
 
 
@@ -389,8 +526,10 @@ function moveToNextTurn(room) {
 
     currentPlayer.activeHand++;
 
+
     const nextHand =
       activeHand(currentPlayer);
+
 
     if (
       nextHand &&
@@ -399,11 +538,16 @@ function moveToNextTurn(room) {
     ) {
 
       sendRoom(room);
+
       return;
+
     }
 
+
     moveToNextTurn(room);
+
     return;
+
   }
 
 
@@ -416,12 +560,21 @@ function moveToNextTurn(room) {
     const player =
       room.players[i];
 
-    if (!player.hands.length) continue;
 
-    player.activeHand = 0;
+    if (
+      !player.hands.length
+    ) {
+      continue;
+    }
+
+
+    player.activeHand =
+      0;
+
 
     const hand =
       activeHand(player);
+
 
     if (
       hand &&
@@ -433,15 +586,18 @@ function moveToNextTurn(room) {
       room.currentPlayerId =
         player.id;
 
+
       sendRoom(room);
 
       return;
+
     }
 
   }
 
 
   finishRound(room);
+
 }
 
 
@@ -451,11 +607,9 @@ function moveToNextTurn(room) {
 
 function finishRound(room) {
 
-  if (room.phase === "result") return;
+  room.dealerHidden =
+    false;
 
-  room.phase = "result";
-
-  room.dealerHidden = false;
 
   while (
     handValue(room.dealerCards) < 17
@@ -469,55 +623,67 @@ function finishRound(room) {
 
 
   const dealerPoints =
-    handValue(room.dealerCards);
+    handValue(
+      room.dealerCards
+    );
+
 
   const dealerBJ =
-    isBlackjack(room.dealerCards);
+    isBlackjack(
+      room.dealerCards
+    );
 
 
-  const resultLines = [];
+  const refillMessages =
+    [];
 
 
-  for (const player of room.players) {
+  for (
+    const player of room.players
+  ) {
 
-    let playerResults = [];
+    for (
+      const hand of player.hands
+    ) {
 
-
-    for (let i = 0; i < player.hands.length; i++) {
-
-      const hand =
-        player.hands[i];
-
-      if (hand.bet <= 0) continue;
+      if (
+        hand.bet <= 0
+      ) {
+        continue;
+      }
 
 
       const playerPoints =
-        handValue(hand.cards);
+        handValue(
+          hand.cards
+        );
+
 
       const playerBJ =
-        isBlackjack(hand.cards);
-
-
-      if (playerPoints > 21) {
-
-        playerResults.push(
-          `Hand ${i + 1}: VERLOREN`
+        isBlackjack(
+          hand.cards
         );
+
+
+      if (
+        playerPoints > 21
+      ) {
+
+        continue;
 
       }
 
-      else if (
+
+      if (
         player.hands.length === 1 &&
         playerBJ &&
         !dealerBJ
       ) {
 
         player.balance +=
-          Math.floor(hand.bet * 2.5);
-
-        playerResults.push(
-          `BLACKJACK! GEWONNEN 🎉`
-        );
+          Math.floor(
+            hand.bet * 2.5
+          );
 
       }
 
@@ -526,9 +692,7 @@ function finishRound(room) {
         !playerBJ
       ) {
 
-        playerResults.push(
-          `VERLOREN`
-        );
+        // Dealer wint.
 
       }
 
@@ -539,10 +703,6 @@ function finishRound(room) {
         player.balance +=
           hand.bet * 2;
 
-        playerResults.push(
-          `GEWONNEN`
-        );
-
       }
 
       else if (
@@ -551,10 +711,6 @@ function finishRound(room) {
 
         player.balance +=
           hand.bet * 2;
-
-        playerResults.push(
-          `GEWONNEN`
-        );
 
       }
 
@@ -565,98 +721,70 @@ function finishRound(room) {
         player.balance +=
           hand.bet;
 
-        playerResults.push(
-          `GELIJK`
-        );
-
-      }
-
-      else {
-
-        playerResults.push(
-          `VERLOREN`
-        );
-
       }
 
     }
 
 
-    if (refillPlayer(player)) {
+    if (
+      refillPlayer(player)
+    ) {
 
-      playerResults.push(
-        "Credits bijgevuld naar 1000 💰"
+      refillMessages.push(
+        `${player.name} kreeg 1000 credits bijgevuld`
       );
 
     }
 
+  }
 
-    resultLines.push(
-      `${player.name}: ${playerResults.join(" / ")}`
-    );
+
+  /*
+    BELANGRIJK:
+
+    De ronde wordt nu NIET meteen
+    opnieuw gestart.
+
+    Eerst blijft de uitslag zichtbaar.
+  */
+
+  room.phase =
+    "finished";
+
+
+  room.currentPlayerId =
+    null;
+
+
+  for (
+    const player of room.players
+  ) {
+
+    player.ready =
+      false;
+
+    player.stood =
+      false;
 
   }
 
 
-  room.currentPlayerId = null;
-
   room.resultMessage =
-    `Dealer: ${dealerPoints} punten — ${resultLines.join(" | ")}`;
+    `Dealer: ${dealerPoints} punten`;
+
+
+  if (
+    refillMessages.length > 0
+  ) {
+
+    room.resultMessage +=
+      ` — ${refillMessages.join(" | ")}`;
+
+  }
 
 
   sendRoom(room);
 
-
-  /*
-    RESULTAAT 3 SECONDEN TONEN
-    Daarna automatisch nieuwe inzetfase.
-  */
-
-  setTimeout(() => {
-
-    /*
-      Kamer kan in de tussentijd verwijderd zijn.
-    */
-    if (!rooms.has(room.code)) return;
-
-    /*
-      Alleen doorgaan als dit nog steeds
-      dezelfde resultaatfase is.
-    */
-    if (room.phase !== "result") return;
-
-
-    room.phase = "betting";
-
-    room.dealerCards = [];
-
-    room.dealerHidden = false;
-
-    room.currentPlayerId = null;
-
-    room.resultMessage = "";
-
-
-    for (const player of room.players) {
-
-      player.ready = false;
-
-      player.bet = 0;
-
-      player.hands = [];
-
-      player.activeHand = 0;
-
-      player.stood = false;
-
-      refillPlayer(player);
-
-    }
-
-
-    sendRoom(room);
-
-  }, RESULT_TIME);
 }
 
 
@@ -666,7 +794,10 @@ function finishRound(room) {
 
 function removePlayerFromRoom(socket) {
 
-  for (const [code, room] of rooms.entries()) {
+  for (
+    const [code, room]
+    of rooms.entries()
+  ) {
 
     const index =
       room.players.findIndex(
@@ -674,21 +805,32 @@ function removePlayerFromRoom(socket) {
           player.id === socket.id
       );
 
-    if (index === -1) continue;
+
+    if (index === -1) {
+      continue;
+    }
 
 
-    room.players.splice(index, 1);
+    room.players.splice(
+      index,
+      1
+    );
 
 
-    if (room.players.length === 0) {
+    if (
+      room.players.length === 0
+    ) {
 
       rooms.delete(code);
 
       return;
+
     }
 
 
-    if (room.hostId === socket.id) {
+    if (
+      room.hostId === socket.id
+    ) {
 
       room.hostId =
         room.players[0].id;
@@ -698,7 +840,8 @@ function removePlayerFromRoom(socket) {
 
     if (
       room.phase === "playing" &&
-      room.currentPlayerId === socket.id
+      room.currentPlayerId ===
+        socket.id
     ) {
 
       const nextPlayer =
@@ -708,18 +851,27 @@ function removePlayerFromRoom(socket) {
             const hand =
               activeHand(player);
 
+
             return (
+
               hand &&
+
               !hand.stood &&
-              handValue(hand.cards) < 21
+
+              handValue(
+                hand.cards
+              ) < 21
+
             );
+
           }
         );
 
 
       if (nextPlayer) {
 
-        nextPlayer.activeHand = 0;
+        nextPlayer.activeHand =
+          0;
 
         room.currentPlayerId =
           nextPlayer.id;
@@ -729,6 +881,7 @@ function removePlayerFromRoom(socket) {
         finishRound(room);
 
         return;
+
       }
 
     }
@@ -737,7 +890,9 @@ function removePlayerFromRoom(socket) {
     sendRoom(room);
 
     return;
+
   }
+
 }
 
 
@@ -745,656 +900,1049 @@ function removePlayerFromRoom(socket) {
    SOCKET.IO
 ========================= */
 
-io.on("connection", socket => {
+io.on(
+  "connection",
+  socket => {
 
 
-  /* =========================
-     KAMER MAKEN
-  ========================= */
+    /* =========================
+       KAMER MAKEN
+    ========================= */
 
-  socket.on("createRoom", ({ name }) => {
+    socket.on(
+      "createRoom",
+      ({ name }) => {
 
-    const cleanName =
-      String(name || "Speler")
-        .trim()
-        .slice(0, 16);
+        const cleanName =
+          String(
+            name || "Speler"
+          )
+            .trim()
+            .slice(0, 16);
 
 
-    let code;
+        let code;
 
-    do {
 
-      code =
-        Math.random()
-          .toString(36)
-          .substring(2, 8)
-          .toUpperCase();
+        do {
 
-    } while (rooms.has(code));
+          code =
+            Math.random()
+              .toString(36)
+              .substring(2, 8)
+              .toUpperCase();
 
-
-    const player = {
-
-      id: socket.id,
-
-      name: cleanName,
-
-      balance: STARTING_CREDITS,
-
-      bet: 0,
-
-      hands: [],
-
-      activeHand: 0,
-
-      ready: false
-
-    };
-
-
-    const room = {
-
-      code,
-
-      hostId: socket.id,
-
-      players: [player],
-
-      phase: "waiting",
-
-      deck: [],
-
-      dealerCards: [],
-
-      dealerHidden: false,
-
-      currentPlayerId: null,
-
-      resultMessage: ""
-
-    };
-
-
-    rooms.set(code, room);
-
-    socket.join(code);
-
-
-    socket.emit("roomCreated", {
-      code
-    });
-
-
-    sendRoom(room);
-  });
-
-
-  /* =========================
-     JOINEN
-  ========================= */
-
-  socket.on("joinRoom", ({ code, name }) => {
-
-    const roomCode =
-      String(code || "")
-        .trim()
-        .toUpperCase();
-
-
-    const room =
-      rooms.get(roomCode);
-
-
-    if (!room) {
-
-      socket.emit(
-        "errorMessage",
-        "Deze kamer bestaat niet."
-      );
-
-      return;
-    }
-
-
-    if (room.players.length >= 4) {
-
-      socket.emit(
-        "errorMessage",
-        "Deze kamer zit al vol."
-      );
-
-      return;
-    }
-
-
-    if (room.phase === "playing" ||
-        room.phase === "result") {
-
-      socket.emit(
-        "errorMessage",
-        "Je kunt nu niet joinen."
-      );
-
-      return;
-    }
-
-
-    const cleanName =
-      String(name || "Speler")
-        .trim()
-        .slice(0, 16);
-
-
-    const player = {
-
-      id: socket.id,
-
-      name: cleanName,
-
-      balance: STARTING_CREDITS,
-
-      bet: 0,
-
-      hands: [],
-
-      activeHand: 0,
-
-      ready: false
-
-    };
-
-
-    room.players.push(player);
-
-    socket.join(roomCode);
-
-
-    socket.emit("joinedRoom", {
-      code: roomCode
-    });
-
-
-    sendRoom(room);
-  });
-
-
-  /* =========================
-     START SPEL
-  ========================= */
-
-  socket.on("readyForGame", () => {
-
-    for (const room of rooms.values()) {
-
-      const player =
-        room.players.find(
-          p =>
-            p.id === socket.id
+        } while (
+          rooms.has(code)
         );
 
-      if (!player) continue;
+
+        const player = {
+
+          id:
+            socket.id,
+
+          name:
+            cleanName,
+
+          balance:
+            STARTING_CREDITS,
+
+          bet:
+            0,
+
+          hands:
+            [],
+
+          activeHand:
+            0,
+
+          ready:
+            false
+
+        };
 
 
-      /*
-        EERSTE START:
-        Van lobby naar inzetfase.
-      */
+        const room = {
 
-      if (room.phase === "waiting") {
+          code,
 
-        room.phase = "betting";
+          hostId:
+            socket.id,
 
-        for (const p of room.players) {
+          players:
+            [player],
 
-          p.ready = false;
-          p.bet = 0;
-          p.hands = [];
-          p.activeHand = 0;
+          phase:
+            "waiting",
 
-        }
+          deck:
+            [],
 
-        room.dealerCards = [];
-        room.dealerHidden = false;
-        room.resultMessage = "";
-        room.currentPlayerId = null;
+          dealerCards:
+            [],
+
+          dealerHidden:
+            false,
+
+          currentPlayerId:
+            null,
+
+          resultMessage:
+            ""
+
+        };
+
+
+        rooms.set(
+          code,
+          room
+        );
+
+
+        socket.join(code);
+
+
+        socket.emit(
+          "roomCreated",
+          { code }
+        );
+
 
         sendRoom(room);
 
-        return;
       }
+    );
 
 
-      /*
-        TWEEDE START:
-        Speler heeft inzet gedaan
-        en geeft aan dat hij klaar is.
-      */
+    /* =========================
+       JOINEN
+    ========================= */
 
-      if (room.phase === "betting") {
+    socket.on(
+      "joinRoom",
+      ({ code, name }) => {
+
+        const roomCode =
+          String(code || "")
+            .trim()
+            .toUpperCase();
+
+
+        const room =
+          rooms.get(roomCode);
+
+
+        if (!room) {
+
+          socket.emit(
+            "errorMessage",
+            "Deze kamer bestaat niet."
+          );
+
+          return;
+
+        }
+
 
         if (
-          player.hands.length === 0 ||
-          player.hands[0].bet <= 0
+          room.players.length >= 4
         ) {
 
           socket.emit(
             "errorMessage",
-            "Je moet eerst een inzet kiezen."
+            "Deze kamer zit al vol."
           );
 
+          return;
+
+        }
+
+
+        if (
+          room.phase === "playing"
+        ) {
+
+          socket.emit(
+            "errorMessage",
+            "Je kunt niet joinen terwijl een ronde bezig is."
+          );
+
+          return;
+
+        }
+
+
+        if (
+          room.phase === "finished"
+        ) {
+
+          socket.emit(
+            "errorMessage",
+            "Wacht tot de volgende ronde begint."
+          );
+
+          return;
+
+        }
+
+
+        const cleanName =
+          String(
+            name || "Speler"
+          )
+            .trim()
+            .slice(0, 16);
+
+
+        const player = {
+
+          id:
+            socket.id,
+
+          name:
+            cleanName,
+
+          balance:
+            STARTING_CREDITS,
+
+          bet:
+            0,
+
+          hands:
+            [],
+
+          activeHand:
+            0,
+
+          ready:
+            false
+
+        };
+
+
+        room.players.push(
+          player
+        );
+
+
+        socket.join(
+          roomCode
+        );
+
+
+        socket.emit(
+          "joinedRoom",
+          {
+            code: roomCode
+          }
+        );
+
+
+        sendRoom(room);
+
+      }
+    );
+
+
+    /* =========================
+       START SPEL
+    ========================= */
+
+    socket.on(
+      "readyForGame",
+      () => {
+
+        for (
+          const room of rooms.values()
+        ) {
+
+          const player =
+            room.players.find(
+              p =>
+                p.id === socket.id
+            );
+
+
+          if (!player) {
+            continue;
+          }
+
+
+          /*
+            EERSTE START:
+            Lobby -> inzetfase
+          */
+
+          if (
+            room.phase === "waiting"
+          ) {
+
+            room.phase =
+              "betting";
+
+
+            for (
+              const p of room.players
+            ) {
+
+              p.ready =
+                false;
+
+              p.bet =
+                0;
+
+              p.hands =
+                [];
+
+              p.activeHand =
+                0;
+
+            }
+
+
+            room.dealerCards =
+              [];
+
+            room.dealerHidden =
+              false;
+
+            room.resultMessage =
+              "";
+
+            room.currentPlayerId =
+              null;
+
+
+            sendRoom(room);
+
+            return;
+
+          }
+
+
+          /*
+            TWEEDE START:
+            Speler is klaar met inzetten.
+          */
+
+          if (
+            room.phase === "betting"
+          ) {
+
+            if (
+              player.hands.length === 0 ||
+              player.hands[0].bet <= 0
+            ) {
+
+              socket.emit(
+                "errorMessage",
+                "Je moet eerst een inzet kiezen."
+              );
+
+              return;
+
+            }
+
+
+            player.ready =
+              true;
+
+
+            sendRoom(room);
+
+
+            if (
+              allPlayersReady(room) &&
+              allPlayersHaveBets(room)
+            ) {
+
+              startRound(room);
+
+            }
+
+
+            return;
+
+          }
+
+
+          return;
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       INZETTEN
+    ========================= */
+
+    socket.on(
+      "placeBet",
+      ({ amount }) => {
+
+        const value =
+          Number(amount);
+
+
+        if (
+          !CHIP_VALUES.includes(value)
+        ) {
           return;
         }
 
 
-        player.ready = true;
-
-
-        sendRoom(room);
-
-
-        if (
-          allPlayersReady(room) &&
-          allPlayersHaveBets(room)
+        for (
+          const room of rooms.values()
         ) {
 
-          startRound(room);
+          const player =
+            room.players.find(
+              p =>
+                p.id === socket.id
+            );
+
+
+          if (!player) {
+            continue;
+          }
+
+
+          if (
+            room.phase !== "betting"
+          ) {
+            return;
+          }
+
+
+          if (player.ready) {
+            return;
+          }
+
+
+          refillPlayer(player);
+
+
+          if (
+            player.balance < value
+          ) {
+            return;
+          }
+
+
+          if (
+            player.hands.length === 0
+          ) {
+
+            player.hands = [
+
+              createHand(
+                [],
+                0
+              )
+
+            ];
+
+          }
+
+
+          player.balance -=
+            value;
+
+
+          player.hands[0].bet +=
+            value;
+
+
+          player.bet =
+            player.hands[0].bet;
+
+
+          sendRoom(room);
+
+          return;
 
         }
 
-
-        return;
       }
+    );
 
 
-      return;
-    }
+    /* =========================
+       INZET WISSEN
+    ========================= */
 
-  });
+    socket.on(
+      "clearBet",
+      () => {
 
+        for (
+          const room of rooms.values()
+        ) {
 
-  /* =========================
-     INZETTEN
-  ========================= */
-
-  socket.on("placeBet", ({ amount }) => {
-
-    const value = Number(amount);
-
-    if (!CHIP_VALUES.includes(value)) return;
-
-
-    for (const room of rooms.values()) {
-
-      const player =
-        room.players.find(
-          p =>
-            p.id === socket.id
-        );
-
-      if (!player) continue;
+          const player =
+            room.players.find(
+              p =>
+                p.id === socket.id
+            );
 
 
-      if (room.phase !== "betting") return;
-
-      if (player.ready) return;
-
-
-      refillPlayer(player);
+          if (!player) {
+            continue;
+          }
 
 
-      if (player.balance < value) return;
+          if (
+            room.phase !== "betting"
+          ) {
+            return;
+          }
 
 
-      if (player.hands.length === 0) {
-
-        player.hands = [
-          createHand([], 0)
-        ];
-
-      }
+          if (player.ready) {
+            return;
+          }
 
 
-      player.balance -= value;
+          if (
+            player.hands.length
+          ) {
 
-      player.hands[0].bet += value;
-
-      player.bet =
-        player.hands[0].bet;
-
-
-      sendRoom(room);
-
-      return;
-    }
-
-  });
+            player.balance +=
+              player.hands[0].bet;
 
 
-  /* =========================
-     INZET WISSEN
-  ========================= */
+            player.hands[0].bet =
+              0;
 
-  socket.on("clearBet", () => {
-
-    for (const room of rooms.values()) {
-
-      const player =
-        room.players.find(
-          p =>
-            p.id === socket.id
-        );
-
-      if (!player) continue;
+          }
 
 
-      if (room.phase !== "betting") return;
+          player.bet =
+            0;
 
-      if (player.ready) return;
 
+          sendRoom(room);
 
-      if (player.hands.length) {
+          return;
 
-        player.balance +=
-          player.hands[0].bet;
-
-        player.hands[0].bet = 0;
+        }
 
       }
+    );
 
 
-      player.bet = 0;
+    /* =========================
+       HIT
+    ========================= */
 
-      sendRoom(room);
+    socket.on(
+      "hit",
+      () => {
 
-      return;
-    }
+        for (
+          const room of rooms.values()
+        ) {
 
-  });
+          const player =
+            room.players.find(
+              p =>
+                p.id === socket.id
+            );
 
 
-  /* =========================
-     HIT
-  ========================= */
+          if (!player) {
+            continue;
+          }
 
-  socket.on("hit", () => {
 
-    for (const room of rooms.values()) {
+          if (
+            room.phase !== "playing"
+          ) {
+            return;
+          }
 
-      const player =
-        room.players.find(
-          p =>
-            p.id === socket.id
-        );
 
-      if (!player) continue;
+          if (
+            room.currentPlayerId !==
+            socket.id
+          ) {
+            return;
+          }
 
 
-      if (room.phase !== "playing") return;
+          const hand =
+            activeHand(player);
 
-      if (room.currentPlayerId !== socket.id) return;
 
+          if (!hand) {
+            return;
+          }
 
-      const hand =
-        activeHand(player);
 
-      if (!hand) return;
+          if (hand.stood) {
+            return;
+          }
 
-      if (hand.stood) return;
 
-
-      /*
-        HIT MAG ZO VAAK ALS NODIG
-        TOTDAT JE 21 OF HOGER HEBT.
-      */
-
-      hand.cards.push(
-        room.deck.pop()
-      );
-
-
-      const points =
-        handValue(hand.cards);
-
-
-      if (points >= 21) {
-
-        hand.stood = true;
-
-        moveToNextTurn(room);
-
-      } else {
-
-        sendRoom(room);
-
-      }
-
-
-      return;
-    }
-
-  });
-
-
-  /* =========================
-     STAND
-  ========================= */
-
-  socket.on("stand", () => {
-
-    for (const room of rooms.values()) {
-
-      const player =
-        room.players.find(
-          p =>
-            p.id === socket.id
-        );
-
-      if (!player) continue;
-
-
-      if (room.phase !== "playing") return;
-
-      if (room.currentPlayerId !== socket.id) return;
-
-
-      const hand =
-        activeHand(player);
-
-      if (!hand) return;
-
-
-      hand.stood = true;
-
-
-      moveToNextTurn(room);
-
-      return;
-    }
-
-  });
-
-
-  /* =========================
-     DOUBLE
-  ========================= */
-
-  socket.on("double", () => {
-
-    for (const room of rooms.values()) {
-
-      const player =
-        room.players.find(
-          p =>
-            p.id === socket.id
-        );
-
-      if (!player) continue;
-
-
-      if (room.phase !== "playing") return;
-
-      if (room.currentPlayerId !== socket.id) return;
-
-
-      const hand =
-        activeHand(player);
-
-      if (!hand) return;
-
-
-      if (hand.cards.length !== 2) return;
-
-      if (player.balance < hand.bet) return;
-
-
-      player.balance -= hand.bet;
-
-      hand.bet *= 2;
-
-
-      hand.cards.push(
-        room.deck.pop()
-      );
-
-
-      hand.stood = true;
-
-
-      moveToNextTurn(room);
-
-      return;
-    }
-
-  });
-
-
-  /* =========================
-     SPLIT
-  ========================= */
-
-  socket.on("split", () => {
-
-    for (const room of rooms.values()) {
-
-      const player =
-        room.players.find(
-          p =>
-            p.id === socket.id
-        );
-
-      if (!player) continue;
-
-
-      if (room.phase !== "playing") return;
-
-      if (room.currentPlayerId !== socket.id) return;
-
-
-      if (player.hands.length !== 1) return;
-
-
-      const hand =
-        activeHand(player);
-
-      if (!hand) return;
-
-
-      if (hand.cards.length !== 2) return;
-
-
-      if (
-        hand.cards[0].value !==
-        hand.cards[1].value
-      ) return;
-
-
-      if (player.balance < hand.bet) return;
-
-
-      player.balance -= hand.bet;
-
-
-      const firstCard =
-        hand.cards[0];
-
-      const secondCard =
-        hand.cards[1];
-
-      const bet =
-        hand.bet;
-
-
-      const firstHand =
-        createHand(
-          [
-            firstCard,
+          hand.cards.push(
             room.deck.pop()
-          ],
-          bet
-        );
+          );
 
 
-      const secondHand =
-        createHand(
-          [
-            secondCard,
+          const playerPoints =
+            handValue(
+              hand.cards
+            );
+
+
+          if (
+            playerPoints >= 21
+          ) {
+
+            hand.stood =
+              true;
+
+            moveToNextTurn(room);
+
+          } else {
+
+            sendRoom(room);
+
+          }
+
+
+          return;
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       STAND
+    ========================= */
+
+    socket.on(
+      "stand",
+      () => {
+
+        for (
+          const room of rooms.values()
+        ) {
+
+          const player =
+            room.players.find(
+              p =>
+                p.id === socket.id
+            );
+
+
+          if (!player) {
+            continue;
+          }
+
+
+          if (
+            room.phase !== "playing"
+          ) {
+            return;
+          }
+
+
+          if (
+            room.currentPlayerId !==
+            socket.id
+          ) {
+            return;
+          }
+
+
+          const hand =
+            activeHand(player);
+
+
+          if (!hand) {
+            return;
+          }
+
+
+          hand.stood =
+            true;
+
+
+          moveToNextTurn(room);
+
+          return;
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       DOUBLE
+    ========================= */
+
+    socket.on(
+      "double",
+      () => {
+
+        for (
+          const room of rooms.values()
+        ) {
+
+          const player =
+            room.players.find(
+              p =>
+                p.id === socket.id
+            );
+
+
+          if (!player) {
+            continue;
+          }
+
+
+          if (
+            room.phase !== "playing"
+          ) {
+            return;
+          }
+
+
+          if (
+            room.currentPlayerId !==
+            socket.id
+          ) {
+            return;
+          }
+
+
+          const hand =
+            activeHand(player);
+
+
+          if (!hand) {
+            return;
+          }
+
+
+          if (
+            hand.cards.length !== 2
+          ) {
+            return;
+          }
+
+
+          if (
+            player.balance < hand.bet
+          ) {
+            return;
+          }
+
+
+          player.balance -=
+            hand.bet;
+
+
+          hand.bet *= 2;
+
+
+          hand.cards.push(
             room.deck.pop()
-          ],
-          bet
+          );
+
+
+          hand.stood =
+            true;
+
+
+          moveToNextTurn(room);
+
+          return;
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       SPLIT
+    ========================= */
+
+    socket.on(
+      "split",
+      () => {
+
+        for (
+          const room of rooms.values()
+        ) {
+
+          const player =
+            room.players.find(
+              p =>
+                p.id === socket.id
+            );
+
+
+          if (!player) {
+            continue;
+          }
+
+
+          if (
+            room.phase !== "playing"
+          ) {
+            return;
+          }
+
+
+          if (
+            room.currentPlayerId !==
+            socket.id
+          ) {
+            return;
+          }
+
+
+          if (
+            player.hands.length !== 1
+          ) {
+            return;
+          }
+
+
+          const hand =
+            activeHand(player);
+
+
+          if (!hand) {
+            return;
+          }
+
+
+          if (
+            hand.cards.length !== 2
+          ) {
+            return;
+          }
+
+
+          if (
+            hand.cards[0].value !==
+            hand.cards[1].value
+          ) {
+            return;
+          }
+
+
+          if (
+            player.balance < hand.bet
+          ) {
+            return;
+          }
+
+
+          player.balance -=
+            hand.bet;
+
+
+          const firstCard =
+            hand.cards[0];
+
+
+          const secondCard =
+            hand.cards[1];
+
+
+          const bet =
+            hand.bet;
+
+
+          const firstHand =
+            createHand(
+              [
+                firstCard,
+                room.deck.pop()
+              ],
+              bet
+            );
+
+
+          const secondHand =
+            createHand(
+              [
+                secondCard,
+                room.deck.pop()
+              ],
+              bet
+            );
+
+
+          player.hands = [
+
+            firstHand,
+            secondHand
+
+          ];
+
+
+          player.activeHand =
+            0;
+
+
+          sendRoom(room);
+
+          return;
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       VOLGENDE RONDE
+    ========================= */
+
+    socket.on(
+      "nextRound",
+      () => {
+
+        for (
+          const room of rooms.values()
+        ) {
+
+          const player =
+            room.players.find(
+              p =>
+                p.id === socket.id
+            );
+
+
+          if (!player) {
+            continue;
+          }
+
+
+          if (
+            room.phase !== "finished"
+          ) {
+            return;
+          }
+
+
+          /*
+            Pas NU gaat de nieuwe
+            inzetfase beginnen.
+          */
+
+          room.phase =
+            "betting";
+
+
+          room.dealerCards =
+            [];
+
+          room.dealerHidden =
+            false;
+
+          room.currentPlayerId =
+            null;
+
+          room.resultMessage =
+            "";
+
+
+          for (
+            const p of room.players
+          ) {
+
+            p.ready =
+              false;
+
+            p.bet =
+              0;
+
+            p.hands =
+              [];
+
+            p.activeHand =
+              0;
+
+            p.stood =
+              false;
+
+
+            refillPlayer(p);
+
+          }
+
+
+          sendRoom(room);
+
+          return;
+
+        }
+
+      }
+    );
+
+
+    /* =========================
+       VERLATEN
+    ========================= */
+
+    socket.on(
+      "leaveRoom",
+      () => {
+
+        removePlayerFromRoom(
+          socket
         );
 
+        socket.leaveAll();
 
-      player.hands = [
-        firstHand,
-        secondHand
-      ];
-
-
-      player.activeHand = 0;
+      }
+    );
 
 
-      sendRoom(room);
+    /* =========================
+       DISCONNECT
+    ========================= */
 
-      return;
-    }
+    socket.on(
+      "disconnect",
+      () => {
 
-  });
+        removePlayerFromRoom(
+          socket
+        );
 
+      }
+    );
 
-  /* =========================
-     VERLATEN
-  ========================= */
-
-  socket.on("leaveRoom", () => {
-
-    removePlayerFromRoom(socket);
-
-    socket.leaveAll();
-
-  });
-
-
-  /* =========================
-     DISCONNECT
-  ========================= */
-
-  socket.on("disconnect", () => {
-
-    removePlayerFromRoom(socket);
-
-  });
-
-});
+  }
+);
 
 
 const PORT =
   process.env.PORT || 3000;
 
 
-server.listen(PORT, () => {
+server.listen(
+  PORT,
+  () => {
 
-  console.log(
-    `Blackjack server running on port ${PORT}`
-  );
+    console.log(
+      `Blackjack server running on port ${PORT}`
+    );
 
-});
+  }
+);
