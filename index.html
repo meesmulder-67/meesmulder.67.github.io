@@ -325,21 +325,6 @@ input {
   color: #f1cf76;
 }
 
-.result-win {
-  color: #78e89a;
-  font-size: 22px;
-}
-
-.result-loss {
-  color: #ff8d8d;
-  font-size: 22px;
-}
-
-.result-push {
-  color: #f1cf76;
-  font-size: 22px;
-}
-
 @media (max-width: 750px) {
   .players {
     grid-template-columns: repeat(2, 1fr);
@@ -377,6 +362,7 @@ input {
 
   <div class="home-buttons">
     <button class="main-btn" id="playBtn">PLAY</button>
+
     <button class="main-btn secondary-btn" id="multiBtn">
       SAMENSPELEN
     </button>
@@ -562,7 +548,9 @@ input {
 
 
 <script>
-const SERVER_URL = "https://meesmulder-67-github-io.onrender.com";
+
+const SERVER_URL =
+  "https://meesmulder-67-github-io.onrender.com";
 
 const socket = io(SERVER_URL, {
   transports: ["websocket", "polling"]
@@ -583,12 +571,17 @@ let localGame = {
   message: ""
 };
 
-const $ = id => document.getElementById(id);
+
+const $ = id =>
+  document.getElementById(id);
+
 
 function showScreen(id) {
-  document.querySelectorAll(".screen").forEach(screen => {
-    screen.classList.remove("active");
-  });
+
+  document.querySelectorAll(".screen")
+    .forEach(screen => {
+      screen.classList.remove("active");
+    });
 
   $(id).classList.add("active");
 }
@@ -602,44 +595,69 @@ socket.on("connect", () => {
   myId = socket.id;
 });
 
+
 socket.on("roomCreated", data => {
+
   online = true;
   currentRoom = data.code;
 
-  $("roomCode").textContent = data.code;
+  $("roomCode").textContent =
+    data.code;
 
   showScreen("lobby");
 });
+
 
 socket.on("joinedRoom", data => {
+
   online = true;
   currentRoom = data.code;
 
-  $("roomCode").textContent = data.code;
+  $("roomCode").textContent =
+    data.code;
 
   showScreen("lobby");
 });
 
-socket.on("errorMessage", message => {
-  $("setupError").textContent = message;
 
-  if (document.getElementById("game").classList.contains("active")) {
-    $("gameStatus").textContent = message;
+socket.on("errorMessage", message => {
+
+  $("setupError").textContent =
+    message;
+
+  if (
+    document
+      .getElementById("game")
+      .classList
+      .contains("active")
+  ) {
+
+    $("gameStatus").textContent =
+      message;
   }
 });
 
+
 socket.on("roomState", state => {
+
   online = true;
 
-  currentRoom = state.code;
+  currentRoom =
+    state.code;
 
   if (state.phase === "waiting") {
+
     showScreen("lobby");
+
     renderLobby(state);
+
   } else {
+
     showScreen("game");
+
     renderOnlineGame(state);
   }
+
 });
 
 
@@ -648,48 +666,80 @@ socket.on("roomState", state => {
 ========================= */
 
 $("playBtn").addEventListener("click", () => {
+
   online = false;
+
   startSingleplayer();
+
 });
+
 
 $("multiBtn").addEventListener("click", () => {
+
   $("setupError").textContent = "";
+
   showScreen("multiplayerSetup");
+
 });
 
+
 $("backFromSetup").addEventListener("click", () => {
+
   showScreen("home");
+
 });
 
 
 /* =========================
-   MULTIPLAYER
+   MULTIPLAYER SETUP
 ========================= */
 
 $("createBtn").addEventListener("click", () => {
-  const name = $("nameInput").value.trim();
+
+  const name =
+    $("nameInput").value.trim();
 
   if (!name) {
-    $("setupError").textContent = "Vul eerst je naam in.";
+
+    $("setupError").textContent =
+      "Vul eerst je naam in.";
+
     return;
   }
 
   $("setupError").textContent = "";
 
-  socket.emit("createRoom", { name });
+  socket.emit("createRoom", {
+    name
+  });
+
 });
 
+
 $("joinBtn").addEventListener("click", () => {
-  const name = $("nameInput").value.trim();
-  const code = $("codeInput").value.trim().toUpperCase();
+
+  const name =
+    $("nameInput").value.trim();
+
+  const code =
+    $("codeInput")
+      .value
+      .trim()
+      .toUpperCase();
 
   if (!name) {
-    $("setupError").textContent = "Vul eerst je naam in.";
+
+    $("setupError").textContent =
+      "Vul eerst je naam in.";
+
     return;
   }
 
   if (code.length !== 6) {
-    $("setupError").textContent = "De kamercode moet 6 tekens zijn.";
+
+    $("setupError").textContent =
+      "De kamercode moet 6 tekens zijn.";
+
     return;
   }
 
@@ -699,22 +749,31 @@ $("joinBtn").addEventListener("click", () => {
     name,
     code
   });
+
 });
+
 
 $("startGameBtn").addEventListener("click", () => {
+
   socket.emit("readyForGame");
+
 });
 
+
 $("leaveLobbyBtn").addEventListener("click", () => {
+
   socket.emit("leaveRoom");
 
   online = false;
   currentRoom = null;
 
   showScreen("home");
+
 });
 
+
 $("leaveGameBtn").addEventListener("click", () => {
+
   if (online) {
     socket.emit("leaveRoom");
   }
@@ -723,6 +782,7 @@ $("leaveGameBtn").addEventListener("click", () => {
   currentRoom = null;
 
   showScreen("home");
+
 });
 
 
@@ -732,7 +792,8 @@ $("leaveGameBtn").addEventListener("click", () => {
 
 function renderLobby(state) {
 
-  $("roomCode").textContent = state.code;
+  $("roomCode").textContent =
+    state.code;
 
   $("lobbyPlayers").textContent =
     `${state.players.length}/4`;
@@ -741,7 +802,8 @@ function renderLobby(state) {
 
   state.players.forEach(player => {
 
-    const div = document.createElement("div");
+    const div =
+      document.createElement("div");
 
     div.style.padding = "10px";
     div.style.margin = "5px 0";
@@ -757,18 +819,34 @@ function renderLobby(state) {
            : '<span class="waiting"> — Nog niet gestart</span>'
        }`;
 
-    $("lobbyList").appendChild(div);
+    $("lobbyList")
+      .appendChild(div);
+
   });
 
-  const me = state.players.find(p => p.id === myId);
 
-  $("startGameBtn").disabled = !!me?.ready;
+  const me =
+    state.players.find(
+      p => p.id === myId
+    );
+
+
+  $("startGameBtn").disabled =
+    !!me?.ready;
+
 
   if (me?.ready) {
-    $("startGameBtn").textContent = "KLAAR ✓";
+
+    $("startGameBtn").textContent =
+      "KLAAR ✓";
+
   } else {
-    $("startGameBtn").textContent = "START SPEL";
+
+    $("startGameBtn").textContent =
+      "START SPEL";
+
   }
+
 }
 
 
@@ -779,28 +857,44 @@ function renderLobby(state) {
 function startSingleplayer() {
 
   localGame = {
+
     balance: 1000,
+
     bet: 0,
-    deck: createLocalDeck(),
+
+    deck:
+      createLocalDeck(),
+
     dealer: [],
+
     hands: [],
+
     activeHand: 0,
+
     phase: "waiting",
+
     message: ""
+
   };
 
-  $("gameRoomCode").textContent = "Singleplayer";
+
+  $("gameRoomCode").textContent =
+    "Singleplayer";
 
   showScreen("game");
 
   renderLocalGame();
+
 }
+
 
 function createLocalDeck() {
 
-  const suits = ["♠", "♥", "♦", "♣"];
+  const suits =
+    ["♠", "♥", "♦", "♣"];
 
   const ranks = [
+
     ["A", 11],
     ["2", 2],
     ["3", 3],
@@ -814,9 +908,12 @@ function createLocalDeck() {
     ["J", 10],
     ["Q", 10],
     ["K", 10]
+
   ];
 
+
   let deck = [];
+
 
   for (let d = 0; d < 6; d++) {
 
@@ -836,59 +933,107 @@ function createLocalDeck() {
 
   }
 
+
   return shuffleLocal(deck);
+
 }
+
 
 function shuffleLocal(deck) {
 
-  for (let i = deck.length - 1; i > 0; i--) {
+  for (
+    let i = deck.length - 1;
+    i > 0;
+    i--
+  ) {
 
-    const j = Math.floor(Math.random() * (i + 1));
+    const j =
+      Math.floor(
+        Math.random() * (i + 1)
+      );
 
-    [deck[i], deck[j]] =
-      [deck[j], deck[i]];
+    [
+      deck[i],
+      deck[j]
+    ] = [
+      deck[j],
+      deck[i]
+    ];
+
   }
 
   return deck;
+
 }
+
 
 function localPoints(cards) {
 
   let total =
     cards.reduce(
-      (sum, card) => sum + card.value,
+      (sum, card) =>
+        sum + card.value,
       0
     );
+
 
   let aces =
     cards.filter(
       card => card.name === "A"
     ).length;
 
-  while (total > 21 && aces > 0) {
+
+  while (
+    total > 21 &&
+    aces > 0
+  ) {
+
     total -= 10;
     aces--;
+
   }
 
+
   return total;
+
 }
 
+
 function localBlackjack(cards) {
-  return cards.length === 2 &&
-    localPoints(cards) === 21;
+
+  return (
+    cards.length === 2 &&
+    localPoints(cards) === 21
+  );
+
 }
+
 
 function localCanSplit() {
 
-  if (localGame.hands.length !== 1) return false;
+  if (
+    localGame.hands.length !== 1
+  ) {
+    return false;
+  }
 
-  const hand = localGame.hands[0];
+
+  const hand =
+    localGame.hands[0];
+
 
   return (
+
     hand.length === 2 &&
-    hand[0].value === hand[1].value &&
-    localGame.balance >= localGame.bet
+
+    hand[0].value ===
+      hand[1].value &&
+
+    localGame.balance >=
+      localGame.bet
+
   );
+
 }
 
 
@@ -899,11 +1044,19 @@ function localCanSplit() {
 $("readyBtn").addEventListener("click", () => {
 
   if (online) {
+
     socket.emit("readyForGame");
+
     return;
   }
 
-  if (localGame.phase !== "waiting") return;
+
+  if (
+    localGame.phase !== "waiting"
+  ) {
+    return;
+  }
+
 
   if (localGame.bet <= 0) {
 
@@ -915,36 +1068,63 @@ $("readyBtn").addEventListener("click", () => {
     return;
   }
 
+
   startLocalRound();
+
 });
 
 
 function startLocalRound() {
 
-  localGame.phase = "playing";
+  localGame.phase =
+    "playing";
+
   localGame.message = "";
 
-  if (localGame.deck.length < 20) {
-    localGame.deck = createLocalDeck();
+
+  if (
+    localGame.deck.length < 20
+  ) {
+
+    localGame.deck =
+      createLocalDeck();
+
   }
 
+
   localGame.hands = [[
+
     localGame.deck.pop(),
     localGame.deck.pop()
+
   ]];
+
 
   localGame.activeHand = 0;
 
+
   localGame.dealer = [
+
     localGame.deck.pop(),
     localGame.deck.pop()
+
   ];
+
+
+  if (
+    localBlackjack(
+      localGame.hands[0]
+    )
+  ) {
+
+    finishLocalRound();
+
+    return;
+  }
+
 
   renderLocalGame();
 
-  if (localBlackjack(localGame.hands[0])) {
-    finishLocalRound();
-  }
 }
 
 
@@ -954,40 +1134,50 @@ function startLocalRound() {
 
 $("hitBtn").addEventListener("click", () => {
 
-  if (online) {
-    socket.emit("hit");
+  if (!online) {
+
+    if (
+      localGame.phase !== "playing"
+    ) {
+      return;
+    }
+
+
+    const hand =
+      localGame.hands[
+        localGame.activeHand
+      ];
+
+
+    if (!hand) return;
+
+
+    hand.push(
+      localGame.deck.pop()
+    );
+
+
+    const playerPoints =
+      localPoints(hand);
+
+
+    if (playerPoints >= 21) {
+
+      finishLocalHand();
+
+    } else {
+
+      renderLocalGame();
+
+    }
+
+
     return;
   }
 
-  if (localGame.phase !== "playing") return;
 
-  const hand =
-    localGame.hands[localGame.activeHand];
+  socket.emit("hit");
 
-  if (!hand) return;
-
-  const playerPoints =
-    localPoints(hand);
-
-  if (playerPoints >= 21) {
-    finishLocalHand();
-    return;
-  }
-
-  hand.push(localGame.deck.pop());
-
-  const newPoints =
-    localPoints(hand);
-
-  renderLocalGame();
-
-  if (newPoints >= 21) {
-    setTimeout(() => {
-      if (localGame.phase === "playing") {
-        finishLocalHand();
-      }
-    }, 250);
-  }
 });
 
 
@@ -997,14 +1187,23 @@ $("hitBtn").addEventListener("click", () => {
 
 $("standBtn").addEventListener("click", () => {
 
-  if (online) {
-    socket.emit("stand");
+  if (!online) {
+
+    if (
+      localGame.phase !== "playing"
+    ) {
+      return;
+    }
+
+
+    finishLocalHand();
+
     return;
   }
 
-  if (localGame.phase !== "playing") return;
 
-  finishLocalHand();
+  socket.emit("stand");
+
 });
 
 
@@ -1014,42 +1213,62 @@ $("standBtn").addEventListener("click", () => {
 
 $("doubleBtn").addEventListener("click", () => {
 
-  if (online) {
-    socket.emit("double");
-    return;
-  }
+  if (!online) {
 
-  if (localGame.phase !== "playing") return;
-
-  const hand =
-    localGame.hands[localGame.activeHand];
-
-  if (!hand) return;
-
-  if (hand.length !== 2) return;
-
-  if (localGame.balance < localGame.bet) {
-
-    localGame.message =
-      "Niet genoeg credits.";
-
-    renderLocalGame();
-
-    return;
-  }
-
-  localGame.balance -= localGame.bet;
-  localGame.bet *= 2;
-
-  hand.push(localGame.deck.pop());
-
-  renderLocalGame();
-
-  setTimeout(() => {
-    if (localGame.phase === "playing") {
-      finishLocalHand();
+    if (
+      localGame.phase !== "playing"
+    ) {
+      return;
     }
-  }, 250);
+
+
+    const hand =
+      localGame.hands[
+        localGame.activeHand
+      ];
+
+
+    if (!hand) return;
+
+
+    if (hand.length !== 2) {
+      return;
+    }
+
+
+    if (
+      localGame.balance <
+      localGame.bet
+    ) {
+
+      localGame.message =
+        "Niet genoeg credits.";
+
+      renderLocalGame();
+
+      return;
+    }
+
+
+    localGame.balance -=
+      localGame.bet;
+
+    localGame.bet *= 2;
+
+
+    hand.push(
+      localGame.deck.pop()
+    );
+
+
+    finishLocalHand();
+
+    return;
+  }
+
+
+  socket.emit("double");
+
 });
 
 
@@ -1059,30 +1278,60 @@ $("doubleBtn").addEventListener("click", () => {
 
 $("splitBtn").addEventListener("click", () => {
 
-  if (online) {
-    socket.emit("split");
+  if (!online) {
+
+    if (
+      localGame.phase !== "playing"
+    ) {
+      return;
+    }
+
+
+    if (!localCanSplit()) {
+      return;
+    }
+
+
+    const oldHand =
+      localGame.hands[0];
+
+
+    localGame.balance -=
+      localGame.bet;
+
+
+    const firstCard =
+      oldHand[0];
+
+    const secondCard =
+      oldHand[1];
+
+
+    localGame.hands = [
+
+      [
+        firstCard,
+        localGame.deck.pop()
+      ],
+
+      [
+        secondCard,
+        localGame.deck.pop()
+      ]
+
+    ];
+
+
+    localGame.activeHand = 0;
+
+    renderLocalGame();
+
     return;
   }
 
-  if (localGame.phase !== "playing") return;
 
-  if (!localCanSplit()) return;
+  socket.emit("split");
 
-  const oldHand = localGame.hands[0];
-
-  localGame.balance -= localGame.bet;
-
-  const firstCard = oldHand[0];
-  const secondCard = oldHand[1];
-
-  localGame.hands = [
-    [firstCard, localGame.deck.pop()],
-    [secondCard, localGame.deck.pop()]
-  ];
-
-  localGame.activeHand = 0;
-
-  renderLocalGame();
 });
 
 
@@ -1093,9 +1342,13 @@ $("splitBtn").addEventListener("click", () => {
 function finishLocalHand() {
 
   const hand =
-    localGame.hands[localGame.activeHand];
+    localGame.hands[
+      localGame.activeHand
+    ];
+
 
   if (!hand) return;
+
 
   if (
     localGame.activeHand <
@@ -1109,123 +1362,176 @@ function finishLocalHand() {
     return;
   }
 
+
   finishLocalRound();
+
 }
 
 
 /* =========================
-   LOCAL RESULTAAT
+   LOCAL DEALER + RESULT
 ========================= */
 
 function finishLocalRound() {
 
-  if (localGame.phase === "result") return;
-
-  localGame.phase = "result";
-
-  while (localPoints(localGame.dealer) < 17) {
+  while (
+    localPoints(localGame.dealer) < 17
+  ) {
 
     localGame.dealer.push(
       localGame.deck.pop()
     );
+
   }
 
-  const dealerPoints =
-    localPoints(localGame.dealer);
 
-  const dealerBJ =
-    localBlackjack(localGame.dealer);
+  const dealerPoints =
+    localPoints(
+      localGame.dealer
+    );
+
 
   const results = [];
 
-  for (let i = 0; i < localGame.hands.length; i++) {
 
-    const hand = localGame.hands[i];
+  for (
+    let i = 0;
+    i < localGame.hands.length;
+    i++
+  ) {
+
+    const hand =
+      localGame.hands[i];
+
 
     const playerPoints =
       localPoints(hand);
 
+
     const playerBJ =
       localBlackjack(hand);
 
+
+    const dealerBJ =
+      localBlackjack(
+        localGame.dealer
+      );
+
+
     let result = "";
+
 
     if (playerPoints > 21) {
 
-      result = `Hand ${i + 1}: VERLOREN`;
+      result =
+        `Hand ${i + 1}: verloren`;
 
-    } else if (playerBJ && !dealerBJ) {
+    }
+
+    else if (
+      playerBJ &&
+      !dealerBJ
+    ) {
 
       localGame.balance +=
-        Math.floor(localGame.bet * 2.5);
+        Math.floor(
+          localGame.bet * 2.5
+        );
 
-      result = `Hand ${i + 1}: BLACKJACK! GEWONNEN 🎉`;
+      result =
+        `Hand ${i + 1}: BLACKJACK! 🎉`;
 
-    } else if (dealerBJ && !playerBJ) {
+    }
 
-      result = `Hand ${i + 1}: VERLOREN`;
+    else if (
+      dealerBJ &&
+      !playerBJ
+    ) {
 
-    } else if (dealerPoints > 21) {
+      result =
+        `Hand ${i + 1}: verloren`;
+
+    }
+
+    else if (
+      dealerPoints > 21
+    ) {
 
       localGame.balance +=
         localGame.bet * 2;
 
-      result = `Hand ${i + 1}: GEWONNEN`;
+      result =
+        `Hand ${i + 1}: gewonnen`;
 
-    } else if (playerPoints > dealerPoints) {
+    }
+
+    else if (
+      playerPoints > dealerPoints
+    ) {
 
       localGame.balance +=
         localGame.bet * 2;
 
-      result = `Hand ${i + 1}: GEWONNEN`;
+      result =
+        `Hand ${i + 1}: gewonnen`;
 
-    } else if (playerPoints === dealerPoints) {
+    }
+
+    else if (
+      playerPoints === dealerPoints
+    ) {
 
       localGame.balance +=
         localGame.bet;
 
-      result = `Hand ${i + 1}: GELIJK`;
+      result =
+        `Hand ${i + 1}: push`;
 
-    } else {
-
-      result = `Hand ${i + 1}: VERLOREN`;
     }
 
+    else {
+
+      result =
+        `Hand ${i + 1}: verloren`;
+
+    }
+
+
     results.push(result);
+
   }
 
+
+  /* AUTOMATISCHE BIJVULLING */
+
   if (localGame.balance <= 0) {
+
     localGame.balance = 1000;
-    results.push("Credits bijgevuld naar 1000 💰");
+
+    results.push(
+      "Credits bijgevuld naar 1000 💰"
+    );
+
   }
+
+
+  /*
+    BELANGRIJK:
+    We wissen de kaarten nog NIET.
+    De speler moet eerst de uitslag
+    kunnen bekijken.
+  */
+
+  localGame.phase =
+    "finished";
+
 
   localGame.message =
     `Dealer: ${dealerPoints} punten — ${results.join(" | ")}`;
 
+
   renderLocalGame();
 
-  setTimeout(() => {
-
-    if (localGame.phase !== "result") return;
-
-    localGame.phase = "waiting";
-    localGame.bet = 0;
-    localGame.hands = [];
-    localGame.activeHand = 0;
-    localGame.dealer = [];
-    localGame.message = "";
-
-    if (localGame.balance <= 0) {
-      localGame.balance = 1000;
-    }
-
-    if (localGame.deck.length < 20) {
-      localGame.deck = createLocalDeck();
-    }
-
-    renderLocalGame();
-
-  }, 3000);
 }
 
 
@@ -1233,61 +1539,139 @@ function finishLocalRound() {
    BETS
 ========================= */
 
-document.querySelectorAll("[data-chip]").forEach(button => {
+document
+  .querySelectorAll("[data-chip]")
+  .forEach(button => {
 
-  button.addEventListener("click", () => {
+    button.addEventListener(
+      "click",
+      () => {
 
-    const amount =
-      Number(button.dataset.chip);
+        const amount =
+          Number(
+            button.dataset.chip
+          );
+
+
+        if (online) {
+
+          socket.emit(
+            "placeBet",
+            { amount }
+          );
+
+          return;
+        }
+
+
+        if (
+          localGame.phase !==
+          "waiting"
+        ) {
+          return;
+        }
+
+
+        if (
+          localGame.balance < amount
+        ) {
+          return;
+        }
+
+
+        localGame.balance -=
+          amount;
+
+        localGame.bet +=
+          amount;
+
+
+        renderLocalGame();
+
+      }
+    );
+
+  });
+
+
+$("clearBetBtn").addEventListener(
+  "click",
+  () => {
 
     if (online) {
 
-      socket.emit("placeBet", {
-        amount
-      });
+      socket.emit("clearBet");
 
       return;
     }
 
-    if (localGame.phase !== "waiting") return;
 
-    if (localGame.balance <= 0) {
-      localGame.balance = 1000;
+    if (
+      localGame.phase !==
+      "waiting"
+    ) {
+      return;
     }
 
-    if (localGame.balance < amount) return;
 
-    localGame.balance -= amount;
-    localGame.bet += amount;
+    localGame.balance +=
+      localGame.bet;
+
+    localGame.bet = 0;
+
 
     renderLocalGame();
 
-  });
-
-});
-
-
-$("clearBetBtn").addEventListener("click", () => {
-
-  if (online) {
-
-    socket.emit("clearBet");
-
-    return;
   }
-
-  if (localGame.phase !== "waiting") return;
-
-  localGame.balance += localGame.bet;
-  localGame.bet = 0;
-
-  renderLocalGame();
-});
+);
 
 
-$("nextRoundBtn").addEventListener("click", () => {
-  /* Niet meer nodig: volgende ronde start automatisch. */
-});
+/* =========================
+   VOLGENDE RONDE
+========================= */
+
+$("nextRoundBtn").addEventListener(
+  "click",
+  () => {
+
+    if (online) {
+
+      socket.emit("nextRound");
+
+      return;
+    }
+
+
+    if (
+      localGame.phase !==
+      "finished"
+    ) {
+      return;
+    }
+
+
+    localGame.phase =
+      "waiting";
+
+
+    localGame.bet = 0;
+
+    localGame.hands = [];
+
+    localGame.dealer = [];
+
+    localGame.activeHand = 0;
+
+    localGame.message = "";
+
+    localGame.deck =
+      createLocalDeck();
+
+
+    renderLocalGame();
+
+  }
+);
 
 
 /* =========================
@@ -1296,29 +1680,37 @@ $("nextRoundBtn").addEventListener("click", () => {
 
 function renderOnlineGame(state) {
 
-  $("gameRoomCode").textContent = state.code;
+  $("gameRoomCode").textContent =
+    state.code;
+
 
   $("gamePhase").textContent =
+
     state.phase === "betting"
       ? "Kies je inzet"
+
       : state.phase === "playing"
         ? "Ronde bezig"
-        : state.phase === "result"
-          ? "Resultaat"
-          : "Ronde afgelopen";
+
+        : "Ronde afgelopen";
+
 
   const me =
     state.players.find(
       p => p.id === myId
     );
 
+
   if (!me) return;
+
 
   $("balance").textContent =
     me.balance;
 
+
   $("bet").textContent =
     me.bet;
+
 
   $("dealerCards").innerHTML =
     renderCards(
@@ -1326,12 +1718,14 @@ function renderOnlineGame(state) {
       state.dealerHidden
     );
 
+
   if (state.dealerHidden) {
 
     const visible =
       state.dealerCards.length > 0
         ? state.dealerCards[0]
         : null;
+
 
     $("dealerPoints").textContent =
       visible
@@ -1341,110 +1735,198 @@ function renderOnlineGame(state) {
   } else {
 
     $("dealerPoints").textContent =
-      state.dealerCards.length
-        ? `Punten: ${points(state.dealerCards)}`
-        : "Punten: -";
+      `Punten: ${points(
+        state.dealerCards
+      )}`;
+
   }
 
+
   $("players").innerHTML = "";
+
 
   state.players.forEach(player => {
 
     const seat =
       document.createElement("div");
 
+
     seat.className =
       "seat" +
-      (player.id === myId ? " me" : "") +
-      (state.currentPlayerId === player.id
-        ? " active"
-        : "");
+
+      (
+        player.id === myId
+          ? " me"
+          : ""
+      ) +
+
+      (
+        state.currentPlayerId ===
+        player.id
+          ? " active"
+          : ""
+      );
+
 
     let handsHTML = "";
 
-    player.hands.forEach((hand, index) => {
 
-      const active =
-        player.id === state.currentPlayerId &&
-        index === player.activeHand;
+    player.hands.forEach(
+      (hand, index) => {
 
-      handsHTML += `
-        <div class="hand-box ${active ? "active-hand" : ""}">
-          <div class="hand-title">
-            Hand ${index + 1}
-            — Inzet: ${hand.bet}
+        const active =
+
+          player.id ===
+            state.currentPlayerId &&
+
+          index ===
+            player.activeHand;
+
+
+        handsHTML += `
+
+          <div class="hand-box ${
+            active
+              ? "active-hand"
+              : ""
+          }">
+
+            <div class="hand-title">
+
+              Hand ${index + 1}
+              — Inzet: ${hand.bet}
+
+            </div>
+
+
+            <div class="small-cards cards">
+
+              ${renderCards(
+                hand.cards,
+                false
+              )}
+
+            </div>
+
+
+            <div class="points">
+
+              Punten: ${hand.points}
+
+            </div>
+
           </div>
 
-          <div class="small-cards cards">
-            ${renderCards(hand.cards, false)}
-          </div>
+        `;
 
-          <div class="points">
-            Punten: ${hand.points}
-          </div>
-        </div>
-      `;
-    });
+      }
+    );
+
 
     seat.innerHTML = `
+
       <div class="seat-name">
+
         ${escapeHtml(player.name)}
-        ${player.id === myId ? " (jij)" : ""}
+
+        ${
+          player.id === myId
+            ? " (jij)"
+            : ""
+        }
+
       </div>
+
 
       ${
         handsHTML ||
-        `<div class="bet">Inzet: ${player.bet}</div>`
+
+        `<div class="bet">
+          Inzet: ${player.bet}
+        </div>`
       }
+
 
       ${
         player.ready
+
           ? '<div class="ready">Klaar ✓</div>'
+
           : ""
       }
+
 
       ${
-        state.currentPlayerId === player.id
+        state.currentPlayerId ===
+        player.id
+
           ? '<div class="waiting">Aan de beurt</div>'
+
           : ""
       }
+
     `;
 
-    $("players").appendChild(seat);
+
+    $("players")
+      .appendChild(seat);
+
   });
+
 
   $("gameStatus").textContent =
     state.resultMessage || "";
+
+
+  /*
+    START SPEL alleen tijdens
+    de inzetfase.
+  */
 
   $("readyBtn").style.display =
     state.phase === "betting"
       ? "inline-block"
       : "none";
 
+
+  /*
+    VOLGENDE RONDE alleen
+    nadat de uitslag is getoond.
+  */
+
   $("nextRoundBtn").style.display =
-    "none";
+    state.phase === "finished"
+      ? "inline-block"
+      : "none";
+
 
   $("readyBtn").textContent =
     me.ready
       ? "KLAAR ✓"
       : "START SPEL";
 
+
   $("readyBtn").disabled =
     me.ready ||
     state.phase !== "betting";
+
 
   const myTurn =
     state.currentPlayerId === myId &&
     state.phase === "playing";
 
+
   const activeHand =
     me.hands[me.activeHand];
+
 
   $("hitBtn").disabled =
     !myTurn;
 
+
   $("standBtn").disabled =
     !myTurn;
+
 
   $("doubleBtn").disabled =
     !myTurn ||
@@ -1452,23 +1934,32 @@ function renderOnlineGame(state) {
     activeHand.cards.length !== 2 ||
     me.balance < activeHand.bet;
 
+
   $("splitBtn").disabled =
     !myTurn ||
     !activeHand ||
     me.hands.length !== 1 ||
     activeHand.cards.length !== 2 ||
-    activeHand.cards[0].value !== activeHand.cards[1].value ||
+    activeHand.cards[0].value !==
+      activeHand.cards[1].value ||
     me.balance < activeHand.bet;
 
-  document.querySelectorAll("[data-chip]").forEach(button => {
-    button.disabled =
-      state.phase !== "betting" ||
-      me.ready;
-  });
+
+  document
+    .querySelectorAll("[data-chip]")
+    .forEach(button => {
+
+      button.disabled =
+        state.phase !== "betting" ||
+        me.ready;
+
+    });
+
 
   $("clearBetBtn").disabled =
     state.phase !== "betting" ||
     me.ready;
+
 }
 
 
@@ -1481,15 +1972,32 @@ function renderLocalGame() {
   $("balance").textContent =
     localGame.balance;
 
+
   $("bet").textContent =
     localGame.bet;
 
+
   $("gamePhase").textContent =
+
     localGame.phase === "waiting"
+
       ? "Kies je inzet"
+
       : localGame.phase === "playing"
-        ? `Hand ${localGame.activeHand + 1}`
-        : "Resultaat";
+
+        ? `Hand ${
+            localGame.activeHand + 1
+          }`
+
+        : "Ronde afgelopen";
+
+
+  /*
+    Tijdens het spelen blijft de
+    tweede dealerkaart verborgen.
+    Na afloop worden alle kaarten
+    zichtbaar.
+  */
 
   $("dealerCards").innerHTML =
     renderCards(
@@ -1497,83 +2005,149 @@ function renderLocalGame() {
       localGame.phase === "playing"
     );
 
+
   if (
     localGame.phase === "playing" &&
     localGame.dealer.length
   ) {
 
     $("dealerPoints").textContent =
-      `Punten: ${localGame.dealer[0].value}`;
+      `Punten: ${
+        localGame.dealer[0].value
+      }`;
 
   } else {
 
     $("dealerPoints").textContent =
+
       localGame.dealer.length
-        ? `Punten: ${localPoints(localGame.dealer)}`
+
+        ? `Punten: ${
+            localPoints(
+              localGame.dealer
+            )
+          }`
+
         : "Punten: -";
+
   }
 
+
   $("players").innerHTML = `
-    <div class="seat me" style="grid-column: 1 / -1">
+
+    <div
+      class="seat me"
+      style="grid-column: 1 / -1"
+    >
 
       <div class="seat-name">
         JIJ
       </div>
 
+
       ${
         localGame.hands.length === 0
-          ? `<div class="bet">Inzet: ${localGame.bet}</div>`
-          : localGame.hands.map((hand, index) => `
-              <div class="hand-box ${
-                localGame.phase === "playing" &&
-                index === localGame.activeHand
-                  ? "active-hand"
-                  : ""
-              }">
 
-                <div class="hand-title">
-                  Hand ${index + 1}
-                  — Inzet: ${localGame.bet}
+          ? `
+
+            <div class="bet">
+              Inzet: ${localGame.bet}
+            </div>
+
+          `
+
+          : localGame.hands.map(
+              (hand, index) => `
+
+                <div class="hand-box ${
+                  localGame.phase ===
+                    "playing" &&
+                  index ===
+                    localGame.activeHand
+                    ? "active-hand"
+                    : ""
+                }">
+
+                  <div class="hand-title">
+
+                    Hand ${index + 1}
+                    — Inzet:
+                    ${localGame.bet}
+
+                  </div>
+
+
+                  <div class="cards">
+
+                    ${renderCards(
+                      hand,
+                      false
+                    )}
+
+                  </div>
+
+
+                  <div class="points">
+
+                    Punten: ${
+                      hand.length
+                        ? localPoints(hand)
+                        : "-"
+                    }
+
+                  </div>
+
                 </div>
 
-                <div class="cards">
-                  ${renderCards(hand, false)}
-                </div>
-
-                <div class="points">
-                  Punten: ${
-                    hand.length
-                      ? localPoints(hand)
-                      : "-"
-                  }
-                </div>
-
-              </div>
-            `).join("")
+              `
+            ).join("")
       }
 
     </div>
+
   `;
+
 
   $("gameStatus").textContent =
     localGame.message;
+
+
+  /*
+    START SPEL alleen als je
+    klaar bent om een nieuwe
+    ronde te starten.
+  */
 
   $("readyBtn").style.display =
     localGame.phase === "waiting"
       ? "inline-block"
       : "none";
 
+
+  /*
+    VOLGENDE RONDE pas nadat
+    de uitslag is bekeken.
+  */
+
   $("nextRoundBtn").style.display =
-    "none";
+    localGame.phase === "finished"
+      ? "inline-block"
+      : "none";
+
 
   $("hitBtn").disabled =
     localGame.phase !== "playing";
 
+
   $("standBtn").disabled =
     localGame.phase !== "playing";
 
+
   const activeHand =
-    localGame.hands[localGame.activeHand];
+    localGame.hands[
+      localGame.activeHand
+    ];
+
 
   $("doubleBtn").disabled =
     localGame.phase !== "playing" ||
@@ -1581,17 +2155,25 @@ function renderLocalGame() {
     activeHand.length !== 2 ||
     localGame.balance < localGame.bet;
 
+
   $("splitBtn").disabled =
     localGame.phase !== "playing" ||
     !localCanSplit();
 
-  document.querySelectorAll("[data-chip]").forEach(button => {
-    button.disabled =
-      localGame.phase !== "waiting";
-  });
+
+  document
+    .querySelectorAll("[data-chip]")
+    .forEach(button => {
+
+      button.disabled =
+        localGame.phase !== "waiting";
+
+    });
+
 
   $("clearBetBtn").disabled =
     localGame.phase !== "waiting";
+
 }
 
 
@@ -1599,33 +2181,58 @@ function renderLocalGame() {
    CARDS
 ========================= */
 
-function renderCards(cards, hiddenSecond) {
+function renderCards(
+  cards,
+  hiddenSecond
+) {
 
-  return cards.map((card, index) => {
+  return cards.map(
+    (card, index) => {
 
-    if (hiddenSecond && index === 1) {
+      if (
+        hiddenSecond &&
+        index === 1
+      ) {
+
+        return `
+
+          <div class="card hidden">
+            ?
+          </div>
+
+        `;
+
+      }
+
+
+      const red =
+        card.suit === "♥" ||
+        card.suit === "♦";
+
 
       return `
-        <div class="card hidden">
-          ?
+
+        <div class="card ${
+          red ? "red" : ""
+        }">
+
+          <div>
+            ${card.name}
+          </div>
+
+          <div>
+            ${card.suit}
+          </div>
+
         </div>
+
       `;
 
     }
+  ).join("");
 
-    const red =
-      card.suit === "♥" ||
-      card.suit === "♦";
-
-    return `
-      <div class="card ${red ? "red" : ""}">
-        <div>${card.name}</div>
-        <div>${card.suit}</div>
-      </div>
-    `;
-
-  }).join("");
 }
+
 
 function points(cards) {
 
@@ -1636,27 +2243,58 @@ function points(cards) {
       0
     );
 
+
   let aces =
     cards.filter(
       card => card.name === "A"
     ).length;
 
-  while (total > 21 && aces > 0) {
+
+  while (
+    total > 21 &&
+    aces > 0
+  ) {
+
     total -= 10;
     aces--;
+
   }
 
+
   return total;
+
 }
+
 
 function escapeHtml(text) {
 
   return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+
+    .replaceAll(
+      "&",
+      "&amp;"
+    )
+
+    .replaceAll(
+      "<",
+      "&lt;"
+    )
+
+    .replaceAll(
+      ">",
+      "&gt;"
+    )
+
+    .replaceAll(
+      '"',
+      "&quot;"
+    )
+
+    .replaceAll(
+      "'",
+      "&#039;"
+    );
+
 }
 
 
