@@ -20,6 +20,7 @@ const rooms = new Map();
 
 const CHIP_VALUES = [5, 10, 25, 50, 100, 500];
 const STARTING_CREDITS = 1000;
+const RESULT_TIME = 3000;
 
 
 /* =========================
@@ -294,11 +295,14 @@ function startRound(room) {
 
   for (const player of room.players) {
 
+    const bet =
+      player.hands[0].bet;
+
     player.hands = [
       createHand([
         room.deck.pop(),
         room.deck.pop()
-      ], player.hands[0].bet)
+      ], bet)
     ];
 
     player.activeHand = 0;
@@ -447,6 +451,10 @@ function moveToNextTurn(room) {
 
 function finishRound(room) {
 
+  if (room.phase === "result") return;
+
+  room.phase = "result";
+
   room.dealerHidden = false;
 
   while (
@@ -467,14 +475,21 @@ function finishRound(room) {
     isBlackjack(room.dealerCards);
 
 
-  const refillMessages = [];
+  const resultLines = [];
 
 
   for (const player of room.players) {
 
-    for (const hand of player.hands) {
+    let playerResults = [];
+
+
+    for (let i = 0; i < player.hands.length; i++) {
+
+      const hand =
+        player.hands[i];
 
       if (hand.bet <= 0) continue;
+
 
       const playerPoints =
         handValue(hand.cards);
@@ -484,11 +499,14 @@ function finishRound(room) {
 
 
       if (playerPoints > 21) {
-        continue;
+
+        playerResults.push(
+          `Hand ${i + 1}: VERLOREN`
+        );
+
       }
 
-
-      if (
+      else if (
         player.hands.length === 1 &&
         playerBJ &&
         !dealerBJ
@@ -497,6 +515,10 @@ function finishRound(room) {
         player.balance +=
           Math.floor(hand.bet * 2.5);
 
+        playerResults.push(
+          `BLACKJACK! GEWONNEN 🎉`
+        );
+
       }
 
       else if (
@@ -504,7 +526,9 @@ function finishRound(room) {
         !playerBJ
       ) {
 
-        // Dealer wint.
+        playerResults.push(
+          `VERLOREN`
+        );
 
       }
 
@@ -515,6 +539,10 @@ function finishRound(room) {
         player.balance +=
           hand.bet * 2;
 
+        playerResults.push(
+          `GEWONNEN`
+        );
+
       }
 
       else if (
@@ -523,6 +551,10 @@ function finishRound(room) {
 
         player.balance +=
           hand.bet * 2;
+
+        playerResults.push(
+          `GEWONNEN`
+        );
 
       }
 
@@ -533,6 +565,18 @@ function finishRound(room) {
         player.balance +=
           hand.bet;
 
+        playerResults.push(
+          `GELIJK`
+        );
+
+      }
+
+      else {
+
+        playerResults.push(
+          `VERLOREN`
+        );
+
       }
 
     }
@@ -540,47 +584,79 @@ function finishRound(room) {
 
     if (refillPlayer(player)) {
 
-      refillMessages.push(
-        `${player.name} kreeg 1000 credits bijgevuld`
+      playerResults.push(
+        "Credits bijgevuld naar 1000 💰"
       );
 
     }
 
+
+    resultLines.push(
+      `${player.name}: ${playerResults.join(" / ")}`
+    );
+
   }
 
-
-  room.phase = "betting";
 
   room.currentPlayerId = null;
 
-
-  for (const player of room.players) {
-
-    player.stood = false;
-
-    player.ready = false;
-
-    player.bet = 0;
-
-    player.hands = [];
-
-    player.activeHand = 0;
-
-  }
-
-
   room.resultMessage =
-    `Dealer: ${dealerPoints} punten`;
-
-  if (refillMessages.length > 0) {
-
-    room.resultMessage +=
-      ` — ${refillMessages.join(" | ")}`;
-
-  }
+    `Dealer: ${dealerPoints} punten — ${resultLines.join(" | ")}`;
 
 
   sendRoom(room);
+
+
+  /*
+    RESULTAAT 3 SECONDEN TONEN
+    Daarna automatisch nieuwe inzetfase.
+  */
+
+  setTimeout(() => {
+
+    /*
+      Kamer kan in de tussentijd verwijderd zijn.
+    */
+    if (!rooms.has(room.code)) return;
+
+    /*
+      Alleen doorgaan als dit nog steeds
+      dezelfde resultaatfase is.
+    */
+    if (room.phase !== "result") return;
+
+
+    room.phase = "betting";
+
+    room.dealerCards = [];
+
+    room.dealerHidden = false;
+
+    room.currentPlayerId = null;
+
+    room.resultMessage = "";
+
+
+    for (const player of room.players) {
+
+      player.ready = false;
+
+      player.bet = 0;
+
+      player.hands = [];
+
+      player.activeHand = 0;
+
+      player.stood = false;
+
+      refillPlayer(player);
+
+    }
+
+
+    sendRoom(room);
+
+  }, RESULT_TIME);
 }
 
 
@@ -791,11 +867,12 @@ io.on("connection", socket => {
     }
 
 
-    if (room.phase === "playing") {
+    if (room.phase === "playing" ||
+        room.phase === "result") {
 
       socket.emit(
         "errorMessage",
-        "Je kunt niet joinen terwijl een ronde bezig is."
+        "Je kunt nu niet joinen."
       );
 
       return;
@@ -888,8 +965,9 @@ io.on("connection", socket => {
 
 
       /*
-        START NA EEN VORIGE RONDE:
-        De kamer zit al in betting.
+        TWEEDE START:
+        Speler heeft inzet gedaan
+        en geeft aan dat hij klaar is.
       */
 
       if (room.phase === "betting") {
@@ -1063,6 +1141,11 @@ io.on("connection", socket => {
 
       if (hand.stood) return;
 
+
+      /*
+        HIT MAG ZO VAAK ALS NODIG
+        TOTDAT JE 21 OF HOGER HEBT.
+      */
 
       hand.cards.push(
         room.deck.pop()
@@ -1271,32 +1354,6 @@ io.on("connection", socket => {
 
 
       sendRoom(room);
-
-      return;
-    }
-
-  });
-
-
-  /* =========================
-     VOLGENDE RONDE
-  ========================= */
-
-  socket.on("nextRound", () => {
-
-    for (const room of rooms.values()) {
-
-      const player =
-        room.players.find(
-          p =>
-            p.id === socket.id
-        );
-
-      if (!player) continue;
-
-
-      if (room.phase !== "betting") return;
-
 
       return;
     }
