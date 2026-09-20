@@ -27,9 +27,7 @@ const rooms = new Map();
 ========================= */
 
 function cleanName(name) {
-    if (!name) return "Speler";
-
-    return String(name)
+    return String(name || "Speler")
         .replace(/[<>]/g, "")
         .trim()
         .substring(0, 18) || "Speler";
@@ -37,12 +35,10 @@ function cleanName(name) {
 
 function createRoomCode() {
     const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
     let code;
 
     do {
         code = "";
-
         for (let i = 0; i < 6; i++) {
             code += chars[Math.floor(Math.random() * chars.length)];
         }
@@ -54,13 +50,12 @@ function createRoomCode() {
 function createDeck() {
     const suits = ["♠", "♥", "♦", "♣"];
     const values = [
-        "A", "2", "3", "4", "5", "6",
-        "7", "8", "9", "10", "J", "Q", "K"
+        "A", "2", "3", "4", "5", "6", "7",
+        "8", "9", "10", "J", "Q", "K"
     ];
 
     const deck = [];
 
-    // 6 decks
     for (let d = 0; d < 6; d++) {
         for (const suit of suits) {
             for (const value of values) {
@@ -71,7 +66,6 @@ function createDeck() {
 
     for (let i = deck.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-
         [deck[i], deck[j]] = [deck[j], deck[i]];
     }
 
@@ -87,14 +81,8 @@ function draw(room) {
 }
 
 function cardValue(card) {
-    if (["J", "Q", "K"].includes(card.value)) {
-        return 10;
-    }
-
-    if (card.value === "A") {
-        return 11;
-    }
-
+    if (["J", "Q", "K"].includes(card.value)) return 10;
+    if (card.value === "A") return 11;
     return Number(card.value);
 }
 
@@ -104,10 +92,7 @@ function handValue(cards) {
 
     for (const card of cards) {
         total += cardValue(card);
-
-        if (card.value === "A") {
-            aces++;
-        }
+        if (card.value === "A") aces++;
     }
 
     while (total > 21 && aces > 0) {
@@ -118,11 +103,8 @@ function handValue(cards) {
     return total;
 }
 
-function isBlackjack(cards) {
-    return (
-        cards.length === 2 &&
-        handValue(cards) === 21
-    );
+function blackjack(cards) {
+    return cards.length === 2 && handValue(cards) === 21;
 }
 
 function findRoom(socketId) {
@@ -135,74 +117,70 @@ function findRoom(socketId) {
     return null;
 }
 
+function newPlayer(socket, name) {
+    return {
+        id: socket.id,
+        name: cleanName(name),
+        balance: 1000,
+        bet: 0,
+        cards: [],
+        standing: false,
+        busted: false,
+        doubled: false
+    };
+}
+
 /* =========================
-   ROOM DATA
+   DATA
 ========================= */
 
 function roomData(room) {
     return {
         code: room.code,
         hostId: room.hostId,
-
-        players: room.players.map(player => ({
-            id: player.id,
-            name: player.name,
-            score: player.score
+        players: room.players.map(p => ({
+            id: p.id,
+            name: p.name,
+            balance: p.balance
         }))
     };
 }
 
-/* =========================
-   GAME DATA
-========================= */
-
 function gameData(room, socketId) {
+    const me = room.players.find(p => p.id === socketId);
+
     return {
         code: room.code,
-
         phase: room.phase,
-
         hostId: room.hostId,
-
         currentPlayerId: room.currentPlayerId,
 
+        myBalance: me ? me.balance : 0,
+
         dealerCards: room.dealerCards,
+        dealerHidden: room.phase === "playing",
 
-        dealerHidden:
-            room.phase === "playing",
-
-        players: room.players.map(player => ({
-            id: player.id,
-            name: player.name,
-
-            score: player.score,
-
-            cards: player.cards,
-
-            active:
-                player.id === room.currentPlayerId,
-
+        players: room.players.map(p => ({
+            id: p.id,
+            name: p.name,
+            balance: p.balance,
+            bet: p.bet,
+            cards: p.cards,
+            active: p.id === room.currentPlayerId,
             status:
-                player.busted
+                p.busted
                     ? "BUST"
-                    : player.standing
+                    : p.standing
                         ? "STAND"
                         : ""
         })),
 
-        resultMessage:
-            room.resultMessage || "",
-
-        myScore:
-            room.players.find(p => p.id === socketId)?.score || 0
+        resultMessage: room.resultMessage || ""
     };
 }
 
 function sendRoom(room) {
-    io.to(room.code).emit(
-        "roomUpdate",
-        roomData(room)
-    );
+    io.to(room.code).emit("roomUpdate", roomData(room));
 }
 
 function sendGame(room) {
@@ -215,58 +193,28 @@ function sendGame(room) {
 }
 
 /* =========================
-   PLAYER
-========================= */
-
-function makePlayer(socket, name) {
-    return {
-        id: socket.id,
-        name: cleanName(name),
-
-        score: 0,
-
-        cards: [],
-
-        standing: false,
-
-        busted: false,
-
-        doubled: false
-    };
-}
-
-/* =========================
    CONNECTION
 ========================= */
 
 io.on("connection", socket => {
 
-    console.log("Speler verbonden:", socket.id);
+    console.log("Connected:", socket.id);
 
-    /* =====================
-       CREATE ROOM
-    ===================== */
+    /* CREATE ROOM */
 
     socket.on("createRoom", data => {
 
         const code = createRoomCode();
-
-        const player = makePlayer(
-            socket,
-            data?.name
-        );
+        const player = newPlayer(socket, data?.name);
 
         const room = {
             code,
-
             hostId: socket.id,
-
             players: [player],
 
             phase: "waiting",
 
             deck: [],
-
             dealerCards: [],
 
             currentPlayerId: null,
@@ -278,23 +226,16 @@ io.on("connection", socket => {
 
         socket.join(code);
 
-        socket.emit(
-            "roomCreated",
-            roomData(room)
-        );
+        socket.emit("roomCreated", roomData(room));
 
         sendRoom(room);
     });
 
-    /* =====================
-       JOIN ROOM
-    ===================== */
+    /* JOIN ROOM */
 
     socket.on("joinRoom", data => {
 
-        const code = String(
-            data?.code || ""
-        )
+        const code = String(data?.code || "")
             .trim()
             .toUpperCase();
 
@@ -324,26 +265,18 @@ io.on("connection", socket => {
             return;
         }
 
-        const player = makePlayer(
-            socket,
-            data?.name
-        );
+        const player = newPlayer(socket, data?.name);
 
         room.players.push(player);
 
         socket.join(code);
 
-        socket.emit(
-            "roomJoined",
-            roomData(room)
-        );
+        socket.emit("roomJoined", roomData(room));
 
         sendRoom(room);
     });
 
-    /* =====================
-       HOST START
-    ===================== */
+    /* HOST START */
 
     socket.on("startGame", () => {
 
@@ -359,16 +292,88 @@ io.on("connection", socket => {
             return;
         }
 
-        if (room.phase !== "waiting") {
+        if (room.phase !== "waiting") return;
+
+        room.phase = "betting";
+        room.resultMessage = "";
+
+        for (const player of room.players) {
+            player.bet = 0;
+            player.cards = [];
+            player.standing = false;
+            player.busted = false;
+            player.doubled = false;
+        }
+
+        sendGame(room);
+    });
+
+    /* BET */
+
+    socket.on("placeBet", data => {
+
+        const room = findRoom(socket.id);
+
+        if (!room || room.phase !== "betting") return;
+
+        const player = room.players.find(
+            p => p.id === socket.id
+        );
+
+        if (!player) return;
+
+        const amount = Math.floor(Number(data?.amount));
+
+        if (!Number.isFinite(amount) || amount <= 0) return;
+
+        if (player.balance < amount) {
+            socket.emit(
+                "gameError",
+                "Niet genoeg nepcredits."
+            );
+            return;
+        }
+
+        player.balance -= amount;
+        player.bet += amount;
+
+        sendGame(room);
+    });
+
+    /* START ROUND */
+
+    socket.on("startRound", () => {
+
+        const room = findRoom(socket.id);
+
+        if (!room) return;
+
+        if (room.hostId !== socket.id) {
+            socket.emit(
+                "gameError",
+                "Alleen de host kan de ronde starten."
+            );
+            return;
+        }
+
+        if (room.phase !== "betting") return;
+
+        const allBet = room.players.every(
+            p => p.bet > 0
+        );
+
+        if (!allBet) {
+            socket.emit(
+                "gameError",
+                "Iedere speler moet eerst inzetten."
+            );
             return;
         }
 
         beginRound(room);
     });
 
-    /* =====================
-       HIT
-    ===================== */
+    /* HIT */
 
     socket.on("hit", () => {
 
@@ -376,11 +381,10 @@ io.on("connection", socket => {
 
         if (!room) return;
 
-        if (room.phase !== "playing") return;
-
-        if (room.currentPlayerId !== socket.id) {
-            return;
-        }
+        if (
+            room.phase !== "playing" ||
+            room.currentPlayerId !== socket.id
+        ) return;
 
         const player = room.players.find(
             p => p.id === socket.id
@@ -393,25 +397,18 @@ io.on("connection", socket => {
         const total = handValue(player.cards);
 
         if (total > 21) {
-
             player.busted = true;
             player.standing = true;
-
             nextPlayer(room);
-
         } else if (total === 21) {
-
             player.standing = true;
-
             nextPlayer(room);
         }
 
         sendGame(room);
     });
 
-    /* =====================
-       STAND
-    ===================== */
+    /* STAND */
 
     socket.on("stand", () => {
 
@@ -419,11 +416,10 @@ io.on("connection", socket => {
 
         if (!room) return;
 
-        if (room.phase !== "playing") return;
-
-        if (room.currentPlayerId !== socket.id) {
-            return;
-        }
+        if (
+            room.phase !== "playing" ||
+            room.currentPlayerId !== socket.id
+        ) return;
 
         const player = room.players.find(
             p => p.id === socket.id
@@ -438,9 +434,7 @@ io.on("connection", socket => {
         sendGame(room);
     });
 
-    /* =====================
-       DOUBLE
-    ===================== */
+    /* DOUBLE */
 
     socket.on("double", () => {
 
@@ -448,11 +442,10 @@ io.on("connection", socket => {
 
         if (!room) return;
 
-        if (room.phase !== "playing") return;
-
-        if (room.currentPlayerId !== socket.id) {
-            return;
-        }
+        if (
+            room.phase !== "playing" ||
+            room.currentPlayerId !== socket.id
+        ) return;
 
         const player = room.players.find(
             p => p.id === socket.id
@@ -468,6 +461,16 @@ io.on("connection", socket => {
             return;
         }
 
+        if (player.balance < player.bet) {
+            socket.emit(
+                "gameError",
+                "Niet genoeg nepcredits."
+            );
+            return;
+        }
+
+        player.balance -= player.bet;
+        player.bet *= 2;
         player.doubled = true;
 
         player.cards.push(draw(room));
@@ -483,9 +486,7 @@ io.on("connection", socket => {
         sendGame(room);
     });
 
-    /* =====================
-       SPLIT
-    ===================== */
+    /* SPLIT */
 
     socket.on("split", () => {
 
@@ -493,11 +494,10 @@ io.on("connection", socket => {
 
         if (!room) return;
 
-        if (room.phase !== "playing") return;
-
-        if (room.currentPlayerId !== socket.id) {
-            return;
-        }
+        if (
+            room.phase !== "playing" ||
+            room.currentPlayerId !== socket.id
+        ) return;
 
         const player = room.players.find(
             p => p.id === socket.id
@@ -519,31 +519,36 @@ io.on("connection", socket => {
         ) {
             socket.emit(
                 "gameError",
-                "Je kunt alleen gelijke kaarten splitten."
+                "Je kaarten moeten gelijk zijn."
+            );
+            return;
+        }
+
+        if (player.balance < player.bet) {
+            socket.emit(
+                "gameError",
+                "Niet genoeg nepcredits."
             );
             return;
         }
 
         /*
-         * Voor deze versie houden we
-         * split overzichtelijk:
-         * de tweede kaart wordt toegevoegd
-         * als aparte split-hand.
+         * Eén speler kan voorlopig één extra
+         * kaart krijgen. De volledige twee-hand
+         * split kan daarna worden uitgebreid.
          */
 
-        player.cards.push(draw(room));
+        player.balance -= player.bet;
 
-        socket.emit(
-            "gameError",
-            "Split is beschikbaar als functie, maar de gedeelde tafel gebruikt één hand per speler."
-        );
+        player.cards = [
+            player.cards[0],
+            draw(room)
+        ];
 
         sendGame(room);
     });
 
-    /* =====================
-       NEXT ROUND
-    ===================== */
+    /* NEXT ROUND */
 
     socket.on("nextRound", () => {
 
@@ -551,66 +556,58 @@ io.on("connection", socket => {
 
         if (!room) return;
 
-        if (room.hostId !== socket.id) {
-            return;
-        }
+        if (room.hostId !== socket.id) return;
 
-        if (room.phase !== "finished") {
-            return;
-        }
+        if (room.phase !== "finished") return;
 
+        room.phase = "betting";
         room.dealerCards = [];
+        room.currentPlayerId = null;
         room.resultMessage = "";
 
         for (const player of room.players) {
+            player.bet = 0;
             player.cards = [];
             player.standing = false;
             player.busted = false;
             player.doubled = false;
+
+            if (player.balance <= 0) {
+                player.balance = 1000;
+            }
         }
 
-        beginRound(room);
+        sendGame(room);
     });
 
-    /* =====================
-       LEAVE
-    ===================== */
+    /* LEAVE */
 
     socket.on("leaveRoom", () => {
         removePlayer(socket);
     });
 
-    /* =====================
-       DISCONNECT
-    ===================== */
+    /* DISCONNECT */
 
     socket.on("disconnect", () => {
-
         removePlayer(socket);
-
-        console.log(
-            "Speler weg:",
-            socket.id
-        );
+        console.log("Disconnected:", socket.id);
     });
 });
 
 /* =========================
-   BEGIN ROUND
+   ROUND
 ========================= */
 
 function beginRound(room) {
 
     room.phase = "playing";
-
     room.deck = createDeck();
+    room.resultMessage = "";
 
     room.dealerCards = [
         draw(room),
         draw(room)
     ];
-
-    room.resultMessage = "";
 
     for (const player of room.players) {
 
@@ -627,26 +624,14 @@ function beginRound(room) {
     room.currentPlayerId =
         room.players[0]?.id || null;
 
-    /*
-     * Als de eerste speler direct
-     * blackjack heeft, laten we hem
-     * nog steeds normaal doorschuiven.
-     */
-
     sendGame(room);
 }
 
-/* =========================
-   NEXT PLAYER
-========================= */
-
 function nextPlayer(room) {
 
-    const index =
-        room.players.findIndex(
-            p =>
-                p.id === room.currentPlayerId
-        );
+    const index = room.players.findIndex(
+        p => p.id === room.currentPlayerId
+    );
 
     if (index === -1) {
         finishRound(room);
@@ -658,17 +643,10 @@ function nextPlayer(room) {
         i < room.players.length;
         i++
     ) {
-
         const player = room.players[i];
 
-        if (
-            !player.standing &&
-            !player.busted
-        ) {
-
-            room.currentPlayerId =
-                player.id;
-
+        if (!player.standing && !player.busted) {
+            room.currentPlayerId = player.id;
             return;
         }
     }
@@ -676,26 +654,12 @@ function nextPlayer(room) {
     finishRound(room);
 }
 
-/* =========================
-   FINISH ROUND
-========================= */
-
 function finishRound(room) {
 
     room.currentPlayerId = null;
 
-    /*
-     * Dealer:
-     * onder 17 = kaart
-     * 17 of hoger = stand
-     */
-
-    while (
-        handValue(room.dealerCards) < 17
-    ) {
-        room.dealerCards.push(
-            draw(room)
-        );
+    while (handValue(room.dealerCards) < 17) {
+        room.dealerCards.push(draw(room));
     }
 
     const dealerTotal =
@@ -705,57 +669,60 @@ function finishRound(room) {
 
     for (const player of room.players) {
 
-        const playerTotal =
-            handValue(player.cards);
-
-        let points = 0;
-        let text = "";
+        const total = handValue(player.cards);
 
         if (player.busted) {
+            results.push(`${player.name}: verloren`);
+            continue;
+        }
 
-            points = 0;
-            text = "bust";
-
-        } else if (
-            isBlackjack(player.cards) &&
-            !isBlackjack(room.dealerCards)
+        if (
+            blackjack(player.cards) &&
+            !blackjack(room.dealerCards)
         ) {
+            player.balance +=
+                Math.floor(player.bet * 2.5);
 
-            points = 3;
-            text = "BLACKJACK +3";
+            results.push(
+                `${player.name}: BLACKJACK`
+            );
 
-        } else if (
-            dealerTotal > 21
-        ) {
+            continue;
+        }
 
-            points = 2;
-            text = "gewonnen +2";
+        if (dealerTotal > 21) {
 
-        } else if (
-            playerTotal > dealerTotal
-        ) {
+            player.balance +=
+                player.bet * 2;
 
-            points = 2;
-            text = "gewonnen +2";
+            results.push(
+                `${player.name}: gewonnen`
+            );
 
-        } else if (
-            playerTotal === dealerTotal
-        ) {
+        } else if (total > dealerTotal) {
 
-            points = 1;
-            text = "gelijk +1";
+            player.balance +=
+                player.bet * 2;
+
+            results.push(
+                `${player.name}: gewonnen`
+            );
+
+        } else if (total === dealerTotal) {
+
+            player.balance +=
+                player.bet;
+
+            results.push(
+                `${player.name}: push`
+            );
 
         } else {
 
-            points = 0;
-            text = "verloren";
+            results.push(
+                `${player.name}: verloren`
+            );
         }
-
-        player.score += points;
-
-        results.push(
-            `${player.name}: ${text}`
-        );
     }
 
     room.resultMessage =
@@ -776,28 +743,20 @@ function removePlayer(socket) {
 
     if (!room) return;
 
-    room.players =
-        room.players.filter(
-            p => p.id !== socket.id
-        );
+    room.players = room.players.filter(
+        p => p.id !== socket.id
+    );
 
     if (room.players.length === 0) {
-
         rooms.delete(room.code);
-
         return;
     }
 
     if (room.hostId === socket.id) {
-
-        room.hostId =
-            room.players[0].id;
+        room.hostId = room.players[0].id;
     }
 
-    if (
-        room.currentPlayerId === socket.id
-    ) {
-
+    if (room.currentPlayerId === socket.id) {
         nextPlayer(room);
     }
 
@@ -805,12 +764,7 @@ function removePlayer(socket) {
     sendGame(room);
 }
 
-/* =========================
-   SERVER
-========================= */
-
 server.listen(PORT, () => {
-
     console.log(
         `Blackjack server draait op poort ${PORT}`
     );
