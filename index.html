@@ -17,9 +17,9 @@ body {
     margin: 0;
     min-height: 100vh;
     font-family: Arial, sans-serif;
+    color: white;
     background:
         radial-gradient(circle at top, #176b45, #063522 60%, #021b11);
-    color: white;
 }
 
 button,
@@ -49,10 +49,9 @@ button {
 }
 
 .logo {
-    font-size: 55px;
+    font-size: 52px;
     font-weight: 900;
     margin-bottom: 40px;
-    text-shadow: 0 8px 20px #000;
 }
 
 .mainButton {
@@ -63,46 +62,36 @@ button {
     border-radius: 15px;
     font-size: 24px;
     font-weight: bold;
-    background: #fff;
-    color: #083522;
+    background: white;
+    color: #073522;
 }
 
-.mainButton:hover {
-    transform: scale(1.04);
+.panel {
+    width: min(500px, 95vw);
+    margin: auto;
+    padding: 30px;
+    border-radius: 22px;
+    background: #062c1cee;
+    text-align: center;
 }
 
 .back {
     position: absolute;
     top: 20px;
     left: 20px;
-    background: #ffffff22;
-    border: 1px solid #ffffff55;
-    color: white;
     padding: 10px 16px;
+    border: 0;
     border-radius: 10px;
-}
-
-.panel {
-    margin: auto;
-    width: min(500px, 95vw);
-    background: #062c1cdd;
-    border: 1px solid #ffffff22;
-    border-radius: 22px;
-    padding: 30px;
-    text-align: center;
-}
-
-.panel h1 {
-    margin-top: 0;
+    background: #ffffff22;
+    color: white;
 }
 
 input {
     width: 100%;
     padding: 15px;
-    margin: 8px 0;
+    margin: 7px 0;
     border: 0;
     border-radius: 10px;
-    outline: none;
 }
 
 .actionButton {
@@ -111,69 +100,64 @@ input {
     margin-top: 10px;
     border: 0;
     border-radius: 10px;
-    font-weight: bold;
     background: white;
-    color: #063522;
+    color: #073522;
+    font-weight: bold;
 }
 
 .error {
     min-height: 25px;
-    color: #ffb3b3;
     margin-top: 12px;
+    color: #ffb0b0;
 }
 
 .roomCode {
+    margin: 20px;
     font-size: 38px;
+    font-weight: bold;
     letter-spacing: 7px;
-    font-weight: 900;
-    margin: 20px 0;
-}
-
-.playerList {
-    text-align: left;
-    margin: 20px 0;
 }
 
 .player {
-    background: #ffffff12;
-    border-radius: 10px;
-    padding: 12px;
     margin: 7px 0;
-}
-
-.host {
-    font-weight: bold;
+    padding: 12px;
+    border-radius: 10px;
+    background: #ffffff12;
 }
 
 #game {
     flex-direction: column;
 }
 
+.topInfo {
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 18px;
+}
+
 .table {
     width: min(1100px, 100%);
-    min-height: 600px;
+    min-height: 620px;
     margin: auto;
     padding: 25px;
+    border: 8px solid #4b2a12;
     border-radius: 35px;
     background:
         radial-gradient(circle, #15804f, #075331);
-    border: 8px solid #4b2a12;
-    box-shadow:
-        inset 0 0 40px #0008,
-        0 20px 50px #0008;
+    box-shadow: inset 0 0 40px #0008;
 }
 
 .dealer {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
 }
 
 .cards {
+    min-height: 82px;
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: 8px;
-    min-height: 75px;
 }
 
 .card {
@@ -183,11 +167,10 @@ input {
     background: white;
     color: black;
     display: flex;
-    align-items: center;
     justify-content: center;
-    font-size: 22px;
+    align-items: center;
+    font-size: 21px;
     font-weight: bold;
-    box-shadow: 0 3px 7px #0007;
 }
 
 .card.red {
@@ -195,14 +178,7 @@ input {
 }
 
 .hiddenCard {
-    background:
-        repeating-linear-gradient(
-            45deg,
-            #173c8c,
-            #173c8c 7px,
-            #3159ae 7px,
-            #3159ae 14px
-        );
+    background: #244b9b;
     color: white;
 }
 
@@ -213,11 +189,11 @@ input {
 }
 
 .seat {
-    min-height: 230px;
-    padding: 14px;
+    min-height: 245px;
+    padding: 13px;
+    border: 2px solid transparent;
     border-radius: 16px;
     background: #0003;
-    border: 2px solid transparent;
     text-align: center;
 }
 
@@ -227,18 +203,22 @@ input {
 }
 
 .seatName {
-    font-size: 18px;
     font-weight: bold;
+    font-size: 18px;
 }
 
-.score {
+.balance {
     margin-top: 5px;
-    opacity: .85;
+}
+
+.bet {
+    margin: 5px;
+    font-weight: bold;
 }
 
 .status {
     min-height: 22px;
-    margin: 8px;
+    margin: 7px;
     font-weight: bold;
 }
 
@@ -246,17 +226,18 @@ input {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
-    gap: 10px;
-    margin: 20px auto 0;
+    gap: 8px;
+    margin-top: 20px;
 }
 
-.gameButton {
+.gameButton,
+.chipButton {
+    padding: 13px 18px;
     border: 0;
-    border-radius: 12px;
-    padding: 14px 22px;
-    font-weight: bold;
+    border-radius: 11px;
     background: white;
-    color: #073822;
+    color: #073522;
+    font-weight: bold;
 }
 
 .gameButton:disabled {
@@ -264,37 +245,34 @@ input {
     cursor: not-allowed;
 }
 
+.chips {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin: 15px;
+}
+
 .message {
+    min-height: 28px;
+    margin: 12px;
     text-align: center;
     font-weight: bold;
-    min-height: 28px;
-    margin: 10px;
 }
 
-.onlineInfo {
-    text-align: center;
-    margin-bottom: 15px;
-}
-
-@media (max-width: 750px) {
+@media(max-width:750px) {
     .playersTable {
         grid-template-columns: repeat(2, 1fr);
     }
 
     .logo {
-        font-size: 40px;
-    }
-
-    .table {
-        padding: 12px;
+        font-size: 38px;
     }
 }
 </style>
 </head>
 
 <body>
-
-<!-- HOME -->
 
 <section id="home" class="screen active">
 
@@ -317,13 +295,9 @@ input {
 </section>
 
 
-<!-- MULTIPLAYER -->
-
 <section id="multiplayer" class="screen">
 
-    <button
-        class="back"
-        onclick="goHome()">
+    <button class="back" onclick="goHome()">
         ← TERUG
     </button>
 
@@ -356,23 +330,16 @@ input {
             JOIN KAMER
         </button>
 
-        <div
-            id="roomError"
-            class="error">
-        </div>
+        <div id="roomError" class="error"></div>
 
     </div>
 
 </section>
 
 
-<!-- LOBBY -->
-
 <section id="lobby" class="screen">
 
-    <button
-        class="back"
-        onclick="leaveRoom()">
+    <button class="back" onclick="leaveRoom()">
         ← VERLATEN
     </button>
 
@@ -380,40 +347,32 @@ input {
 
         <h1>🎮 KAMER</h1>
 
-        <div
-            id="lobbyCode"
-            class="roomCode">
-        </div>
+        <div id="lobbyCode" class="roomCode"></div>
 
-        <div
-            id="lobbyPlayers"
-            class="playerList">
-        </div>
+        <div id="lobbyPlayers"></div>
 
         <button
-            id="hostStartButton"
+            id="startGameButton"
             class="actionButton"
-            onclick="startOnlineGame()">
+            onclick="startGame()">
             START SPEL
         </button>
 
-        <div
-            id="lobbyError"
-            class="error">
-        </div>
+        <div id="lobbyError" class="error"></div>
 
     </div>
 
 </section>
 
 
-<!-- GAME -->
-
 <section id="game" class="screen">
 
-    <div class="onlineInfo">
-        <span id="gameRoomCode"></span>
-        <span id="myScore"></span>
+    <div class="topInfo">
+
+        <span id="roomInfo"></span>
+        &nbsp; | &nbsp;
+        <span id="balanceInfo"></span>
+
     </div>
 
     <div class="table">
@@ -437,9 +396,45 @@ input {
         </div>
 
         <div
-            id="gameMessage"
-            class="message">
+            id="betControls"
+            style="display:none">
+
+            <div class="chips">
+
+                <button class="chipButton"
+                    onclick="bet(5)">5</button>
+
+                <button class="chipButton"
+                    onclick="bet(10)">10</button>
+
+                <button class="chipButton"
+                    onclick="bet(25)">25</button>
+
+                <button class="chipButton"
+                    onclick="bet(50)">50</button>
+
+                <button class="chipButton"
+                    onclick="bet(100)">100</button>
+
+                <button class="chipButton"
+                    onclick="bet(500)">500</button>
+
+            </div>
+
+            <div class="controls">
+
+                <button
+                    id="startRoundButton"
+                    class="gameButton"
+                    onclick="startRound()">
+                    START RONDE
+                </button>
+
+            </div>
+
         </div>
+
+        <div id="gameMessage" class="message"></div>
 
         <div class="controls">
 
@@ -487,11 +482,6 @@ input {
 
 
 <script>
-/*
- * BELANGRIJK:
- * GitHub Pages = frontend
- * Render = backend
- */
 
 const SERVER_URL =
     "https://meesmulder-67-github-io.onrender.com";
@@ -500,21 +490,18 @@ const socket = io(SERVER_URL, {
     transports: ["websocket", "polling"]
 });
 
-let onlineRoom = null;
-let onlineState = null;
+let state = null;
 
 
 /* =========================
-   SCREENS
+   NAVIGATION
 ========================= */
 
 function showScreen(id) {
 
     document
         .querySelectorAll(".screen")
-        .forEach(screen => {
-            screen.classList.remove("active");
-        });
+        .forEach(s => s.classList.remove("active"));
 
     document
         .getElementById(id)
@@ -526,166 +513,78 @@ function goHome() {
 }
 
 function showMultiplayer() {
-
     showScreen("multiplayer");
 
-    document
-        .getElementById("roomError")
-        .textContent = "";
+    document.getElementById(
+        "roomError"
+    ).textContent = "";
 }
 
 
 /* =========================
-   SINGLEPLAYER
+   SOCKET
 ========================= */
 
-let localGame = null;
+socket.on("connect", () => {
+    console.log("Connected:", socket.id);
+});
 
-function startSingleplayer() {
+socket.on("connect_error", error => {
 
-    localGame = {
-        dealer: [],
-        players: []
-    };
+    console.error(error);
 
-    for (let i = 0; i < 4; i++) {
+    document.getElementById(
+        "roomError"
+    ).textContent =
+        "Serververbinding mislukt.";
+});
 
-        localGame.players.push({
-            name:
-                i === 0
-                    ? "Jij"
-                    : `Bot ${i}`,
+socket.on("roomCreated", room => {
+    renderLobby(room);
+    showScreen("lobby");
+});
 
-            cards: [],
+socket.on("roomJoined", room => {
+    renderLobby(room);
+    showScreen("lobby");
+});
 
-            standing: false,
+socket.on("roomUpdate", room => {
+    renderLobby(room);
+});
 
-            busted: false,
+socket.on("joinError", message => {
+    document.getElementById(
+        "roomError"
+    ).textContent = message;
+});
 
-            score: 0
-        });
-    }
+socket.on("gameError", message => {
+    document.getElementById(
+        "gameMessage"
+    ).textContent = message;
+});
 
-    localGame.dealer = [
-        localCard(),
-        localCard()
-    ];
+socket.on("gameState", newState => {
 
-    localGame.players.forEach(player => {
-
-        player.cards = [
-            localCard(),
-            localCard()
-        ];
-    });
+    state = newState;
 
     showScreen("game");
 
-    renderLocalGame();
-}
-
-function localCard() {
-
-    const suits = ["♠", "♥", "♦", "♣"];
-
-    const values = [
-        "A", "2", "3", "4", "5", "6",
-        "7", "8", "9", "10", "J", "Q", "K"
-    ];
-
-    return {
-        suit:
-            suits[
-                Math.floor(
-                    Math.random() * suits.length
-                )
-            ],
-
-        value:
-            values[
-                Math.floor(
-                    Math.random() * values.length
-                )
-            ]
-    };
-}
-
-function renderLocalGame() {
-
-    document
-        .getElementById("gameRoomCode")
-        .textContent = "SINGLEPLAYER";
-
-    document
-        .getElementById("myScore")
-        .textContent = "Score: 0";
-
-    renderCards(
-        document.getElementById("dealerCards"),
-        localGame.dealer
-    );
-
-    document
-        .getElementById("dealerTotal")
-        .textContent =
-        "Dealer: " +
-        calculateHand(localGame.dealer);
-
-    const table =
-        document.getElementById("playersTable");
-
-    table.innerHTML = "";
-
-    localGame.players.forEach(
-        (player, index) => {
-
-            const seat =
-                document.createElement("div");
-
-            seat.className =
-                "seat" +
-                (index === 0 ? " active" : "");
-
-            seat.innerHTML = `
-                <div class="seatName">
-                    ${escapeHtml(player.name)}
-                </div>
-
-                <div class="score">
-                    Score: ${player.score}
-                </div>
-
-                <div class="status">
-                    ${player.standing ? "STAND" : ""}
-                </div>
-
-                <div class="cards"></div>
-            `;
-
-            renderCards(
-                seat.querySelector(".cards"),
-                player.cards
-            );
-
-            table.appendChild(seat);
-        }
-    );
-}
+    renderGame(newState);
+});
 
 
 /* =========================
-   MULTIPLAYER
+   ROOM
 ========================= */
 
 function getName() {
 
-    return (
-        document
-            .getElementById("playerName")
-            .value
-            .trim()
-            .substring(0, 18)
-    );
+    return document
+        .getElementById("playerName")
+        .value
+        .trim();
 }
 
 function createRoom() {
@@ -694,9 +593,9 @@ function createRoom() {
 
     if (!name) {
 
-        document
-            .getElementById("roomError")
-            .textContent =
+        document.getElementById(
+            "roomError"
+        ).textContent =
             "Vul eerst je naam in.";
 
         return;
@@ -712,18 +611,17 @@ function joinRoom() {
 
     const name = getName();
 
-    const code =
-        document
-            .getElementById("joinCode")
-            .value
-            .trim()
-            .toUpperCase();
+    const code = document
+        .getElementById("joinCode")
+        .value
+        .trim()
+        .toUpperCase();
 
     if (!name) {
 
-        document
-            .getElementById("roomError")
-            .textContent =
+        document.getElementById(
+            "roomError"
+        ).textContent =
             "Vul eerst je naam in.";
 
         return;
@@ -731,10 +629,10 @@ function joinRoom() {
 
     if (code.length !== 6) {
 
-        document
-            .getElementById("roomError")
-            .textContent =
-            "De kamercode moet 6 tekens hebben.";
+        document.getElementById(
+            "roomError"
+        ).textContent =
+            "De code moet 6 tekens hebben.";
 
         return;
     }
@@ -748,106 +646,16 @@ function joinRoom() {
     );
 }
 
-
-/* =========================
-   SOCKET EVENTS
-========================= */
-
-socket.on("connect", () => {
-
-    console.log(
-        "Verbonden met Render:",
-        socket.id
-    );
-});
-
-socket.on("connect_error", error => {
-
-    console.error(
-        "Socket verbinding mislukt:",
-        error
-    );
-
-    const errorBox =
-        document.getElementById("roomError");
-
-    if (errorBox) {
-        errorBox.textContent =
-            "Kan geen verbinding maken met de game-server.";
-    }
-});
-
-socket.on("roomCreated", room => {
-
-    onlineRoom = room;
-
-    renderLobby(room);
-
-    showScreen("lobby");
-});
-
-socket.on("roomJoined", room => {
-
-    onlineRoom = room;
-
-    renderLobby(room);
-
-    showScreen("lobby");
-});
-
-socket.on("roomUpdate", room => {
-
-    onlineRoom = room;
-
-    if (
-        document
-            .getElementById("lobby")
-            .classList.contains("active")
-    ) {
-        renderLobby(room);
-    }
-});
-
-socket.on("joinError", message => {
-
-    document
-        .getElementById("roomError")
-        .textContent = message;
-});
-
-socket.on("gameError", message => {
-
-    document
-        .getElementById("lobbyError")
-        .textContent = message;
-
-    document
-        .getElementById("gameMessage")
-        .textContent = message;
-});
-
-socket.on("gameState", state => {
-
-    onlineState = state;
-
-    showScreen("game");
-
-    renderOnlineGame(state);
-});
-
-
-/* =========================
-   LOBBY
-========================= */
-
 function renderLobby(room) {
 
-    document
-        .getElementById("lobbyCode")
-        .textContent = room.code;
+    document.getElementById(
+        "lobbyCode"
+    ).textContent = room.code;
 
     const list =
-        document.getElementById("lobbyPlayers");
+        document.getElementById(
+            "lobbyPlayers"
+        );
 
     list.innerHTML = "";
 
@@ -858,68 +666,77 @@ function renderLobby(room) {
 
         div.className = "player";
 
-        div.innerHTML = `
-            <span class="host">
-                ${escapeHtml(player.name)}
-            </span>
-
-            ${
+        div.textContent =
+            player.name +
+            (
                 player.id === room.hostId
                     ? " 👑 HOST"
                     : ""
-            }
-        `;
+            );
 
         list.appendChild(div);
     });
 
-    const start =
-        document.getElementById(
-            "hostStartButton"
-        );
-
-    start.style.display =
+    document.getElementById(
+        "startGameButton"
+    ).style.display =
         room.hostId === socket.id
             ? "block"
             : "none";
 }
 
-function startOnlineGame() {
-
+function startGame() {
     socket.emit("startGame");
 }
 
 function leaveRoom() {
-
     socket.emit("leaveRoom");
-
-    onlineRoom = null;
-    onlineState = null;
-
+    state = null;
     showScreen("home");
 }
 
 
 /* =========================
-   ONLINE GAME
+   BETTING
 ========================= */
 
-function renderOnlineGame(state) {
+function bet(amount) {
 
-    document
-        .getElementById("gameRoomCode")
-        .textContent =
+    if (!state) return;
+
+    socket.emit(
+        "placeBet",
+        { amount }
+    );
+}
+
+function startRound() {
+    socket.emit("startRound");
+}
+
+
+/* =========================
+   GAME
+========================= */
+
+function renderGame(state) {
+
+    document.getElementById(
+        "roomInfo"
+    ).textContent =
         "Kamer: " + state.code;
 
-    document
-        .getElementById("myScore")
-        .textContent =
-        "Mijn score: " + state.myScore;
+    document.getElementById(
+        "balanceInfo"
+    ).textContent =
+        "Nepcredits: " + state.myBalance;
 
     renderDealer(state);
 
     const table =
-        document.getElementById("playersTable");
+        document.getElementById(
+            "playersTable"
+        );
 
     table.innerHTML = "";
 
@@ -941,8 +758,12 @@ function renderOnlineGame(state) {
                 ${escapeHtml(player.name)}
             </div>
 
-            <div class="score">
-                Score: ${player.score}
+            <div class="balance">
+                💰 ${player.balance}
+            </div>
+
+            <div class="bet">
+                Inzet: ${player.bet}
             </div>
 
             <div class="status">
@@ -960,56 +781,84 @@ function renderOnlineGame(state) {
         table.appendChild(seat);
     });
 
-    const myTurn =
-        state.currentPlayerId === socket.id;
+    const betting =
+        state.phase === "betting";
 
     const playing =
         state.phase === "playing";
 
-    document
-        .getElementById("hitButton")
-        .disabled =
+    const myTurn =
+        state.currentPlayerId === socket.id;
+
+    document.getElementById(
+        "betControls"
+    ).style.display =
+        betting ? "block" : "none";
+
+    document.getElementById(
+        "hitButton"
+    ).disabled =
         !(playing && myTurn);
 
-    document
-        .getElementById("standButton")
-        .disabled =
+    document.getElementById(
+        "standButton"
+    ).disabled =
         !(playing && myTurn);
 
-    document
-        .getElementById("doubleButton")
-        .disabled =
+    document.getElementById(
+        "doubleButton"
+    ).disabled =
         !(playing && myTurn);
 
-    document
-        .getElementById("splitButton")
-        .disabled =
+    document.getElementById(
+        "splitButton"
+    ).disabled =
         !(playing && myTurn);
 
-    const next =
-        document.getElementById("nextButton");
-
-    next.style.display =
+    document.getElementById(
+        "nextButton"
+    ).style.display =
         state.phase === "finished" &&
         state.hostId === socket.id
             ? "inline-block"
             : "none";
 
-    document
-        .getElementById("gameMessage")
-        .textContent =
-        state.resultMessage ||
-        (
-            myTurn
-                ? "Jij bent aan de beurt."
-                : "Wachten op de andere speler..."
-        );
+    if (state.resultMessage) {
+
+        document.getElementById(
+            "gameMessage"
+        ).textContent =
+            state.resultMessage;
+
+    } else if (myTurn) {
+
+        document.getElementById(
+            "gameMessage"
+        ).textContent =
+            "Jij bent aan de beurt.";
+
+    } else if (betting) {
+
+        document.getElementById(
+            "gameMessage"
+        ).textContent =
+            "Plaats je nep-inzet.";
+
+    } else {
+
+        document.getElementById(
+            "gameMessage"
+        ).textContent =
+            "Wachten...";
+    }
 }
 
 function renderDealer(state) {
 
     const container =
-        document.getElementById("dealerCards");
+        document.getElementById(
+            "dealerCards"
+        );
 
     container.innerHTML = "";
 
@@ -1041,65 +890,40 @@ function renderDealer(state) {
         }
     );
 
-    if (
+    document.getElementById(
+        "dealerTotal"
+    ).textContent =
         state.dealerHidden
-    ) {
-
-        document
-            .getElementById("dealerTotal")
-            .textContent =
-            "Dealer: verborgen";
-
-    } else {
-
-        document
-            .getElementById("dealerTotal")
-            .textContent =
-            "Dealer: " +
-            calculateHand(
-                state.dealerCards
-            );
-    }
+            ? "Dealer: ?"
+            : "Dealer: " +
+              handValue(
+                  state.dealerCards
+              );
 }
 
 
 /* =========================
-   GAME ACTIONS
+   ACTIONS
 ========================= */
 
 function hit() {
-
-    if (onlineState) {
-        socket.emit("hit");
-    }
+    socket.emit("hit");
 }
 
 function stand() {
-
-    if (onlineState) {
-        socket.emit("stand");
-    }
+    socket.emit("stand");
 }
 
 function doubleDown() {
-
-    if (onlineState) {
-        socket.emit("double");
-    }
+    socket.emit("double");
 }
 
 function split() {
-
-    if (onlineState) {
-        socket.emit("split");
-    }
+    socket.emit("split");
 }
 
 function nextRound() {
-
-    if (onlineState) {
-        socket.emit("nextRound");
-    }
+    socket.emit("nextRound");
 }
 
 
@@ -1112,7 +936,6 @@ function renderCards(container, cards) {
     container.innerHTML = "";
 
     cards.forEach(card => {
-
         addCard(container, card);
     });
 }
@@ -1137,7 +960,7 @@ function addCard(container, card) {
     container.appendChild(div);
 }
 
-function calculateHand(cards) {
+function handValue(cards) {
 
     let total = 0;
     let aces = 0;
@@ -1148,18 +971,15 @@ function calculateHand(cards) {
             ["J", "Q", "K"]
                 .includes(card.value)
         ) {
-
             total += 10;
 
         } else if (
             card.value === "A"
         ) {
-
             total += 11;
             aces++;
 
         } else {
-
             total += Number(card.value);
         }
     });
@@ -1168,7 +988,6 @@ function calculateHand(cards) {
         total > 21 &&
         aces > 0
     ) {
-
         total -= 10;
         aces--;
     }
@@ -1185,6 +1004,19 @@ function escapeHtml(text) {
 
     return div.innerHTML;
 }
+
+
+/* =========================
+   SINGLEPLAYER
+========================= */
+
+function startSingleplayer() {
+
+    alert(
+        "Singleplayer wordt geopend zodra de multiplayerverbinding werkt."
+    );
+}
+
 </script>
 
 </body>
