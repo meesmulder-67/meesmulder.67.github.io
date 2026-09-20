@@ -318,6 +318,11 @@ input {
     color: white;
 }
 
+.clear-bet {
+    background: #b33a3a;
+    color: white;
+}
+
 .rules {
     position: absolute;
     top: 10px;
@@ -653,6 +658,15 @@ input {
             <div class="actions">
 
                 <button
+                    id="clearBetBtn"
+                    class="action-btn clear-bet"
+                    onclick="clearBet()"
+                    disabled
+                >
+                    Clear Bet
+                </button>
+
+                <button
                     id="dealBtn"
                     class="action-btn deal-btn"
                     onclick="startDeal()"
@@ -724,37 +738,21 @@ input {
 
         <h2>🃏 Blackjack regels</h2>
 
-        <p>
-            • Blackjack = 21 met je eerste 2 kaarten.
-        </p>
+        <p>• Blackjack = 21 met je eerste 2 kaarten.</p>
 
-        <p>
-            • Blackjack betaalt 3:2.
-        </p>
+        <p>• Blackjack betaalt 3:2.</p>
 
-        <p>
-            • Dealer staat op 17.
-        </p>
+        <p>• Dealer staat op 17.</p>
 
-        <p>
-            • Hit, Stand en Double zijn beschikbaar.
-        </p>
+        <p>• Hit, Stand en Double zijn beschikbaar.</p>
 
-        <p>
-            • Split kan bij twee kaarten met dezelfde waarde.
-        </p>
+        <p>• Split kan bij twee kaarten met dezelfde waarde.</p>
 
-        <p>
-            • Voor Split moet je de tweede inzet kunnen betalen.
-        </p>
+        <p>• Voor Split moet je de tweede inzet kunnen betalen.</p>
 
-        <p>
-            • Na Split speel je beide handen apart.
-        </p>
+        <p>• Na Split speel je beide handen apart.</p>
 
-        <p>
-            • Re-split is niet mogelijk.
-        </p>
+        <p>• Re-split is niet mogelijk.</p>
 
         <button
             class="close"
@@ -788,23 +786,16 @@ let playerName = "";
 ========================= */
 
 let balance = 1000;
-
 let bet = 0;
 
 let deck = [];
-
 let dealerHand = [];
-
 let playerHands = [[]];
-
 let handBets = [0];
 
 let currentHand = 0;
-
 let playing = false;
-
 let dealerFinished = false;
-
 let isSplitHand = false;
 
 
@@ -814,7 +805,8 @@ let isSplitHand = false;
 
 function showScreen(id) {
 
-    document.querySelectorAll(".screen")
+    document
+        .querySelectorAll(".screen")
         .forEach(screen => {
             screen.classList.remove("active");
         });
@@ -852,7 +844,6 @@ function showMulti() {
 function returnHome() {
 
     playing = false;
-
     dealerFinished = false;
 
     currentRoom = null;
@@ -860,13 +851,10 @@ function returnHome() {
     bet = 0;
 
     dealerHand = [];
-
     playerHands = [[]];
-
     handBets = [0];
 
     currentHand = 0;
-
     isSplitHand = false;
 
     document
@@ -1131,9 +1119,7 @@ function shuffleDeck() {
 function drawCard() {
 
     if (deck.length < 20) {
-
         createDeck();
-
     }
 
     return deck.pop();
@@ -1165,7 +1151,6 @@ function cardValue(card) {
 function handValue(hand) {
 
     let value = 0;
-
     let aces = 0;
 
     hand.forEach(card => {
@@ -1184,7 +1169,6 @@ function handValue(hand) {
     ) {
 
         value -= 10;
-
         aces--;
 
     }
@@ -1244,10 +1228,7 @@ function newRound() {
         .disabled = true;
 
 
-    setMessage(
-        "Kies je inzet"
-    );
-
+    setMessage("Kies je inzet");
 
     render();
 
@@ -1293,6 +1274,49 @@ function placeBet(amount) {
         .getElementById("dealBtn")
         .disabled = false;
 
+    document
+        .getElementById("clearBetBtn")
+        .disabled = false;
+}
+
+
+/* =========================
+   CLEAR BET
+========================= */
+
+function clearBet() {
+
+    if (playing) {
+        return;
+    }
+
+    if (bet <= 0) {
+        return;
+    }
+
+    balance += bet;
+
+    bet = 0;
+
+    handBets[0] = 0;
+
+    document
+        .getElementById("currentBet")
+        .textContent = "0";
+
+    updateBalance();
+
+    setMessage(
+        "Inzet gewist."
+    );
+
+    document
+        .getElementById("dealBtn")
+        .disabled = true;
+
+    document
+        .getElementById("clearBetBtn")
+        .disabled = true;
 }
 
 
@@ -1391,9 +1415,6 @@ function finishInitialBlackjack() {
 
     updateBalance();
 
-
-    /* Oude inzet volledig resetten */
-
     bet = 0;
 
     handBets = [0];
@@ -1401,6 +1422,11 @@ function finishInitialBlackjack() {
     document
         .getElementById("currentBet")
         .textContent = "0";
+
+
+    document
+        .getElementById("clearBetBtn")
+        .disabled = true;
 
 
     if (balance <= 0) {
@@ -1732,16 +1758,12 @@ function calculateResults() {
                 handValue(hand);
 
 
-            /* Speler bust */
-
             if (
                 playerValue > 21
             ) {
                 return;
             }
 
-
-            /* Dealer bust */
 
             if (
                 dealerValue > 21
@@ -1754,8 +1776,6 @@ function calculateResults() {
             }
 
 
-            /* Speler hoger */
-
             if (
                 playerValue >
                 dealerValue
@@ -1767,8 +1787,6 @@ function calculateResults() {
                 return;
             }
 
-
-            /* Gelijkspel */
 
             if (
                 playerValue ===
@@ -1805,11 +1823,7 @@ function calculateResults() {
     }
 
 
-    /*
-       HEEL BELANGRIJK:
-       de oude inzet wordt hier
-       volledig weggehaald.
-    */
+    /* Inzet resetten */
 
     bet = 0;
 
@@ -1820,13 +1834,15 @@ function calculateResults() {
         .textContent = "0";
 
 
+    document
+        .getElementById("clearBetBtn")
+        .disabled = true;
+
+
     updateActions();
 
 
-    /*
-       Als de speler alles kwijt is,
-       direct 1000 nieuwe credits.
-    */
+    /* Automatisch aanvullen */
 
     if (balance <= 0) {
 
@@ -1864,13 +1880,8 @@ function createCardElement(card) {
     }
 
     div.innerHTML = `
-        <div>
-            ${card.rank}
-        </div>
-
-        <div>
-            ${card.suit}
-        </div>
+        <div>${card.rank}</div>
+        <div>${card.suit}</div>
     `;
 
     return div;
@@ -1929,10 +1940,6 @@ function renderCards(
 
 function render() {
 
-    /*
-       Dealer
-    */
-
     renderCards(
         "dealerCards",
         dealerHand,
@@ -1962,10 +1969,6 @@ function render() {
 
             : "";
 
-
-    /*
-       Speler
-    */
 
     const container =
         document.getElementById(
@@ -2088,6 +2091,13 @@ function updateActions() {
         playing ||
         bet <= 0 ||
         dealerHand.length > 0;
+
+
+    document
+        .getElementById("clearBetBtn")
+        .disabled =
+        playing ||
+        bet <= 0;
 
 }
 
