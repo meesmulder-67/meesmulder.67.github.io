@@ -1502,8 +1502,6 @@ function finishLocalRound() {
   }
 
 
-  /* AUTOMATISCHE BIJVULLING */
-
   if (localGame.balance <= 0) {
 
     localGame.balance = 1000;
@@ -1514,13 +1512,6 @@ function finishLocalRound() {
 
   }
 
-
-  /*
-    BELANGRIJK:
-    We wissen de kaarten nog NIET.
-    De speler moet eerst de uitslag
-    kunnen bekijken.
-  */
 
   localGame.phase =
     "finished";
@@ -1857,6 +1848,26 @@ function renderOnlineGame(state) {
 
 
       ${
+        state.phase === "finished" &&
+        player.nextRoundReady
+
+          ? '<div class="ready">Klaar ✓</div>'
+
+          : ""
+      }
+
+
+      ${
+        state.phase === "finished" &&
+        !player.nextRoundReady
+
+          ? '<div class="waiting">Nog niet klaar</div>'
+
+          : ""
+      }
+
+
+      ${
         state.currentPlayerId ===
         player.id
 
@@ -1874,8 +1885,28 @@ function renderOnlineGame(state) {
   });
 
 
-  $("gameStatus").textContent =
-    state.resultMessage || "";
+  /*
+    Status onder de tafel.
+  */
+
+  if (state.phase === "finished") {
+
+    const readyCount =
+      state.players.filter(
+        player => player.nextRoundReady
+      ).length;
+
+    $("gameStatus").textContent =
+      state.resultMessage
+        ? `${state.resultMessage} — Volgende ronde: ${readyCount}/${state.players.length} klaar`
+        : `Volgende ronde: ${readyCount}/${state.players.length} klaar`;
+
+  } else {
+
+    $("gameStatus").textContent =
+      state.resultMessage || "";
+
+  }
 
 
   /*
@@ -1891,13 +1922,40 @@ function renderOnlineGame(state) {
 
   /*
     VOLGENDE RONDE alleen
-    nadat de uitslag is getoond.
+    na de uitslag.
   */
 
   $("nextRoundBtn").style.display =
     state.phase === "finished"
       ? "inline-block"
       : "none";
+
+
+  /*
+    Als jij al op VOLGENDE RONDE
+    hebt gedrukt, wordt de knop
+    KLAAR en kan je niet nog
+    een keer klikken.
+  */
+
+  if (state.phase === "finished") {
+
+    $("nextRoundBtn").textContent =
+      me.nextRoundReady
+        ? "KLAAR ✓"
+        : "VOLGENDE RONDE";
+
+    $("nextRoundBtn").disabled =
+      me.nextRoundReady;
+
+  } else {
+
+    $("nextRoundBtn").textContent =
+      "VOLGENDE RONDE";
+
+    $("nextRoundBtn").disabled = false;
+
+  }
 
 
   $("readyBtn").textContent =
@@ -1991,13 +2049,6 @@ function renderLocalGame() {
 
         : "Ronde afgelopen";
 
-
-  /*
-    Tijdens het spelen blijft de
-    tweede dealerkaart verborgen.
-    Na afloop worden alle kaarten
-    zichtbaar.
-  */
 
   $("dealerCards").innerHTML =
     renderCards(
@@ -2112,27 +2163,22 @@ function renderLocalGame() {
     localGame.message;
 
 
-  /*
-    START SPEL alleen als je
-    klaar bent om een nieuwe
-    ronde te starten.
-  */
-
   $("readyBtn").style.display =
     localGame.phase === "waiting"
       ? "inline-block"
       : "none";
 
 
-  /*
-    VOLGENDE RONDE pas nadat
-    de uitslag is bekeken.
-  */
-
   $("nextRoundBtn").style.display =
     localGame.phase === "finished"
       ? "inline-block"
       : "none";
+
+
+  $("nextRoundBtn").textContent =
+    "VOLGENDE RONDE";
+
+  $("nextRoundBtn").disabled = false;
 
 
   $("hitBtn").disabled =
