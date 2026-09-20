@@ -26,6 +26,10 @@ button {
     cursor: pointer;
 }
 
+button:hover {
+    filter: brightness(1.1);
+}
+
 .hidden {
     display: none !important;
 }
@@ -35,11 +39,11 @@ button {
 #home {
     min-height: 100vh;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     text-align: center;
     background:
-        radial-gradient(circle at center, #176b42, #061b12 70%);
+        radial-gradient(circle, #176b42, #061b12 70%);
 }
 
 .home-box {
@@ -54,7 +58,7 @@ button {
 }
 
 .subtitle {
-    color: #a7cdb8;
+    color: #a8cdb9;
     margin: 10px 0 40px;
 }
 
@@ -68,10 +72,6 @@ button {
     font-weight: bold;
     background: #d8a843;
     color: #17100a;
-}
-
-.main-btn:hover {
-    transform: scale(1.03);
 }
 
 .secondary {
@@ -111,8 +111,8 @@ input {
     border: 1px solid #3d795e;
     background: #061b12;
     color: white;
-    text-align: center;
     font-size: 18px;
+    text-align: center;
 }
 
 .menu-btn {
@@ -121,6 +121,7 @@ input {
     margin-top: 8px;
     border-radius: 10px;
     background: #d8a843;
+    color: #17100a;
     font-size: 17px;
     font-weight: bold;
 }
@@ -130,11 +131,17 @@ input {
     color: #9ebaaa;
 }
 
+.error {
+    color: #ff7777;
+    min-height: 22px;
+    margin-top: 12px;
+}
+
 /* LOBBY */
 
 #lobby {
     min-height: 100vh;
-    padding: 50px 20px;
+    padding: 45px 20px;
     text-align: center;
 }
 
@@ -155,7 +162,7 @@ input {
     background: #0b3020;
     padding: 15px;
     border-radius: 10px;
-    margin: 8px;
+    margin: 8px 0;
     display: flex;
     justify-content: space-between;
 }
@@ -173,6 +180,7 @@ input {
     padding: 15px 35px;
     border-radius: 10px;
     background: #d8a843;
+    color: #17100a;
     font-size: 17px;
     font-weight: bold;
 }
@@ -183,7 +191,7 @@ input {
     min-height: 100vh;
     padding: 15px;
     background:
-        radial-gradient(ellipse at center, #15834d, #07532f 60%, #032515);
+        radial-gradient(ellipse, #168951, #07532f 60%, #032515);
 }
 
 .topbar {
@@ -339,7 +347,7 @@ input {
     cursor: not-allowed;
 }
 
-@media (max-width: 800px) {
+@media(max-width:800px) {
     .seats {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -350,7 +358,7 @@ input {
     }
 }
 
-@media (max-width: 500px) {
+@media(max-width:500px) {
     .logo {
         font-size: 40px;
     }
@@ -367,55 +375,89 @@ input {
 <!-- HOME -->
 
 <section id="home">
-    <div class="home-box">
-        <div class="logo">♠ BLACKJACK</div>
-        <div class="subtitle">ROYAL TABLE</div>
 
-        <button class="main-btn" onclick="singleplayer()">
+    <div class="home-box">
+
+        <div class="logo">
+            ♠ BLACKJACK
+        </div>
+
+        <div class="subtitle">
+            ROYAL TABLE
+        </div>
+
+        <button
+            class="main-btn"
+            onclick="singleplayer()">
             PLAY
         </button>
 
-        <button class="main-btn secondary" onclick="showRoomMenu()">
+        <button
+            class="main-btn secondary"
+            onclick="showMultiplayer()">
             SAMENSPELEN
         </button>
 
         <p style="margin-top:25px;color:#719b86;">
             Alleen speelgeld • Geen echt geld
         </p>
+
     </div>
+
 </section>
 
 
-<!-- ROOM MENU -->
+<!-- MULTIPLAYER MENU -->
 
-<section id="roomMenu" class="screen hidden">
+<section id="multiplayer" class="screen hidden">
+
     <div class="menu-box">
+
         <h2>SAMENSPELEN</h2>
 
-        <button class="menu-btn" onclick="createRoom()">
+        <input
+            id="playerName"
+            maxlength="18"
+            placeholder="JOUW NAAM"
+            autocomplete="off"
+        >
+
+        <button
+            class="menu-btn"
+            onclick="createRoom()">
             KAMER MAKEN
         </button>
 
-        <p style="margin:18px;color:#88ad99;">of</p>
+        <p style="margin:18px;color:#88ad99;">
+            of
+        </p>
 
         <input
-            id="roomCodeInput"
+            id="joinCode"
             maxlength="6"
             placeholder="KAMERCODE"
+            autocomplete="off"
         >
 
-        <button class="menu-btn" onclick="joinRoom()">
+        <button
+            class="menu-btn"
+            onclick="joinRoom()">
             JOIN KAMER
         </button>
 
-        <p id="roomError"
-           style="color:#ff7777;margin-top:15px;">
-        </p>
+        <div
+            id="roomError"
+            class="error">
+        </div>
 
-        <button class="menu-btn back" onclick="home()">
+        <button
+            class="menu-btn back"
+            onclick="home()">
             ← TERUG
         </button>
+
     </div>
+
 </section>
 
 
@@ -423,24 +465,33 @@ input {
 
 <section id="lobby" class="hidden">
 
-    <h1>BLACKJACK ROOM</h1>
+    <h1>
+        BLACKJACK ROOM
+    </h1>
 
     <p style="margin-top:20px;">
         Kamercode:
     </p>
 
-    <div id="roomCode" class="code">
+    <div
+        id="roomCode"
+        class="code">
         ------
     </div>
 
-    <div id="players" class="players"></div>
+    <div
+        id="players"
+        class="players">
+    </div>
 
-    <div id="lobbyStatus" class="status">
+    <div
+        id="lobbyStatus"
+        class="status">
         Wachten...
     </div>
 
     <button
-        id="startGameBtn"
+        id="lobbyStart"
         class="start-btn hidden"
         onclick="startOnlineGame()">
         START SPEL
@@ -463,41 +514,54 @@ input {
 <section id="game" class="hidden">
 
     <div class="topbar">
-        <b>BLACKJACK ROYALE</b>
+
+        <b>
+            BLACKJACK ROYALE
+        </b>
 
         <div class="balance">
             💰 <span id="balance">1000</span>
         </div>
+
     </div>
+
 
     <div class="table">
 
-        <!-- DEALER -->
-
         <div class="dealer">
-            <h3>DEALER</h3>
 
-            <div id="dealerCards" class="cards"></div>
+            <h3>
+                DEALER
+            </h3>
+
+            <div
+                id="dealerCards"
+                class="cards">
+            </div>
 
             <div class="total">
                 Totaal:
-                <span id="dealerTotal">?</span>
+                <span id="dealerTotal">
+                    ?
+                </span>
             </div>
+
         </div>
 
 
-        <!-- PLAYERS -->
-
-        <div id="seats" class="seats"></div>
+        <div
+            id="seats"
+            class="seats">
+        </div>
 
     </div>
 
 
-    <!-- CONTROLS -->
-
     <div class="controls">
 
-        <div id="message" class="message">
+        <div
+            id="message"
+            class="message">
             Kies je inzet
         </div>
 
@@ -512,37 +576,44 @@ input {
 
             <div class="buttons">
 
-                <button class="bet-btn"
-                        onclick="bet(5)">
+                <button
+                    class="bet-btn"
+                    onclick="placeBet(5)">
                     5
                 </button>
 
-                <button class="bet-btn"
-                        onclick="bet(10)">
+                <button
+                    class="bet-btn"
+                    onclick="placeBet(10)">
                     10
                 </button>
 
-                <button class="bet-btn"
-                        onclick="bet(25)">
+                <button
+                    class="bet-btn"
+                    onclick="placeBet(25)">
                     25
                 </button>
 
-                <button class="bet-btn"
-                        onclick="bet(50)">
+                <button
+                    class="bet-btn"
+                    onclick="placeBet(50)">
                     50
                 </button>
 
-                <button class="bet-btn"
-                        onclick="bet(100)">
+                <button
+                    class="bet-btn"
+                    onclick="placeBet(100)">
                     100
                 </button>
 
-                <button class="bet-btn"
-                        onclick="bet(500)">
+                <button
+                    class="bet-btn"
+                    onclick="placeBet(500)">
                     500
                 </button>
 
             </div>
+
 
             <button
                 id="localStart"
@@ -551,6 +622,7 @@ input {
                 onclick="startLocal()">
                 START SPEL
             </button>
+
 
             <button
                 id="onlineStart"
@@ -565,34 +637,33 @@ input {
 
         <!-- ACTIONS -->
 
-        <div id="actions"
-             class="buttons hidden">
+        <div
+            id="actions"
+            class="buttons hidden">
 
             <button
-                class="action-btn"
                 id="hitBtn"
+                class="action-btn"
                 onclick="hit()">
                 HIT
             </button>
 
             <button
-                class="action-btn"
                 id="standBtn"
+                class="action-btn"
                 onclick="stand()">
                 STAND
             </button>
 
             <button
-                class="action-btn"
                 id="doubleBtn"
+                class="action-btn"
                 onclick="doubleDown()">
                 DOUBLE
             </button>
 
         </div>
 
-
-        <!-- NEXT ROUND -->
 
         <button
             id="nextRound"
@@ -601,6 +672,7 @@ input {
             onclick="nextRound()">
             VOLGENDE RONDE
         </button>
+
 
         <button
             class="menu-btn back"
@@ -617,13 +689,8 @@ input {
 <script>
 
 /* =========================================================
-   SOCKET.IO
+   SOCKET
    ========================================================= */
-
-/*
-   GEEN SERVER URL NODIG.
-   Render gebruikt automatisch dezelfde server.
-*/
 
 const socket = io();
 
@@ -632,8 +699,20 @@ let isHost = false;
 let roomCode = "";
 let myId = null;
 
+
 socket.on("connect", () => {
+
     myId = socket.id;
+
+});
+
+
+socket.on("connect_error", () => {
+
+    document.getElementById("roomError")
+        .textContent =
+        "Kan geen verbinding maken met de server.";
+
 });
 
 
@@ -641,18 +720,22 @@ socket.on("connect", () => {
    NAVIGATION
    ========================================================= */
 
-function hideAll() {
+function hideScreens() {
 
-    document.getElementById("home")
+    document
+        .getElementById("home")
         .classList.add("hidden");
 
-    document.getElementById("roomMenu")
+    document
+        .getElementById("multiplayer")
         .classList.add("hidden");
 
-    document.getElementById("lobby")
+    document
+        .getElementById("lobby")
         .classList.add("hidden");
 
-    document.getElementById("game")
+    document
+        .getElementById("game")
         .classList.add("hidden");
 }
 
@@ -667,96 +750,179 @@ function home() {
     isHost = false;
     roomCode = "";
 
-    hideAll();
+    hideScreens();
 
-    document.getElementById("home")
+    document
+        .getElementById("home")
         .classList.remove("hidden");
 }
 
 
-function showRoomMenu() {
+function showMultiplayer() {
 
-    hideAll();
+    hideScreens();
 
-    document.getElementById("roomMenu")
+    document
+        .getElementById("multiplayer")
         .classList.remove("hidden");
+
+    document
+        .getElementById("playerName")
+        .focus();
 }
 
 
 /* =========================================================
-   ROOMS
+   CREATE ROOM
    ========================================================= */
 
 function createRoom() {
 
-    socket.emit("createRoom", {
-        name: "Speler"
-    });
-}
+    const name =
+        document
+            .getElementById("playerName")
+            .value
+            .trim();
 
+    if (!name) {
 
-function joinRoom() {
-
-    const code =
-        document.getElementById("roomCodeInput")
-        .value
-        .trim()
-        .toUpperCase();
-
-    if (code.length !== 6) {
-
-        document.getElementById("roomError")
-            .textContent =
-            "De code moet 6 tekens hebben.";
+        showError(
+            "Vul eerst je naam in."
+        );
 
         return;
     }
 
-    socket.emit("joinRoom", {
-        code,
-        name: "Speler"
-    });
+
+    socket.emit(
+        "createRoom",
+        {
+            name
+        }
+    );
 }
 
 
-socket.on("roomCreated", data => {
+/* =========================================================
+   JOIN ROOM
+   ========================================================= */
 
-    online = true;
-    isHost = true;
-    roomCode = data.code;
+function joinRoom() {
 
-    showLobby(data);
-});
+    const name =
+        document
+            .getElementById("playerName")
+            .value
+            .trim();
 
-
-socket.on("roomJoined", data => {
-
-    online = true;
-    isHost = false;
-    roomCode = data.code;
-
-    showLobby(data);
-});
-
-
-socket.on("roomUpdate", data => {
-
-    updateLobby(data);
-});
+    const code =
+        document
+            .getElementById("joinCode")
+            .value
+            .trim()
+            .toUpperCase();
 
 
-socket.on("joinError", message => {
+    if (!name) {
 
-    document.getElementById("roomError")
+        showError(
+            "Vul eerst je naam in."
+        );
+
+        return;
+    }
+
+
+    if (code.length !== 6) {
+
+        showError(
+            "De kamercode moet 6 tekens hebben."
+        );
+
+        return;
+    }
+
+
+    socket.emit(
+        "joinRoom",
+        {
+            code,
+            name
+        }
+    );
+}
+
+
+/* =========================================================
+   ROOM EVENTS
+   ========================================================= */
+
+socket.on(
+    "roomCreated",
+    data => {
+
+        online = true;
+        isHost = true;
+        roomCode = data.code;
+
+        showLobby(data);
+
+    }
+);
+
+
+socket.on(
+    "roomJoined",
+    data => {
+
+        online = true;
+        isHost = false;
+        roomCode = data.code;
+
+        showLobby(data);
+
+    }
+);
+
+
+socket.on(
+    "roomUpdate",
+    data => {
+
+        updateLobby(data);
+
+    }
+);
+
+
+socket.on(
+    "joinError",
+    message => {
+
+        showError(message);
+
+    }
+);
+
+
+function showError(message) {
+
+    document
+        .getElementById("roomError")
         .textContent = message;
-});
+}
 
+
+/* =========================================================
+   LOBBY
+   ========================================================= */
 
 function showLobby(data) {
 
-    hideAll();
+    hideScreens();
 
-    document.getElementById("lobby")
+    document
+        .getElementById("lobby")
         .classList.remove("hidden");
 
     updateLobby(data);
@@ -765,130 +931,172 @@ function showLobby(data) {
 
 function updateLobby(data) {
 
-    document.getElementById("roomCode")
-        .textContent = data.code;
+    roomCode =
+        data.code;
 
-    const container =
-        document.getElementById("players");
 
-    container.innerHTML = "";
+    document
+        .getElementById("roomCode")
+        .textContent =
+        data.code;
 
-    data.players.forEach(player => {
 
-        const row =
-            document.createElement("div");
+    const list =
+        document
+            .getElementById("players");
 
-        row.className = "player";
+    list.innerHTML = "";
 
-        row.innerHTML = `
-            <span>
-                ${escapeHTML(player.name)}
-            </span>
 
-            <span class="${
-                player.id === data.hostId
-                    ? "host"
-                    : ""
-            }">
-                ${
+    data.players.forEach(
+        player => {
+
+            const row =
+                document.createElement("div");
+
+            row.className =
+                "player";
+
+
+            row.innerHTML = `
+                <span>
+                    ${escapeHTML(player.name)}
+                </span>
+
+                <span class="${
                     player.id === data.hostId
-                        ? "👑 HOST"
-                        : "ZIT AAN TAFEL"
-                }
-            </span>
-        `;
+                        ? "host"
+                        : ""
+                }">
 
-        container.appendChild(row);
-    });
+                    ${
+                        player.id === data.hostId
+                            ? "👑 HOST"
+                            : "ZIT AAN TAFEL"
+                    }
+
+                </span>
+            `;
+
+
+            list.appendChild(row);
+
+        }
+    );
 
 
     const start =
-        document.getElementById("startGameBtn");
+        document
+            .getElementById("lobbyStart");
+
 
     if (data.hostId === myId) {
 
         isHost = true;
 
-        start.classList.remove("hidden");
+        start.classList.remove(
+            "hidden"
+        );
 
-        document.getElementById("lobbyStatus")
+        document
+            .getElementById("lobbyStatus")
             .textContent =
-            "Jij bent de host. Jij kunt het spel starten.";
+            "Jij bent de host. Start het spel wanneer iedereen er is.";
 
     } else {
 
         isHost = false;
 
-        start.classList.add("hidden");
+        start.classList.add(
+            "hidden"
+        );
 
-        document.getElementById("lobbyStatus")
+        document
+            .getElementById("lobbyStatus")
             .textContent =
             "Wachten tot de host het spel start...";
+
     }
 }
 
 
-/* =========================================================
-   ONLINE GAME
-   ========================================================= */
-
 function startOnlineGame() {
 
-    if (!isHost) return;
+    if (!isHost)
+        return;
 
     socket.emit("startGame");
 }
 
 
-function startOnlineRound() {
+/* =========================================================
+   GAME STATE
+   ========================================================= */
 
-    if (!isHost) return;
+socket.on(
+    "gameState",
+    state => {
 
-    socket.emit("startRound");
-}
+        online = true;
 
+        showGame();
 
-socket.on("gameState", state => {
+        renderOnline(state);
 
-    online = true;
-
-    showGame();
-
-    renderOnline(state);
-});
+    }
+);
 
 
-socket.on("gameError", message => {
+socket.on(
+    "gameError",
+    message => {
 
-    showMessage(message);
-});
+        showMessage(message);
+
+    }
+);
 
 
 function showGame() {
 
-    hideAll();
+    hideScreens();
 
-    document.getElementById("game")
+    document
+        .getElementById("game")
         .classList.remove("hidden");
 }
 
 
 /* =========================================================
-   ONLINE BET
+   BET
    ========================================================= */
 
-function bet(amount) {
+function placeBet(amount) {
 
     if (online) {
 
-        socket.emit("placeBet", {
-            amount
-        });
+        socket.emit(
+            "placeBet",
+            { amount }
+        );
 
         return;
     }
 
     localBet(amount);
+}
+
+
+/* =========================================================
+   START ONLINE ROUND
+   ========================================================= */
+
+function startOnlineRound() {
+
+    if (!isHost)
+        return;
+
+    socket.emit("startRound");
 }
 
 
@@ -899,7 +1107,9 @@ function bet(amount) {
 function hit() {
 
     if (online) {
+
         socket.emit("hit");
+
         return;
     }
 
@@ -910,7 +1120,9 @@ function hit() {
 function stand() {
 
     if (online) {
+
         socket.emit("stand");
+
         return;
     }
 
@@ -921,7 +1133,9 @@ function stand() {
 function doubleDown() {
 
     if (online) {
+
         socket.emit("double");
+
         return;
     }
 
@@ -933,7 +1147,8 @@ function nextRound() {
 
     if (online) {
 
-        if (!isHost) return;
+        if (!isHost)
+            return;
 
         socket.emit("nextRound");
 
@@ -950,8 +1165,10 @@ function nextRound() {
 
 function renderOnline(state) {
 
-    document.getElementById("balance")
-        .textContent = state.myBalance;
+    document
+        .getElementById("balance")
+        .textContent =
+        state.myBalance;
 
 
     renderDealer(
@@ -961,15 +1178,21 @@ function renderOnline(state) {
 
 
     const seats =
-        document.getElementById("seats");
+        document
+            .getElementById("seats");
 
     seats.innerHTML = "";
 
 
-    for (let i = 0; i < 4; i++) {
+    for (
+        let i = 0;
+        i < 4;
+        i++
+    ) {
 
         const player =
             state.players[i];
+
 
         if (!player) {
 
@@ -982,9 +1205,12 @@ function renderOnline(state) {
             continue;
         }
 
+
         seats.innerHTML += `
             <div class="seat ${
-                player.active ? "active" : ""
+                player.active
+                    ? "active"
+                    : ""
             }">
 
                 <div class="seat-name">
@@ -993,7 +1219,10 @@ function renderOnline(state) {
                             ? "⭐ "
                             : ""
                     }
-                    ${escapeHTML(player.name)}
+
+                    ${escapeHTML(
+                        player.name
+                    )}
                 </div>
 
                 <div class="bet">
@@ -1011,19 +1240,23 @@ function renderOnline(state) {
                 <div class="total">
                     ${
                         player.cards.length
-                            ? handValue(player.cards)
+                            ? handValue(
+                                player.cards
+                              )
                             : "-"
                     }
                 </div>
 
                 ${
                     player.status
-                        ? `<div style="
-                            margin-top:8px;
-                            color:#e7bc58;
-                           ">
-                            ${player.status}
-                           </div>`
+                        ? `
+                            <div style="
+                                margin-top:8px;
+                                color:#e7bc58;
+                            ">
+                                ${player.status}
+                            </div>
+                          `
                         : ""
                 }
 
@@ -1033,52 +1266,64 @@ function renderOnline(state) {
 
 
     const betting =
-        document.getElementById("bettingControls");
+        document
+            .getElementById(
+                "bettingControls"
+            );
 
     const actions =
-        document.getElementById("actions");
+        document
+            .getElementById(
+                "actions"
+            );
 
     const next =
-        document.getElementById("nextRound");
+        document
+            .getElementById(
+                "nextRound"
+            );
 
     const localStart =
-        document.getElementById("localStart");
+        document
+            .getElementById(
+                "localStart"
+            );
 
     const onlineStart =
-        document.getElementById("onlineStart");
+        document
+            .getElementById(
+                "onlineStart"
+            );
 
 
-    localStart.classList.add("hidden");
+    localStart.classList.add(
+        "hidden"
+    );
 
 
     if (state.phase === "betting") {
 
-        betting.classList.remove("hidden");
+        betting.classList.remove(
+            "hidden"
+        );
 
-        actions.classList.add("hidden");
+        actions.classList.add(
+            "hidden"
+        );
 
-        next.classList.add("hidden");
+        next.classList.add(
+            "hidden"
+        );
+
 
         if (
-            state.hostId === myId &&
+            isHost &&
             state.allBetsPlaced
         ) {
 
-            onlineStart.classList.remove("hidden");
-
-        } else {
-
-            onlineStart.classList.add("hidden");
-        }
-
-
-        if (!state.allBetsPlaced) {
-
-            showMessage(
-                "Iedere speler moet eerst inzetten."
+            onlineStart.classList.remove(
+                "hidden"
             );
-
-        } else if (state.hostId === myId) {
 
             showMessage(
                 "Iedereen heeft ingezet. Start het spel."
@@ -1086,8 +1331,12 @@ function renderOnline(state) {
 
         } else {
 
+            onlineStart.classList.add(
+                "hidden"
+            );
+
             showMessage(
-                "Iedereen heeft ingezet. Wachten op host..."
+                "Iedereen moet eerst inzetten."
             );
         }
 
@@ -1096,22 +1345,34 @@ function renderOnline(state) {
 
     if (state.phase === "playing") {
 
-        betting.classList.add("hidden");
+        betting.classList.add(
+            "hidden"
+        );
 
-        actions.classList.remove("hidden");
+        actions.classList.remove(
+            "hidden"
+        );
 
-        next.classList.add("hidden");
+        next.classList.add(
+            "hidden"
+        );
+
 
         const myTurn =
-            state.currentPlayerId === myId;
+            state.currentPlayerId ===
+            myId;
 
-        document.getElementById("hitBtn")
+
+        document
+            .getElementById("hitBtn")
             .disabled = !myTurn;
 
-        document.getElementById("standBtn")
+        document
+            .getElementById("standBtn")
             .disabled = !myTurn;
 
-        document.getElementById("doubleBtn")
+        document
+            .getElementById("doubleBtn")
             .disabled = !myTurn;
 
 
@@ -1125,24 +1386,32 @@ function renderOnline(state) {
 
     if (state.phase === "finished") {
 
-        betting.classList.add("hidden");
+        betting.classList.add(
+            "hidden"
+        );
 
-        actions.classList.add("hidden");
+        actions.classList.add(
+            "hidden"
+        );
 
-        next.classList.remove("hidden");
+
+        if (isHost) {
+
+            next.classList.remove(
+                "hidden"
+            );
+
+        } else {
+
+            next.classList.add(
+                "hidden"
+            );
+        }
+
 
         showMessage(
             state.resultMessage
         );
-
-        /*
-           Alleen de host kan volgende ronde starten.
-        */
-
-        next.style.display =
-            state.hostId === myId
-                ? "inline-block"
-                : "none";
     }
 }
 
@@ -1168,18 +1437,15 @@ function singleplayer() {
     local.balance = 1000;
 
     local.players = [
-        newPlayer("Jij"),
-        newPlayer("Alex"),
-        newPlayer("Sam"),
-        newPlayer("Noah")
+        newLocalPlayer("Jij"),
+        newLocalPlayer("Alex"),
+        newLocalPlayer("Sam"),
+        newLocalPlayer("Noah")
     ];
 
     local.dealer = [];
-
     local.deck = [];
-
     local.started = false;
-
     local.finished = false;
 
     showGame();
@@ -1188,7 +1454,7 @@ function singleplayer() {
 }
 
 
-function newPlayer(name) {
+function newLocalPlayer(name) {
 
     return {
         name,
@@ -1204,7 +1470,7 @@ function newPlayer(name) {
    LOCAL DECK
    ========================================================= */
 
-function createDeck() {
+function createLocalDeck() {
 
     const suits =
         ["♠", "♥", "♦", "♣"];
@@ -1218,7 +1484,12 @@ function createDeck() {
 
     const deck = [];
 
-    for (let d = 0; d < 6; d++) {
+
+    for (
+        let d = 0;
+        d < 6;
+        d++
+    ) {
 
         for (const suit of suits) {
 
@@ -1233,14 +1504,27 @@ function createDeck() {
     }
 
 
-    for (let i = deck.length - 1; i > 0; i--) {
+    for (
+        let i = deck.length - 1;
+        i > 0;
+        i--
+    ) {
 
         const j =
-            Math.floor(Math.random() * (i + 1));
+            Math.floor(
+                Math.random() *
+                (i + 1)
+            );
 
-        [deck[i], deck[j]] =
-            [deck[j], deck[i]];
+        [
+            deck[i],
+            deck[j]
+        ] = [
+            deck[j],
+            deck[i]
+        ];
     }
+
 
     return deck;
 }
@@ -1252,57 +1536,15 @@ function drawLocal() {
 }
 
 
-function cardValue(card) {
-
-    if (
-        card.value === "J" ||
-        card.value === "Q" ||
-        card.value === "K"
-    ) {
-        return 10;
-    }
-
-    if (card.value === "A")
-        return 11;
-
-    return Number(card.value);
-}
-
-
-function handValue(cards) {
-
-    let total = 0;
-    let aces = 0;
-
-    cards.forEach(card => {
-
-        total += cardValue(card);
-
-        if (card.value === "A")
-            aces++;
-    });
-
-
-    while (total > 21 && aces > 0) {
-
-        total -= 10;
-        aces--;
-    }
-
-    return total;
-}
-
-
-/* =========================================================
-   LOCAL BETTING
-   ========================================================= */
-
 function localBet(amount) {
 
     if (local.started)
         return;
 
-    if (local.balance < amount) {
+    if (
+        local.balance <
+        amount
+    ) {
 
         showMessage(
             "Niet genoeg credits."
@@ -1311,21 +1553,22 @@ function localBet(amount) {
         return;
     }
 
-    local.players[0].bet += amount;
 
-    local.balance -= amount;
+    local.players[0].bet +=
+        amount;
+
+    local.balance -=
+        amount;
 
     renderLocal();
 }
 
 
-/* =========================================================
-   LOCAL START
-   ========================================================= */
-
 function startLocal() {
 
-    if (local.players[0].bet <= 0) {
+    if (
+        local.players[0].bet <= 0
+    ) {
 
         showMessage(
             "Kies eerst je inzet."
@@ -1340,7 +1583,8 @@ function startLocal() {
     local.players[3].bet = 25;
 
 
-    local.deck = createDeck();
+    local.deck =
+        createLocalDeck();
 
 
     local.dealer = [
@@ -1349,16 +1593,18 @@ function startLocal() {
     ];
 
 
-    local.players.forEach(player => {
+    local.players.forEach(
+        player => {
 
-        player.cards = [
-            drawLocal(),
-            drawLocal()
-        ];
+            player.cards = [
+                drawLocal(),
+                drawLocal()
+            ];
 
-        player.standing = false;
-        player.busted = false;
-    });
+            player.standing = false;
+            player.busted = false;
+        }
+    );
 
 
     local.started = true;
@@ -1367,20 +1613,21 @@ function startLocal() {
 
     renderLocal();
 
-
     botsPlay();
 }
 
 
-/* =========================================================
-   BOTS
-   ========================================================= */
-
 async function botsPlay() {
 
-    for (let i = 1; i < 4; i++) {
+    for (
+        let i = 1;
+        i < 4;
+        i++
+    ) {
 
-        const bot = local.players[i];
+        const bot =
+            local.players[i];
+
 
         while (
             handValue(bot.cards) < 17
@@ -1392,6 +1639,7 @@ async function botsPlay() {
                 drawLocal()
             );
 
+
             if (
                 handValue(bot.cards) > 21
             ) {
@@ -1401,8 +1649,10 @@ async function botsPlay() {
                 break;
             }
 
+
             renderLocal();
         }
+
 
         bot.standing = true;
 
@@ -1422,11 +1672,16 @@ async function botsPlay() {
 
 function localHit() {
 
-    if (!local.started || local.finished)
+    if (
+        !local.started ||
+        local.finished
+    )
         return;
+
 
     const player =
         local.players[0];
+
 
     player.cards.push(
         drawLocal()
@@ -1434,7 +1689,9 @@ function localHit() {
 
 
     if (
-        handValue(player.cards) > 21
+        handValue(
+            player.cards
+        ) > 21
     ) {
 
         player.busted = true;
@@ -1449,10 +1706,15 @@ function localHit() {
 
 function localStand() {
 
-    if (!local.started || local.finished)
+    if (
+        !local.started ||
+        local.finished
+    )
         return;
 
-    local.players[0].standing = true;
+
+    local.players[0].standing =
+        true;
 
     finishLocal();
 }
@@ -1463,42 +1725,55 @@ function localDouble() {
     const player =
         local.players[0];
 
-    if (player.cards.length !== 2)
+
+    if (
+        player.cards.length !== 2
+    )
         return;
 
-    if (local.balance < player.bet)
+
+    if (
+        local.balance <
+        player.bet
+    )
         return;
 
-    local.balance -= player.bet;
+
+    local.balance -=
+        player.bet;
 
     player.bet *= 2;
+
 
     player.cards.push(
         drawLocal()
     );
 
+
     if (
-        handValue(player.cards) > 21
+        handValue(
+            player.cards
+        ) > 21
     ) {
 
         player.busted = true;
     }
 
+
     finishLocal();
 }
 
-
-/* =========================================================
-   LOCAL FINISH
-   ========================================================= */
 
 function finishLocal() {
 
     if (local.finished)
         return;
 
+
     while (
-        handValue(local.dealer) < 17
+        handValue(
+            local.dealer
+        ) < 17
     ) {
 
         local.dealer.push(
@@ -1517,42 +1792,39 @@ function finishLocal() {
         handValue(local.dealer);
 
 
-    if (!player.busted) {
+    if (player.busted) {
 
-        if (
-            dealerTotal > 21 ||
-            playerTotal > dealerTotal
-        ) {
+        showMessage(
+            "Je bent bust 😭"
+        );
 
-            local.balance +=
-                player.bet * 2;
+    } else if (
+        dealerTotal > 21 ||
+        playerTotal > dealerTotal
+    ) {
 
-            showMessage(
-                "Jij wint! 🔥"
-            );
+        local.balance +=
+            player.bet * 2;
 
-        } else if (
-            playerTotal === dealerTotal
-        ) {
+        showMessage(
+            "Jij wint! 🔥"
+        );
 
-            local.balance +=
-                player.bet;
+    } else if (
+        playerTotal === dealerTotal
+    ) {
 
-            showMessage(
-                "Push — inzet terug."
-            );
+        local.balance +=
+            player.bet;
 
-        } else {
-
-            showMessage(
-                "Dealer wint."
-            );
-        }
+        showMessage(
+            "Push — inzet terug."
+        );
 
     } else {
 
         showMessage(
-            "Je bent bust 😭"
+            "Dealer wint."
         );
     }
 
@@ -1563,29 +1835,29 @@ function finishLocal() {
 }
 
 
-/* =========================================================
-   LOCAL NEXT ROUND
-   ========================================================= */
-
 function newLocalRound() {
 
-    if (local.balance <= 0)
+    if (
+        local.balance <= 0
+    ) {
+
         local.balance = 1000;
+    }
 
 
-    local.players.forEach(player => {
+    local.players.forEach(
+        player => {
 
-        player.cards = [];
-        player.bet = 0;
-        player.standing = false;
-        player.busted = false;
-    });
+            player.cards = [];
+            player.bet = 0;
+            player.standing = false;
+            player.busted = false;
+        }
+    );
 
 
     local.dealer = [];
-
     local.started = false;
-
     local.finished = false;
 
 
@@ -1599,18 +1871,22 @@ function newLocalRound() {
 
 function renderLocal() {
 
-    document.getElementById("balance")
-        .textContent = local.balance;
+    document
+        .getElementById("balance")
+        .textContent =
+        local.balance;
 
 
     renderDealer(
         local.dealer,
-        !local.finished && local.started
+        !local.finished &&
+        local.started
     );
 
 
     const seats =
-        document.getElementById("seats");
+        document
+            .getElementById("seats");
 
     seats.innerHTML = "";
 
@@ -1649,7 +1925,9 @@ function renderLocal() {
                     <div class="total">
                         ${
                             player.cards.length
-                                ? handValue(player.cards)
+                                ? handValue(
+                                    player.cards
+                                  )
                                 : "-"
                         }
                     </div>
@@ -1661,40 +1939,56 @@ function renderLocal() {
 
 
     const betting =
-        document.getElementById(
-            "bettingControls"
-        );
+        document
+            .getElementById(
+                "bettingControls"
+            );
 
     const actions =
-        document.getElementById(
-            "actions"
-        );
+        document
+            .getElementById(
+                "actions"
+            );
 
     const next =
-        document.getElementById(
-            "nextRound"
-        );
+        document
+            .getElementById(
+                "nextRound"
+            );
 
     const localStart =
-        document.getElementById(
-            "localStart"
+        document
+            .getElementById(
+                "localStart"
+            );
+
+
+    document
+        .getElementById(
+            "onlineStart"
+        )
+        .classList.add(
+            "hidden"
         );
-
-
-    document.getElementById(
-        "onlineStart"
-    ).classList.add("hidden");
 
 
     if (!local.started) {
 
-        betting.classList.remove("hidden");
+        betting.classList.remove(
+            "hidden"
+        );
 
-        actions.classList.add("hidden");
+        actions.classList.add(
+            "hidden"
+        );
 
-        next.classList.add("hidden");
+        next.classList.add(
+            "hidden"
+        );
 
-        localStart.classList.remove("hidden");
+        localStart.classList.remove(
+            "hidden"
+        );
 
         showMessage(
             "Kies je inzet"
@@ -1702,65 +1996,89 @@ function renderLocal() {
 
     } else if (!local.finished) {
 
-        betting.classList.add("hidden");
+        betting.classList.add(
+            "hidden"
+        );
 
-        actions.classList.remove("hidden");
+        actions.classList.remove(
+            "hidden"
+        );
 
-        next.classList.add("hidden");
+        next.classList.add(
+            "hidden"
+        );
 
-        localStart.classList.add("hidden");
+        localStart.classList.add(
+            "hidden"
+        );
 
     } else {
 
-        betting.classList.add("hidden");
+        betting.classList.add(
+            "hidden"
+        );
 
-        actions.classList.add("hidden");
+        actions.classList.add(
+            "hidden"
+        );
 
-        next.classList.remove("hidden");
+        next.classList.remove(
+            "hidden"
+        );
 
-        localStart.classList.add("hidden");
+        localStart.classList.add(
+            "hidden"
+        );
     }
 }
 
 
 /* =========================================================
-   DEALER
+   DEALER + CARDS
    ========================================================= */
 
-function renderDealer(cards, hidden) {
+function renderDealer(
+    cards,
+    hidden
+) {
 
     const container =
-        document.getElementById(
-            "dealerCards"
-        );
+        document
+            .getElementById(
+                "dealerCards"
+            );
 
     container.innerHTML = "";
 
 
-    cards.forEach((card, index) => {
+    cards.forEach(
+        (card, index) => {
 
-        if (
-            hidden &&
-            index === 0
-        ) {
+            if (
+                hidden &&
+                index === 0
+            ) {
 
-            container.innerHTML += `
-                <div class="card card-back">
-                    ?
-                </div>
-            `;
+                container.innerHTML += `
+                    <div class="card card-back">
+                        ?
+                    </div>
+                `;
 
-        } else {
+            } else {
 
-            container.innerHTML +=
-                cardHTML(card);
+                container.innerHTML +=
+                    cardHTML(card);
+            }
         }
-    });
+    );
 
 
-    document.getElementById(
-        "dealerTotal"
-    ).textContent =
+    document
+        .getElementById(
+            "dealerTotal"
+        )
+        .textContent =
         hidden
             ? "?"
             : cards.length
@@ -1769,21 +2087,20 @@ function renderDealer(cards, hidden) {
 }
 
 
-/* =========================================================
-   CARD
-   ========================================================= */
-
 function cardHTML(card) {
 
     const red =
         card.suit === "♥" ||
         card.suit === "♦";
 
+
     return `
         <div class="card ${
             red ? "red" : ""
         }">
+
             ${card.value}${card.suit}
+
         </div>
     `;
 }
@@ -1795,16 +2112,21 @@ function cardHTML(card) {
 
 function showMessage(text) {
 
-    document.getElementById(
-        "message"
-    ).textContent = text || "";
+    document
+        .getElementById("message")
+        .textContent =
+        text || "";
 }
 
 
 function wait(ms) {
 
     return new Promise(
-        resolve => setTimeout(resolve, ms)
+        resolve =>
+            setTimeout(
+                resolve,
+                ms
+            )
     );
 }
 
