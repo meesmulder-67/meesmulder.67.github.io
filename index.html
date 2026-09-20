@@ -244,6 +244,23 @@ input {
   min-height: 65px;
 }
 
+.hand-box {
+  margin-top: 10px;
+  padding: 8px;
+  border-radius: 10px;
+  background: #00000018;
+}
+
+.hand-box.active-hand {
+  border: 2px solid #d8ad55;
+}
+
+.hand-title {
+  font-weight: bold;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
 .controls {
   width: min(900px, 100%);
   margin: 18px auto 0;
@@ -339,7 +356,6 @@ input {
 
 <body>
 
-<!-- HOME -->
 <section id="home" class="screen active">
 
   <div class="logo">♠ BLACKJACK</div>
@@ -354,7 +370,6 @@ input {
 </section>
 
 
-<!-- MULTIPLAYER SETUP -->
 <section id="multiplayerSetup" class="screen">
 
   <div class="panel">
@@ -393,7 +408,6 @@ input {
 </section>
 
 
-<!-- LOBBY -->
 <section id="lobby" class="screen">
 
   <div class="panel">
@@ -429,7 +443,6 @@ input {
 </section>
 
 
-<!-- GAME -->
 <section id="game" class="screen">
 
   <div class="topbar">
@@ -452,7 +465,6 @@ input {
 
   <div class="table">
 
-    <!-- DEALER -->
     <div class="dealer">
 
       <h2>DEALER</h2>
@@ -466,7 +478,6 @@ input {
     </div>
 
 
-    <!-- PLAYERS -->
     <div id="players" class="players"></div>
 
 
@@ -520,6 +531,10 @@ input {
         DOUBLE
       </button>
 
+      <button class="action" id="splitBtn">
+        SPLIT
+      </button>
+
       <button class="action" id="nextRoundBtn">
         VOLGENDE RONDE
       </button>
@@ -547,7 +562,8 @@ let localGame = {
   bet: 0,
   deck: [],
   dealer: [],
-  player: [],
+  hands: [],
+  activeHand: 0,
   phase: "waiting",
   message: ""
 };
@@ -591,6 +607,10 @@ socket.on("joinedRoom", data => {
 
 socket.on("errorMessage", message => {
   $("setupError").textContent = message;
+
+  if (document.getElementById("game").classList.contains("active")) {
+    $("gameStatus").textContent = message;
+  }
 });
 
 socket.on("roomState", state => {
@@ -641,9 +661,7 @@ $("createBtn").addEventListener("click", () => {
 
   $("setupError").textContent = "";
 
-  socket.emit("createRoom", {
-    name
-  });
+  socket.emit("createRoom", { name });
 });
 
 $("joinBtn").addEventListener("click", () => {
@@ -750,7 +768,8 @@ function startSingleplayer() {
     bet: 0,
     deck: createLocalDeck(),
     dealer: [],
-    player: [],
+    hands: [],
+    activeHand: 0,
     phase: "waiting",
     message: ""
   };
@@ -844,6 +863,19 @@ function localBlackjack(cards) {
     localPoints(cards) === 21;
 }
 
+function localCanSplit() {
+
+  if (localGame.hands.length !== 1) return false;
+
+  const hand = localGame.hands[0];
+
+  return (
+    hand.length === 2 &&
+    hand[0].value === hand[1].value &&
+    localGame.balance >= localGame.bet
+  );
+}
+
 
 /* =========================
    LOCAL START
@@ -860,8 +892,9 @@ $("readyBtn").addEventListener("click", () => {
 
     localGame.phase = "waiting";
     localGame.bet = 0;
-    localGame.player = [];
+    localGame.hands = [];
     localGame.dealer = [];
+    localGame.activeHand = 0;
     localGame.deck = createLocalDeck();
     localGame.message = "";
 
@@ -895,17 +928,19 @@ function startLocalRound() {
     localGame.deck = createLocalDeck();
   }
 
-  localGame.player = [
+  localGame.hands = [[
     localGame.deck.pop(),
     localGame.deck.pop()
-  ];
+  ]];
+
+  localGame.activeHand = 0;
 
   localGame.dealer = [
     localGame.deck.pop(),
     localGame.deck.pop()
   ];
 
-  if (localBlackjack(localGame.player)) {
+  if (localBlackjack(localGame.hands[0])) {
     finishLocalRound();
     return;
   }
@@ -924,15 +959,16 @@ $("hitBtn").addEventListener("click", () => {
 
     if (localGame.phase !== "playing") return;
 
-    localGame.player.push(
-      localGame.deck.pop()
-    );
+    const hand =
+      localGame.hands[localGame.activeHand];
 
-    const points =
-      localPoints(localGame.player);
+    hand.push(localGame.deck.pop());
 
-    if (points >= 21) {
-      finishLocalRound();
+    const playerPoints =
+      localPoints(hand);
+
+    if (playerPoints >= 21) {
+      finishLocalHand();
     } else {
       renderLocalGame();
     }
@@ -954,7 +990,7 @@ $("standBtn").addEventListener("click", () => {
 
     if (localGame.phase !== "playing") return;
 
-    finishLocalRound();
+    finishLocalHand();
 
     return;
   }
@@ -973,7 +1009,10 @@ $("doubleBtn").addEventListener("click", () => {
 
     if (localGame.phase !== "playing") return;
 
-    if (localGame.player.length !== 2) return;
+    const hand =
+      localGame.hands[localGame.activeHand];
+
+    if (hand.length !== 2) return;
 
     if (localGame.balance < localGame.bet) {
 
@@ -988,11 +1027,9 @@ $("doubleBtn").addEventListener("click", () => {
     localGame.balance -= localGame.bet;
     localGame.bet *= 2;
 
-    localGame.player.push(
-      localGame.deck.pop()
-    );
+    hand.push(localGame.deck.pop());
 
-    finishLocalRound();
+    finishLocalHand();
 
     return;
   }
@@ -1002,7 +1039,71 @@ $("doubleBtn").addEventListener("click", () => {
 
 
 /* =========================
-   LOCAL DEALER
+   LOCAL SPLIT
+========================= */
+
+$("splitBtn").addEventListener("click", () => {
+
+  if (!online) {
+
+    if (localGame.phase !== "playing") return;
+
+    if (!localCanSplit()) return;
+
+    const oldHand = localGame.hands[0];
+
+    localGame.balance -= localGame.bet;
+
+    const firstCard = oldHand[0];
+    const secondCard = oldHand[1];
+
+    localGame.hands = [
+      [firstCard, localGame.deck.pop()],
+      [secondCard, localGame.deck.pop()]
+    ];
+
+    localGame.activeHand = 0;
+
+    renderLocalGame();
+
+    return;
+  }
+
+  socket.emit("split");
+});
+
+
+/* =========================
+   LOCAL HAND WISSELEN
+========================= */
+
+function finishLocalHand() {
+
+  const hand =
+    localGame.hands[localGame.activeHand];
+
+  if (localPoints(hand) < 21) {
+    renderLocalGame();
+  }
+
+  if (
+    localGame.activeHand <
+    localGame.hands.length - 1
+  ) {
+
+    localGame.activeHand++;
+
+    renderLocalGame();
+
+    return;
+  }
+
+  finishLocalRound();
+}
+
+
+/* =========================
+   LOCAL DEALER + RESULT
 ========================= */
 
 function finishLocalRound() {
@@ -1012,71 +1113,77 @@ function finishLocalRound() {
     localGame.dealer.push(
       localGame.deck.pop()
     );
-
   }
-
-  const playerPoints =
-    localPoints(localGame.player);
 
   const dealerPoints =
     localPoints(localGame.dealer);
 
-  const playerBJ =
-    localBlackjack(localGame.player);
+  const results = [];
 
-  const dealerBJ =
-    localBlackjack(localGame.dealer);
+  for (let i = 0; i < localGame.hands.length; i++) {
 
-  if (playerPoints > 21) {
+    const hand = localGame.hands[i];
 
-    localGame.message =
-      "Je bent bust. Dealer wint.";
+    const playerPoints =
+      localPoints(hand);
 
-  } else if (playerBJ && !dealerBJ) {
+    const playerBJ =
+      hand.length === 2 &&
+      localBlackjack(hand);
 
-    localGame.balance +=
-      Math.floor(localGame.bet * 2.5);
+    const dealerBJ =
+      localBlackjack(localGame.dealer);
 
-    localGame.message =
-      "BLACKJACK! 🎉";
+    let result = "";
 
-  } else if (dealerBJ && !playerBJ) {
+    if (playerPoints > 21) {
 
-    localGame.message =
-      "Dealer heeft blackjack.";
+      result = `Hand ${i + 1}: verlies`;
 
-  } else if (dealerPoints > 21) {
+    } else if (playerBJ && !dealerBJ) {
 
-    localGame.balance +=
-      localGame.bet * 2;
+      localGame.balance +=
+        Math.floor(localGame.bet * 2.5);
 
-    localGame.message =
-      "Dealer is bust. Jij wint!";
+      result = `Hand ${i + 1}: BLACKJACK! 🎉`;
 
-  } else if (playerPoints > dealerPoints) {
+    } else if (dealerBJ && !playerBJ) {
 
-    localGame.balance +=
-      localGame.bet * 2;
+      result = `Hand ${i + 1}: dealer blackjack`;
 
-    localGame.message =
-      "Jij wint!";
+    } else if (dealerPoints > 21) {
 
-  } else if (playerPoints === dealerPoints) {
+      localGame.balance +=
+        localGame.bet * 2;
 
-    localGame.balance +=
-      localGame.bet;
+      result = `Hand ${i + 1}: gewonnen`;
 
-    localGame.message =
-      "Push — gelijkspel.";
+    } else if (playerPoints > dealerPoints) {
 
-  } else {
+      localGame.balance +=
+        localGame.bet * 2;
 
-    localGame.message =
-      "Dealer wint.";
+      result = `Hand ${i + 1}: gewonnen`;
 
+    } else if (playerPoints === dealerPoints) {
+
+      localGame.balance +=
+        localGame.bet;
+
+      result = `Hand ${i + 1}: push`;
+
+    } else {
+
+      result = `Hand ${i + 1}: verloren`;
+    }
+
+    results.push(result);
   }
 
   localGame.phase = "finished";
+
+  localGame.message =
+    `Dealer: ${dealerPoints} punten — ${results.join(" | ")}`;
 
   renderLocalGame();
 }
@@ -1147,8 +1254,9 @@ $("nextRoundBtn").addEventListener("click", () => {
 
   localGame.phase = "waiting";
   localGame.bet = 0;
-  localGame.player = [];
+  localGame.hands = [];
   localGame.dealer = [];
+  localGame.activeHand = 0;
   localGame.message = "";
 
   localGame.deck = createLocalDeck();
@@ -1166,9 +1274,11 @@ function renderOnlineGame(state) {
   $("gameRoomCode").textContent = state.code;
 
   $("gamePhase").textContent =
-    state.phase === "playing"
-      ? "Ronde bezig"
-      : "Ronde afgelopen";
+    state.phase === "betting"
+      ? "Kies je inzet"
+      : state.phase === "playing"
+        ? "Ronde bezig"
+        : "Ronde afgelopen";
 
   const me =
     state.players.find(
@@ -1221,23 +1331,42 @@ function renderOnlineGame(state) {
         ? " active"
         : "");
 
+    let handsHTML = "";
+
+    player.hands.forEach((hand, index) => {
+
+      const active =
+        player.id === state.currentPlayerId &&
+        index === player.activeHand;
+
+      handsHTML += `
+        <div class="hand-box ${active ? "active-hand" : ""}">
+          <div class="hand-title">
+            Hand ${index + 1}
+            — Inzet: ${hand.bet}
+          </div>
+
+          <div class="small-cards cards">
+            ${renderCards(hand.cards, false)}
+          </div>
+
+          <div class="points">
+            Punten: ${hand.points}
+          </div>
+        </div>
+      `;
+    });
+
     seat.innerHTML = `
       <div class="seat-name">
         ${escapeHtml(player.name)}
         ${player.id === myId ? " (jij)" : ""}
       </div>
 
-      <div class="bet">
-        Inzet: ${player.bet}
-      </div>
-
-      <div class="small-cards cards">
-        ${renderCards(player.cards, false)}
-      </div>
-
-      <div class="points">
-        Punten: ${player.points}
-      </div>
+      ${
+        handsHTML ||
+        `<div class="bet">Inzet: ${player.bet}</div>`
+      }
 
       ${
         player.ready
@@ -1281,12 +1410,28 @@ function renderOnlineGame(state) {
     state.currentPlayerId === myId &&
     state.phase === "playing";
 
-  $("hitBtn").disabled = !myTurn;
-  $("standBtn").disabled = !myTurn;
+  const activeHand =
+    me.hands[me.activeHand];
+
+  $("hitBtn").disabled =
+    !myTurn;
+
+  $("standBtn").disabled =
+    !myTurn;
+
   $("doubleBtn").disabled =
     !myTurn ||
-    me.cards.length !== 2 ||
-    me.balance < me.bet;
+    !activeHand ||
+    activeHand.cards.length !== 2 ||
+    me.balance < activeHand.bet;
+
+  $("splitBtn").disabled =
+    !myTurn ||
+    !activeHand ||
+    me.hands.length !== 1 ||
+    activeHand.cards.length !== 2 ||
+    activeHand.cards[0].value !== activeHand.cards[1].value ||
+    me.balance < activeHand.bet;
 }
 
 
@@ -1306,7 +1451,7 @@ function renderLocalGame() {
     localGame.phase === "waiting"
       ? "Kies je inzet"
       : localGame.phase === "playing"
-        ? "Jij bent aan de beurt"
+        ? `Hand ${localGame.activeHand + 1}`
         : "Ronde afgelopen";
 
   $("dealerCards").innerHTML =
@@ -1338,21 +1483,37 @@ function renderLocalGame() {
         JIJ
       </div>
 
-      <div class="bet">
-        Inzet: ${localGame.bet}
-      </div>
+      ${
+        localGame.hands.length === 0
+          ? `<div class="bet">Inzet: ${localGame.bet}</div>`
+          : localGame.hands.map((hand, index) => `
+              <div class="hand-box ${
+                localGame.phase === "playing" &&
+                index === localGame.activeHand
+                  ? "active-hand"
+                  : ""
+              }">
 
-      <div class="cards">
-        ${renderCards(localGame.player, false)}
-      </div>
+                <div class="hand-title">
+                  Hand ${index + 1}
+                  — Inzet: ${index === 0 ? localGame.bet : localGame.bet}
+                </div>
 
-      <div class="points">
-        Punten: ${
-          localGame.player.length
-            ? localPoints(localGame.player)
-            : "-"
-        }
-      </div>
+                <div class="cards">
+                  ${renderCards(hand, false)}
+                </div>
+
+                <div class="points">
+                  Punten: ${
+                    hand.length
+                      ? localPoints(hand)
+                      : "-"
+                  }
+                </div>
+
+              </div>
+            `).join("")
+      }
 
     </div>
   `;
@@ -1376,10 +1537,18 @@ function renderLocalGame() {
   $("standBtn").disabled =
     localGame.phase !== "playing";
 
+  const activeHand =
+    localGame.hands[localGame.activeHand];
+
   $("doubleBtn").disabled =
     localGame.phase !== "playing" ||
-    localGame.player.length !== 2 ||
+    !activeHand ||
+    activeHand.length !== 2 ||
     localGame.balance < localGame.bet;
+
+  $("splitBtn").disabled =
+    localGame.phase !== "playing" ||
+    !localCanSplit();
 }
 
 
@@ -1455,6 +1624,7 @@ function escapeHtml(text) {
 $("hitBtn").disabled = true;
 $("standBtn").disabled = true;
 $("doubleBtn").disabled = true;
+$("splitBtn").disabled = true;
 
 </script>
 
