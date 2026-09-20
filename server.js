@@ -19,6 +19,7 @@ app.get("/", (req, res) => {
 const rooms = new Map();
 
 const CHIP_VALUES = [5, 10, 25, 50, 100, 500];
+const STARTING_CREDITS = 1000;
 
 
 /* =========================
@@ -121,7 +122,7 @@ function isBlackjack(cards) {
 
 
 /* =========================
-   HAND MAKEN
+   HAND
 ========================= */
 
 function createHand(cards = [], bet = 0) {
@@ -135,8 +136,24 @@ function createHand(cards = [], bet = 0) {
 
 
 function activeHand(player) {
-
   return player.hands[player.activeHand];
+}
+
+
+/* =========================
+   AUTOMATISCHE BIJVULLING
+========================= */
+
+function refillPlayer(player) {
+
+  if (player.balance <= 0) {
+
+    player.balance = STARTING_CREDITS;
+
+    return true;
+  }
+
+  return false;
 }
 
 
@@ -252,7 +269,7 @@ function allPlayersHaveBets(room) {
 
 
 /* =========================
-   ECHTE RONDE STARTEN
+   RONDE STARTEN
 ========================= */
 
 function startRound(room) {
@@ -380,6 +397,9 @@ function moveToNextTurn(room) {
       sendRoom(room);
       return;
     }
+
+    moveToNextTurn(room);
+    return;
   }
 
 
@@ -445,6 +465,9 @@ function finishRound(room) {
 
   const dealerBJ =
     isBlackjack(room.dealerCards);
+
+
+  const refillMessages = [];
 
 
   for (const player of room.players) {
@@ -514,30 +537,47 @@ function finishRound(room) {
 
     }
 
+
+    if (refillPlayer(player)) {
+
+      refillMessages.push(
+        `${player.name} kreeg 1000 credits bijgevuld`
+      );
+
+    }
+
   }
 
 
-  room.phase = "finished";
+  room.phase = "betting";
 
   room.currentPlayerId = null;
 
 
   for (const player of room.players) {
 
-    // Automatisch 1000 credits geven als alles op is.
-    if (player.balance <= 0) {
-      player.balance = 1000;
-    }
-
     player.stood = false;
 
     player.ready = false;
+
+    player.bet = 0;
+
+    player.hands = [];
+
+    player.activeHand = 0;
 
   }
 
 
   room.resultMessage =
     `Dealer: ${dealerPoints} punten`;
+
+  if (refillMessages.length > 0) {
+
+    room.resultMessage +=
+      ` — ${refillMessages.join(" | ")}`;
+
+  }
 
 
   sendRoom(room);
@@ -663,7 +703,7 @@ io.on("connection", socket => {
 
       name: cleanName,
 
-      balance: 1000,
+      balance: STARTING_CREDITS,
 
       bet: 0,
 
@@ -774,7 +814,7 @@ io.on("connection", socket => {
 
       name: cleanName,
 
-      balance: 1000,
+      balance: STARTING_CREDITS,
 
       bet: 0,
 
@@ -818,34 +858,28 @@ io.on("connection", socket => {
       if (!player) continue;
 
 
-      /* EERSTE START */
+      /*
+        EERSTE START:
+        Van lobby naar inzetfase.
+      */
 
       if (room.phase === "waiting") {
 
         room.phase = "betting";
 
-
         for (const p of room.players) {
 
           p.ready = false;
-
           p.bet = 0;
-
           p.hands = [];
-
           p.activeHand = 0;
 
         }
 
-
         room.dealerCards = [];
-
         room.dealerHidden = false;
-
         room.resultMessage = "";
-
         room.currentPlayerId = null;
-
 
         sendRoom(room);
 
@@ -853,22 +887,17 @@ io.on("connection", socket => {
       }
 
 
-      /* TWEEDE START */
+      /*
+        START NA EEN VORIGE RONDE:
+        De kamer zit al in betting.
+      */
 
       if (room.phase === "betting") {
 
-        if (player.hands.length === 0) {
-
-          socket.emit(
-            "errorMessage",
-            "Je moet eerst een inzet kiezen."
-          );
-
-          return;
-        }
-
-
-        if (player.hands[0].bet <= 0) {
+        if (
+          player.hands.length === 0 ||
+          player.hands[0].bet <= 0
+        ) {
 
           socket.emit(
             "errorMessage",
@@ -930,6 +959,9 @@ io.on("connection", socket => {
       if (room.phase !== "betting") return;
 
       if (player.ready) return;
+
+
+      refillPlayer(player);
 
 
       if (player.balance < value) return;
@@ -1263,35 +1295,8 @@ io.on("connection", socket => {
       if (!player) continue;
 
 
-      if (room.phase !== "finished") return;
+      if (room.phase !== "betting") return;
 
-
-      for (const p of room.players) {
-
-        p.ready = false;
-
-        p.bet = 0;
-
-        p.hands = [];
-
-        p.activeHand = 0;
-
-      }
-
-
-      room.dealerCards = [];
-
-      room.dealerHidden = false;
-
-      room.resultMessage = "";
-
-      room.currentPlayerId = null;
-
-
-      room.phase = "waiting";
-
-
-      sendRoom(room);
 
       return;
     }
