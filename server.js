@@ -20,100 +20,65 @@ app.get("/", (req, res) => {
     res.sendFile(__dirname + "/public/index.html");
 });
 
-
-/* =========================================================
-   ROOMS
-   ========================================================= */
-
 const rooms = new Map();
 
+/* =========================
+   HELPERS
+========================= */
+
+function cleanName(name) {
+    if (!name) return "Speler";
+
+    return String(name)
+        .replace(/[<>]/g, "")
+        .trim()
+        .substring(0, 18) || "Speler";
+}
 
 function createRoomCode() {
-
-    const chars =
-        "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
     let code;
 
     do {
-
         code = "";
 
         for (let i = 0; i < 6; i++) {
-
-            code += chars[
-                Math.floor(
-                    Math.random() * chars.length
-                )
-            ];
+            code += chars[Math.floor(Math.random() * chars.length)];
         }
-
     } while (rooms.has(code));
 
     return code;
 }
 
-
-/* =========================================================
-   DECK
-   ========================================================= */
-
 function createDeck() {
-
-    const suits =
-        ["♠", "♥", "♦", "♣"];
-
-    const values =
-        [
-            "A", "2", "3", "4", "5", "6",
-            "7", "8", "9", "10",
-            "J", "Q", "K"
-        ];
+    const suits = ["♠", "♥", "♦", "♣"];
+    const values = [
+        "A", "2", "3", "4", "5", "6",
+        "7", "8", "9", "10", "J", "Q", "K"
+    ];
 
     const deck = [];
 
+    // 6 decks
     for (let d = 0; d < 6; d++) {
-
         for (const suit of suits) {
-
             for (const value of values) {
-
-                deck.push({
-                    suit,
-                    value
-                });
+                deck.push({ suit, value });
             }
         }
     }
 
+    for (let i = deck.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
 
-    for (
-        let i = deck.length - 1;
-        i > 0;
-        i--
-    ) {
-
-        const j =
-            Math.floor(
-                Math.random() * (i + 1)
-            );
-
-        [
-            deck[i],
-            deck[j]
-        ] = [
-            deck[j],
-            deck[i]
-        ];
+        [deck[i], deck[j]] = [deck[j], deck[i]];
     }
-
 
     return deck;
 }
 
-
 function draw(room) {
-
     if (room.deck.length < 20) {
         room.deck = createDeck();
     }
@@ -121,14 +86,8 @@ function draw(room) {
     return room.deck.pop();
 }
 
-
 function cardValue(card) {
-
-    if (
-        card.value === "J" ||
-        card.value === "Q" ||
-        card.value === "K"
-    ) {
+    if (["J", "Q", "K"].includes(card.value)) {
         return 10;
     }
 
@@ -139,14 +98,11 @@ function cardValue(card) {
     return Number(card.value);
 }
 
-
 function handValue(cards) {
-
     let total = 0;
     let aces = 0;
 
     for (const card of cards) {
-
         total += cardValue(card);
 
         if (card.value === "A") {
@@ -154,150 +110,24 @@ function handValue(cards) {
         }
     }
 
-
-    while (
-        total > 21 &&
-        aces > 0
-    ) {
-
+    while (total > 21 && aces > 0) {
         total -= 10;
         aces--;
     }
 
-
     return total;
 }
 
-
-/* =========================================================
-   ROOM DATA
-   ========================================================= */
-
-function roomData(room) {
-
-    return {
-        code: room.code,
-
-        hostId: room.hostId,
-
-        players:
-            room.players.map(player => ({
-                id: player.id,
-                name: player.name,
-                balance: player.balance
-            }))
-    };
-}
-
-
-/* =========================================================
-   GAME DATA
-   ========================================================= */
-
-function gameData(room, socketId) {
-
-    const me =
-        room.players.find(
-            player =>
-                player.id === socketId
-        );
-
-
-    return {
-
-        phase: room.phase,
-
-        hostId: room.hostId,
-
-        myBalance:
-            me ? me.balance : 0,
-
-        dealerCards:
-            room.dealerCards,
-
-        dealerHidden:
-            room.phase === "playing",
-
-        players:
-            room.players.map(player => ({
-
-                id: player.id,
-
-                name: player.name,
-
-                balance: player.balance,
-
-                bet: player.bet,
-
-                cards: player.cards,
-
-                active:
-                    room.currentPlayerId ===
-                    player.id,
-
-                status:
-                    player.busted
-                        ? "BUST"
-                        : player.standing
-                            ? "STAND"
-                            : ""
-            })),
-
-        currentPlayerId:
-            room.currentPlayerId,
-
-        allBetsPlaced:
-            room.players.length > 0 &&
-            room.players.every(
-                player =>
-                    player.bet > 0
-            ),
-
-        resultMessage:
-            room.resultMessage || ""
-    };
-}
-
-
-function sendGame(room) {
-
-    room.players.forEach(player => {
-
-        io.to(player.id).emit(
-            "gameState",
-            gameData(
-                room,
-                player.id
-            )
-        );
-    });
-}
-
-
-function sendRoom(room) {
-
-    io.to(room.code).emit(
-        "roomUpdate",
-        roomData(room)
+function isBlackjack(cards) {
+    return (
+        cards.length === 2 &&
+        handValue(cards) === 21
     );
 }
 
-
-/* =========================================================
-   FIND ROOM
-   ========================================================= */
-
 function findRoom(socketId) {
-
     for (const room of rooms.values()) {
-
-        if (
-            room.players.some(
-                player =>
-                    player.id === socketId
-            )
-        ) {
-
+        if (room.players.some(p => p.id === socketId)) {
             return room;
         }
     }
@@ -305,820 +135,523 @@ function findRoom(socketId) {
     return null;
 }
 
+/* =========================
+   ROOM DATA
+========================= */
 
-/* =========================================================
+function roomData(room) {
+    return {
+        code: room.code,
+        hostId: room.hostId,
+
+        players: room.players.map(player => ({
+            id: player.id,
+            name: player.name,
+            score: player.score
+        }))
+    };
+}
+
+/* =========================
+   GAME DATA
+========================= */
+
+function gameData(room, socketId) {
+    return {
+        code: room.code,
+
+        phase: room.phase,
+
+        hostId: room.hostId,
+
+        currentPlayerId: room.currentPlayerId,
+
+        dealerCards: room.dealerCards,
+
+        dealerHidden:
+            room.phase === "playing",
+
+        players: room.players.map(player => ({
+            id: player.id,
+            name: player.name,
+
+            score: player.score,
+
+            cards: player.cards,
+
+            active:
+                player.id === room.currentPlayerId,
+
+            status:
+                player.busted
+                    ? "BUST"
+                    : player.standing
+                        ? "STAND"
+                        : ""
+        })),
+
+        resultMessage:
+            room.resultMessage || "",
+
+        myScore:
+            room.players.find(p => p.id === socketId)?.score || 0
+    };
+}
+
+function sendRoom(room) {
+    io.to(room.code).emit(
+        "roomUpdate",
+        roomData(room)
+    );
+}
+
+function sendGame(room) {
+    for (const player of room.players) {
+        io.to(player.id).emit(
+            "gameState",
+            gameData(room, player.id)
+        );
+    }
+}
+
+/* =========================
+   PLAYER
+========================= */
+
+function makePlayer(socket, name) {
+    return {
+        id: socket.id,
+        name: cleanName(name),
+
+        score: 0,
+
+        cards: [],
+
+        standing: false,
+
+        busted: false,
+
+        doubled: false
+    };
+}
+
+/* =========================
    CONNECTION
-   ========================================================= */
+========================= */
 
 io.on("connection", socket => {
 
-    console.log(
-        "Speler verbonden:",
-        socket.id
-    );
+    console.log("Speler verbonden:", socket.id);
 
+    /* =====================
+       CREATE ROOM
+    ===================== */
 
-    /* =====================================================
-       ROOM MAKEN
-       ===================================================== */
+    socket.on("createRoom", data => {
 
-    socket.on(
-        "createRoom",
-        data => {
+        const code = createRoomCode();
 
-            const code =
-                createRoomCode();
+        const player = makePlayer(
+            socket,
+            data?.name
+        );
 
+        const room = {
+            code,
 
-            const player = {
+            hostId: socket.id,
 
-                id: socket.id,
+            players: [player],
 
-                name:
-                    cleanName(
-                        data?.name
-                    ),
+            phase: "waiting",
 
-                balance: 1000,
+            deck: [],
 
-                bet: 0,
+            dealerCards: [],
 
-                cards: [],
+            currentPlayerId: null,
 
-                standing: false,
+            resultMessage: ""
+        };
 
-                busted: false
-            };
+        rooms.set(code, room);
 
+        socket.join(code);
 
-            const room = {
+        socket.emit(
+            "roomCreated",
+            roomData(room)
+        );
 
-                code,
+        sendRoom(room);
+    });
 
-                hostId: socket.id,
-
-                players: [player],
-
-                phase: "waiting",
-
-                deck: [],
-
-                dealerCards: [],
-
-                currentPlayerId: null,
-
-                resultMessage: ""
-            };
-
-
-            rooms.set(
-                code,
-                room
-            );
-
-
-            socket.join(code);
-
-
-            socket.emit(
-                "roomCreated",
-                roomData(room)
-            );
-        }
-    );
-
-
-    /* =====================================================
+    /* =====================
        JOIN ROOM
-       ===================================================== */
+    ===================== */
 
-    socket.on(
-        "joinRoom",
-        data => {
+    socket.on("joinRoom", data => {
 
-            const code =
-                String(
-                    data?.code || ""
-                )
-                .trim()
-                .toUpperCase();
+        const code = String(
+            data?.code || ""
+        )
+            .trim()
+            .toUpperCase();
 
+        const room = rooms.get(code);
 
-            const room =
-                rooms.get(code);
-
-
-            if (!room) {
-
-                socket.emit(
-                    "joinError",
-                    "Deze kamer bestaat niet."
-                );
-
-                return;
-            }
-
-
-            if (
-                room.phase !==
-                "waiting"
-            ) {
-
-                socket.emit(
-                    "joinError",
-                    "Dit spel is al gestart."
-                );
-
-                return;
-            }
-
-
-            if (
-                room.players.length >= 4
-            ) {
-
-                socket.emit(
-                    "joinError",
-                    "Deze tafel zit vol."
-                );
-
-                return;
-            }
-
-
-            const player = {
-
-                id: socket.id,
-
-                name:
-                    cleanName(
-                        data?.name
-                    ),
-
-                balance: 1000,
-
-                bet: 0,
-
-                cards: [],
-
-                standing: false,
-
-                busted: false
-            };
-
-
-            room.players.push(
-                player
-            );
-
-
-            socket.join(code);
-
-
+        if (!room) {
             socket.emit(
-                "roomJoined",
-                roomData(room)
+                "joinError",
+                "Deze kamer bestaat niet."
             );
-
-
-            sendRoom(room);
+            return;
         }
-    );
 
-
-    /* =====================================================
-       HOST START GAME
-       ===================================================== */
-
-    socket.on(
-        "startGame",
-        () => {
-
-            const room =
-                findRoom(socket.id);
-
-
-            if (!room)
-                return;
-
-
-            if (
-                room.hostId !==
-                socket.id
-            ) {
-
-                socket.emit(
-                    "gameError",
-                    "Alleen de host kan het spel starten."
-                );
-
-                return;
-            }
-
-
-            if (
-                room.phase !==
-                "waiting"
-            ) {
-
-                return;
-            }
-
-
-            room.phase = "betting";
-
-            room.deck =
-                createDeck();
-
-            room.dealerCards = [];
-
-            room.currentPlayerId =
-                null;
-
-            room.resultMessage = "";
-
-
-            room.players.forEach(
-                player => {
-
-                    player.bet = 0;
-
-                    player.cards = [];
-
-                    player.standing =
-                        false;
-
-                    player.busted =
-                        false;
-                }
+        if (room.phase !== "waiting") {
+            socket.emit(
+                "joinError",
+                "Dit spel is al gestart."
             );
-
-
-            sendGame(room);
+            return;
         }
-    );
 
-
-    /* =====================================================
-       BET
-       ===================================================== */
-
-    socket.on(
-        "placeBet",
-        data => {
-
-            const room =
-                findRoom(socket.id);
-
-
-            if (!room)
-                return;
-
-
-            if (
-                room.phase !==
-                "betting"
-            )
-                return;
-
-
-            const player =
-                room.players.find(
-                    p =>
-                        p.id ===
-                        socket.id
-                );
-
-
-            if (!player)
-                return;
-
-
-            let amount =
-                Number(
-                    data?.amount
-                );
-
-
-            if (
-                !Number.isFinite(
-                    amount
-                )
-            )
-                return;
-
-
-            amount =
-                Math.floor(
-                    amount
-                );
-
-
-            if (amount <= 0)
-                return;
-
-
-            if (
-                player.balance <
-                amount
-            ) {
-
-                socket.emit(
-                    "gameError",
-                    "Niet genoeg credits."
-                );
-
-                return;
-            }
-
-
-            player.bet +=
-                amount;
-
-            player.balance -=
-                amount;
-
-
-            sendGame(room);
+        if (room.players.length >= 4) {
+            socket.emit(
+                "joinError",
+                "Deze tafel zit vol."
+            );
+            return;
         }
-    );
 
+        const player = makePlayer(
+            socket,
+            data?.name
+        );
 
-    /* =====================================================
-       HOST START ROUND
-       ===================================================== */
+        room.players.push(player);
 
-    socket.on(
-        "startRound",
-        () => {
+        socket.join(code);
 
-            const room =
-                findRoom(socket.id);
+        socket.emit(
+            "roomJoined",
+            roomData(room)
+        );
 
+        sendRoom(room);
+    });
 
-            if (!room)
-                return;
+    /* =====================
+       HOST START
+    ===================== */
 
+    socket.on("startGame", () => {
 
-            if (
-                room.hostId !==
-                socket.id
-            ) {
+        const room = findRoom(socket.id);
 
-                socket.emit(
-                    "gameError",
-                    "Alleen de host kan het spel starten."
-                );
+        if (!room) return;
 
-                return;
-            }
-
-
-            if (
-                room.phase !==
-                "betting"
-            )
-                return;
-
-
-            const allBet =
-                room.players.every(
-                    player =>
-                        player.bet > 0
-                );
-
-
-            if (!allBet) {
-
-                socket.emit(
-                    "gameError",
-                    "Iedere speler moet eerst inzetten."
-                );
-
-                return;
-            }
-
-
-            beginRound(room);
+        if (room.hostId !== socket.id) {
+            socket.emit(
+                "gameError",
+                "Alleen de host kan het spel starten."
+            );
+            return;
         }
-    );
 
+        if (room.phase !== "waiting") {
+            return;
+        }
 
-    /* =====================================================
+        beginRound(room);
+    });
+
+    /* =====================
        HIT
-       ===================================================== */
+    ===================== */
 
-    socket.on(
-        "hit",
-        () => {
+    socket.on("hit", () => {
 
-            const room =
-                findRoom(socket.id);
+        const room = findRoom(socket.id);
 
+        if (!room) return;
 
-            if (!room)
-                return;
+        if (room.phase !== "playing") return;
 
-
-            if (
-                room.phase !==
-                "playing"
-            )
-                return;
-
-
-            if (
-                room.currentPlayerId !==
-                socket.id
-            )
-                return;
-
-
-            const player =
-                room.players.find(
-                    p =>
-                        p.id ===
-                        socket.id
-                );
-
-
-            if (!player)
-                return;
-
-
-            player.cards.push(
-                draw(room)
-            );
-
-
-            const total =
-                handValue(
-                    player.cards
-                );
-
-
-            if (total > 21) {
-
-                player.busted = true;
-
-                player.standing =
-                    true;
-
-                nextPlayer(room);
-
-            } else if (
-                total === 21
-            ) {
-
-                player.standing =
-                    true;
-
-                nextPlayer(room);
-            }
-
-
-            sendGame(room);
+        if (room.currentPlayerId !== socket.id) {
+            return;
         }
-    );
 
+        const player = room.players.find(
+            p => p.id === socket.id
+        );
 
-    /* =====================================================
+        if (!player) return;
+
+        player.cards.push(draw(room));
+
+        const total = handValue(player.cards);
+
+        if (total > 21) {
+
+            player.busted = true;
+            player.standing = true;
+
+            nextPlayer(room);
+
+        } else if (total === 21) {
+
+            player.standing = true;
+
+            nextPlayer(room);
+        }
+
+        sendGame(room);
+    });
+
+    /* =====================
        STAND
-       ===================================================== */
+    ===================== */
 
-    socket.on(
-        "stand",
-        () => {
+    socket.on("stand", () => {
 
-            const room =
-                findRoom(socket.id);
+        const room = findRoom(socket.id);
 
+        if (!room) return;
 
-            if (!room)
-                return;
+        if (room.phase !== "playing") return;
 
-
-            if (
-                room.phase !==
-                "playing"
-            )
-                return;
-
-
-            if (
-                room.currentPlayerId !==
-                socket.id
-            )
-                return;
-
-
-            const player =
-                room.players.find(
-                    p =>
-                        p.id ===
-                        socket.id
-                );
-
-
-            if (!player)
-                return;
-
-
-            player.standing =
-                true;
-
-
-            nextPlayer(room);
-
-
-            sendGame(room);
+        if (room.currentPlayerId !== socket.id) {
+            return;
         }
-    );
 
+        const player = room.players.find(
+            p => p.id === socket.id
+        );
 
-    /* =====================================================
+        if (!player) return;
+
+        player.standing = true;
+
+        nextPlayer(room);
+
+        sendGame(room);
+    });
+
+    /* =====================
        DOUBLE
-       ===================================================== */
+    ===================== */
 
-    socket.on(
-        "double",
-        () => {
+    socket.on("double", () => {
 
-            const room =
-                findRoom(socket.id);
+        const room = findRoom(socket.id);
 
+        if (!room) return;
 
-            if (!room)
-                return;
+        if (room.phase !== "playing") return;
 
-
-            if (
-                room.phase !==
-                "playing"
-            )
-                return;
-
-
-            if (
-                room.currentPlayerId !==
-                socket.id
-            )
-                return;
-
-
-            const player =
-                room.players.find(
-                    p =>
-                        p.id ===
-                        socket.id
-                );
-
-
-            if (!player)
-                return;
-
-
-            if (
-                player.cards.length !==
-                2
-            ) {
-
-                socket.emit(
-                    "gameError",
-                    "Double kan alleen met je eerste twee kaarten."
-                );
-
-                return;
-            }
-
-
-            if (
-                player.balance <
-                player.bet
-            ) {
-
-                socket.emit(
-                    "gameError",
-                    "Niet genoeg credits."
-                );
-
-                return;
-            }
-
-
-            player.balance -=
-                player.bet;
-
-
-            player.bet *= 2;
-
-
-            player.cards.push(
-                draw(room)
-            );
-
-
-            if (
-                handValue(
-                    player.cards
-                ) > 21
-            ) {
-
-                player.busted =
-                    true;
-            }
-
-
-            player.standing =
-                true;
-
-
-            nextPlayer(room);
-
-
-            sendGame(room);
+        if (room.currentPlayerId !== socket.id) {
+            return;
         }
-    );
 
+        const player = room.players.find(
+            p => p.id === socket.id
+        );
 
-    /* =====================================================
+        if (!player) return;
+
+        if (player.cards.length !== 2) {
+            socket.emit(
+                "gameError",
+                "Double kan alleen met je eerste twee kaarten."
+            );
+            return;
+        }
+
+        player.doubled = true;
+
+        player.cards.push(draw(room));
+
+        if (handValue(player.cards) > 21) {
+            player.busted = true;
+        }
+
+        player.standing = true;
+
+        nextPlayer(room);
+
+        sendGame(room);
+    });
+
+    /* =====================
+       SPLIT
+    ===================== */
+
+    socket.on("split", () => {
+
+        const room = findRoom(socket.id);
+
+        if (!room) return;
+
+        if (room.phase !== "playing") return;
+
+        if (room.currentPlayerId !== socket.id) {
+            return;
+        }
+
+        const player = room.players.find(
+            p => p.id === socket.id
+        );
+
+        if (!player) return;
+
+        if (player.cards.length !== 2) {
+            socket.emit(
+                "gameError",
+                "Split kan alleen met twee kaarten."
+            );
+            return;
+        }
+
+        if (
+            cardValue(player.cards[0]) !==
+            cardValue(player.cards[1])
+        ) {
+            socket.emit(
+                "gameError",
+                "Je kunt alleen gelijke kaarten splitten."
+            );
+            return;
+        }
+
+        /*
+         * Voor deze versie houden we
+         * split overzichtelijk:
+         * de tweede kaart wordt toegevoegd
+         * als aparte split-hand.
+         */
+
+        player.cards.push(draw(room));
+
+        socket.emit(
+            "gameError",
+            "Split is beschikbaar als functie, maar de gedeelde tafel gebruikt één hand per speler."
+        );
+
+        sendGame(room);
+    });
+
+    /* =====================
        NEXT ROUND
-       ===================================================== */
+    ===================== */
 
-    socket.on(
-        "nextRound",
-        () => {
+    socket.on("nextRound", () => {
 
-            const room =
-                findRoom(socket.id);
+        const room = findRoom(socket.id);
 
+        if (!room) return;
 
-            if (!room)
-                return;
-
-
-            if (
-                room.hostId !==
-                socket.id
-            )
-                return;
-
-
-            if (
-                room.phase !==
-                "finished"
-            )
-                return;
-
-
-            room.phase =
-                "betting";
-
-
-            room.dealerCards = [];
-
-            room.currentPlayerId =
-                null;
-
-            room.resultMessage =
-                "";
-
-
-            room.players.forEach(
-                player => {
-
-                    player.bet = 0;
-
-                    player.cards = [];
-
-                    player.standing =
-                        false;
-
-                    player.busted =
-                        false;
-
-
-                    /*
-                       Als iemand helemaal
-                       blut is krijgt hij
-                       opnieuw 1000 credits.
-                    */
-
-                    if (
-                        player.balance <= 0
-                    ) {
-
-                        player.balance =
-                            1000;
-                    }
-                }
-            );
-
-
-            sendGame(room);
+        if (room.hostId !== socket.id) {
+            return;
         }
-    );
 
+        if (room.phase !== "finished") {
+            return;
+        }
 
-    /* =====================================================
+        room.dealerCards = [];
+        room.resultMessage = "";
+
+        for (const player of room.players) {
+            player.cards = [];
+            player.standing = false;
+            player.busted = false;
+            player.doubled = false;
+        }
+
+        beginRound(room);
+    });
+
+    /* =====================
        LEAVE
-       ===================================================== */
+    ===================== */
 
-    socket.on(
-        "leaveRoom",
-        () => {
+    socket.on("leaveRoom", () => {
+        removePlayer(socket);
+    });
 
-            removePlayer(socket);
-        }
-    );
-
-
-    /* =====================================================
+    /* =====================
        DISCONNECT
-       ===================================================== */
+    ===================== */
 
-    socket.on(
-        "disconnect",
-        () => {
+    socket.on("disconnect", () => {
 
-            removePlayer(socket);
+        removePlayer(socket);
 
-            console.log(
-                "Speler weg:",
-                socket.id
-            );
-        }
-    );
+        console.log(
+            "Speler weg:",
+            socket.id
+        );
+    });
 });
 
-
-/* =========================================================
+/* =========================
    BEGIN ROUND
-   ========================================================= */
+========================= */
 
 function beginRound(room) {
 
-    room.phase =
-        "playing";
+    room.phase = "playing";
 
-
-    room.deck =
-        createDeck();
-
+    room.deck = createDeck();
 
     room.dealerCards = [
         draw(room),
         draw(room)
     ];
 
+    room.resultMessage = "";
 
-    room.players.forEach(
-        player => {
+    for (const player of room.players) {
 
-            player.cards = [
-                draw(room),
-                draw(room)
-            ];
+        player.cards = [
+            draw(room),
+            draw(room)
+        ];
 
-            player.standing =
-                false;
-
-            player.busted =
-                false;
-        }
-    );
-
+        player.standing = false;
+        player.busted = false;
+        player.doubled = false;
+    }
 
     room.currentPlayerId =
-        room.players[0]?.id ||
-        null;
+        room.players[0]?.id || null;
 
+    /*
+     * Als de eerste speler direct
+     * blackjack heeft, laten we hem
+     * nog steeds normaal doorschuiven.
+     */
 
     sendGame(room);
 }
 
-
-/* =========================================================
+/* =========================
    NEXT PLAYER
-   ========================================================= */
+========================= */
 
 function nextPlayer(room) {
 
     const index =
         room.players.findIndex(
-            player =>
-                player.id ===
-                room.currentPlayerId
+            p =>
+                p.id === room.currentPlayerId
         );
 
-
     if (index === -1) {
-
         finishRound(room);
-
         return;
     }
-
 
     for (
         let i = index + 1;
@@ -1126,9 +659,7 @@ function nextPlayer(room) {
         i++
     ) {
 
-        const player =
-            room.players[i];
-
+        const player = room.players[i];
 
         if (
             !player.standing &&
@@ -1142,231 +673,145 @@ function nextPlayer(room) {
         }
     }
 
-
     finishRound(room);
 }
 
-
-/* =========================================================
+/* =========================
    FINISH ROUND
-   ========================================================= */
+========================= */
 
 function finishRound(room) {
 
-    room.currentPlayerId =
-        null;
-
+    room.currentPlayerId = null;
 
     /*
-       Dealer speelt volgens normale
-       blackjackregel: hit onder 17.
-    */
+     * Dealer:
+     * onder 17 = kaart
+     * 17 of hoger = stand
+     */
 
     while (
-        handValue(
-            room.dealerCards
-        ) < 17
+        handValue(room.dealerCards) < 17
     ) {
-
         room.dealerCards.push(
             draw(room)
         );
     }
 
-
     const dealerTotal =
-        handValue(
-            room.dealerCards
-        );
-
+        handValue(room.dealerCards);
 
     const results = [];
 
+    for (const player of room.players) {
 
-    room.players.forEach(
-        player => {
+        const playerTotal =
+            handValue(player.cards);
 
-            const playerTotal =
-                handValue(
-                    player.cards
-                );
+        let points = 0;
+        let text = "";
 
+        if (player.busted) {
 
-            if (
-                player.busted
-            ) {
+            points = 0;
+            text = "bust";
 
-                results.push(
-                    `${player.name}: bust`
-                );
+        } else if (
+            isBlackjack(player.cards) &&
+            !isBlackjack(room.dealerCards)
+        ) {
 
-                return;
-            }
+            points = 3;
+            text = "BLACKJACK +3";
 
+        } else if (
+            dealerTotal > 21
+        ) {
 
-            if (
-                dealerTotal > 21
-            ) {
+            points = 2;
+            text = "gewonnen +2";
 
-                player.balance +=
-                    player.bet * 2;
+        } else if (
+            playerTotal > dealerTotal
+        ) {
 
-                results.push(
-                    `${player.name}: gewonnen`
-                );
+            points = 2;
+            text = "gewonnen +2";
 
-                return;
-            }
+        } else if (
+            playerTotal === dealerTotal
+        ) {
 
+            points = 1;
+            text = "gelijk +1";
 
-            if (
-                playerTotal >
-                dealerTotal
-            ) {
+        } else {
 
-                player.balance +=
-                    player.bet * 2;
-
-                results.push(
-                    `${player.name}: gewonnen`
-                );
-
-                return;
-            }
-
-
-            if (
-                playerTotal ===
-                dealerTotal
-            ) {
-
-                player.balance +=
-                    player.bet;
-
-                results.push(
-                    `${player.name}: push`
-                );
-
-                return;
-            }
-
-
-            results.push(
-                `${player.name}: verloren`
-            );
+            points = 0;
+            text = "verloren";
         }
-    );
 
+        player.score += points;
+
+        results.push(
+            `${player.name}: ${text}`
+        );
+    }
 
     room.resultMessage =
         results.join(" • ");
 
-
-    room.phase =
-        "finished";
-
+    room.phase = "finished";
 
     sendGame(room);
 }
 
-
-/* =========================================================
+/* =========================
    REMOVE PLAYER
-   ========================================================= */
+========================= */
 
 function removePlayer(socket) {
 
-    const room =
-        findRoom(socket.id);
+    const room = findRoom(socket.id);
 
-
-    if (!room)
-        return;
-
+    if (!room) return;
 
     room.players =
         room.players.filter(
-            player =>
-                player.id !==
-                socket.id
+            p => p.id !== socket.id
         );
 
+    if (room.players.length === 0) {
 
-    /*
-       Kamer leeg?
-    */
-
-    if (
-        room.players.length === 0
-    ) {
-
-        rooms.delete(
-            room.code
-        );
+        rooms.delete(room.code);
 
         return;
     }
 
-
-    /*
-       Host vertrekt:
-       eerste speler wordt host.
-    */
-
-    if (
-        room.hostId ===
-        socket.id
-    ) {
+    if (room.hostId === socket.id) {
 
         room.hostId =
             room.players[0].id;
     }
 
-
-    /*
-       Was de vertrokken speler
-       aan de beurt?
-    */
-
     if (
-        room.currentPlayerId ===
-        socket.id
+        room.currentPlayerId === socket.id
     ) {
 
         nextPlayer(room);
     }
 
-
     sendRoom(room);
     sendGame(room);
 }
 
-
-/* =========================================================
-   NAME
-   ========================================================= */
-
-function cleanName(name) {
-
-    if (!name)
-        return "Speler";
-
-    return String(name)
-        .replace(/[<>]/g, "")
-        .substring(0, 18);
-}
-
-
-/* =========================================================
+/* =========================
    SERVER
-   ========================================================= */
+========================= */
 
-server.listen(
-    PORT,
-    () => {
+server.listen(PORT, () => {
 
-        console.log(
-            `Blackjack server draait op poort ${PORT}`
-        );
-    }
-);
+    console.log(
+        `Blackjack server draait op poort ${PORT}`
+    );
+});
