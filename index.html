@@ -134,6 +134,7 @@ input {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+    gap: 10px;
 }
 
 .balance {
@@ -147,6 +148,14 @@ input {
 .room-label {
     color: #ddd;
     font-size: 14px;
+}
+
+.home-btn {
+    background: #ffffff18;
+    border: 1px solid #ffffff55;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 10px;
 }
 
 .table {
@@ -177,6 +186,7 @@ input {
     justify-content: center;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .card {
@@ -255,12 +265,29 @@ input {
     box-shadow: 0 4px 8px #0009;
 }
 
-.chip[data-value="5"] { background: #2575d6; }
-.chip[data-value="10"] { background: #159447; }
-.chip[data-value="25"] { background: #d33; }
-.chip[data-value="50"] { background: #8139b8; }
-.chip[data-value="100"] { background: #222; }
-.chip[data-value="500"] { background: #c59a24; }
+.chip[data-value="5"] {
+    background: #2575d6;
+}
+
+.chip[data-value="10"] {
+    background: #159447;
+}
+
+.chip[data-value="25"] {
+    background: #d33;
+}
+
+.chip[data-value="50"] {
+    background: #8139b8;
+}
+
+.chip[data-value="100"] {
+    background: #222;
+}
+
+.chip[data-value="500"] {
+    background: #c59a24;
+}
 
 .actions {
     display: flex;
@@ -280,6 +307,11 @@ input {
 
 .new-round {
     background: #2377db;
+    color: white;
+}
+
+.deal-btn {
+    background: #2ca65a;
     color: white;
 }
 
@@ -329,6 +361,7 @@ input {
 }
 
 @media(max-width:700px) {
+
     h1 {
         font-size: 38px;
     }
@@ -349,13 +382,22 @@ input {
         width: 50px;
         height: 50px;
     }
+
+    .topbar {
+        flex-wrap: wrap;
+    }
 }
 </style>
 </head>
 
 <body>
 
+<!-- =========================
+     HOOFDMENU
+========================= -->
+
 <section id="homeScreen" class="screen active">
+
     <h1>BLACKJACK ROYALE</h1>
 
     <button class="main-btn" onclick="startGame()">
@@ -365,41 +407,74 @@ input {
     <button class="main-btn secondary-btn" onclick="showMulti()">
         👥 Samenspelen
     </button>
+
 </section>
 
+
+<!-- =========================
+     MULTIPLAYER
+========================= -->
+
 <section id="multiScreen" class="screen">
+
     <div class="multi-box">
 
         <h2>👥 SAMENSPELEN</h2>
 
-        <input id="playerName" placeholder="Je naam">
+        <input
+            id="playerName"
+            placeholder="Je naam"
+        >
 
-        <button class="main-btn" onclick="createRoom()">
+        <button
+            class="main-btn"
+            onclick="createRoom()"
+        >
             Kamer maken
         </button>
 
         <hr style="border-color:#ffffff22;margin:20px 0;">
 
-        <input id="roomInput" placeholder="Kamercode">
+        <input
+            id="roomInput"
+            placeholder="Kamercode"
+        >
 
-        <button class="main-btn secondary-btn" onclick="joinRoom()">
+        <button
+            class="main-btn secondary-btn"
+            onclick="joinRoom()"
+        >
             Kamer joinen
         </button>
 
-        <div id="roomArea" style="display:none;">
+        <div
+            id="roomArea"
+            style="display:none;"
+        >
 
             <div>Jouw kamercode:</div>
 
-            <div id="roomCode" class="room-code"></div>
+            <div
+                id="roomCode"
+                class="room-code"
+            ></div>
 
             <div class="players">
+
                 <strong>Spelers:</strong>
+
                 <div id="playerList"></div>
+
             </div>
 
-            <p id="roomStatus">Wachten op spelers...</p>
+            <p id="roomStatus">
+                Wachten op spelers...
+            </p>
 
-            <button class="main-btn" onclick="startMultiplayerGame()">
+            <button
+                class="main-btn"
+                onclick="startMultiplayerGame()"
+            >
                 Start spel
             </button>
 
@@ -407,18 +482,38 @@ input {
 
         <button
             class="main-btn secondary-btn"
-            onclick="showScreen('homeScreen')">
+            onclick="showScreen('homeScreen')"
+        >
             Terug
         </button>
 
     </div>
+
 </section>
 
-<section id="gameScreen" class="screen game-screen">
+
+<!-- =========================
+     GAME
+========================= -->
+
+<section
+    id="gameScreen"
+    class="screen game-screen"
+>
 
     <div class="topbar">
 
-        <div class="room-label" id="gameRoom"></div>
+        <button
+            class="home-btn"
+            onclick="returnHome()"
+        >
+            🏠 Hoofdmenu
+        </button>
+
+        <div
+            class="room-label"
+            id="gameRoom"
+        ></div>
 
         <div class="balance">
             💰 <span id="balance">1000</span>
@@ -426,100 +521,250 @@ input {
 
     </div>
 
+
     <div class="table">
 
-        <button class="rules" onclick="openRules()">?</button>
+        <button
+            class="rules"
+            onclick="openRules()"
+        >
+            ?
+        </button>
+
+
+        <!-- DEALER -->
 
         <div class="dealer-area">
 
-            <div class="area-title">DEALER</div>
+            <div class="area-title">
+                DEALER
+            </div>
 
-            <div id="dealerCards" class="cards"></div>
+            <div
+                id="dealerCards"
+                class="cards"
+            ></div>
 
-            <div id="dealerValue" class="hand-info"></div>
+            <div
+                id="dealerValue"
+                class="hand-info"
+            ></div>
 
         </div>
 
+
         <div class="middle-line"></div>
+
+
+        <!-- PLAYER -->
 
         <div class="player-area">
 
-            <div class="area-title">JIJ</div>
-
-            <div id="handLabel" class="hand-info"></div>
-
-            <div id="playerCards" class="cards"></div>
-
-            <div id="playerValue" class="hand-info"></div>
-
-            <div class="bet-info">
-                Inzet: 💰 <span id="currentBet">0</span>
+            <div class="area-title">
+                JIJ
             </div>
 
-            <div id="message" class="message">
+            <div
+                id="handLabel"
+                class="hand-info"
+            ></div>
+
+            <div
+                id="playerCards"
+                class="cards"
+            ></div>
+
+            <div
+                id="playerValue"
+                class="hand-info"
+            ></div>
+
+            <div class="bet-info">
+
+                Inzet:
+                💰
+                <span id="currentBet">0</span>
+
+            </div>
+
+
+            <div
+                id="message"
+                class="message"
+            >
                 Kies je inzet
             </div>
 
+
+            <!-- CHIPS -->
+
             <div class="chips">
 
-                <button class="chip" data-value="5" onclick="placeBet(5)">5</button>
-                <button class="chip" data-value="10" onclick="placeBet(10)">10</button>
-                <button class="chip" data-value="25" onclick="placeBet(25)">25</button>
-                <button class="chip" data-value="50" onclick="placeBet(50)">50</button>
-                <button class="chip" data-value="100" onclick="placeBet(100)">100</button>
-                <button class="chip" data-value="500" onclick="placeBet(500)">500</button>
+                <button
+                    class="chip"
+                    data-value="5"
+                    onclick="placeBet(5)"
+                >
+                    5
+                </button>
+
+                <button
+                    class="chip"
+                    data-value="10"
+                    onclick="placeBet(10)"
+                >
+                    10
+                </button>
+
+                <button
+                    class="chip"
+                    data-value="25"
+                    onclick="placeBet(25)"
+                >
+                    25
+                </button>
+
+                <button
+                    class="chip"
+                    data-value="50"
+                    onclick="placeBet(50)"
+                >
+                    50
+                </button>
+
+                <button
+                    class="chip"
+                    data-value="100"
+                    onclick="placeBet(100)"
+                >
+                    100
+                </button>
+
+                <button
+                    class="chip"
+                    data-value="500"
+                    onclick="placeBet(500)"
+                >
+                    500
+                </button>
 
             </div>
 
+
+            <!-- ACTIES -->
+
             <div class="actions">
 
-                <button id="hitBtn" class="action-btn"
-                    onclick="hit()" disabled>
+                <button
+                    id="dealBtn"
+                    class="action-btn deal-btn"
+                    onclick="startDeal()"
+                    disabled
+                >
+                    Deal
+                </button>
+
+                <button
+                    id="hitBtn"
+                    class="action-btn"
+                    onclick="hit()"
+                    disabled
+                >
                     Hit
                 </button>
 
-                <button id="standBtn" class="action-btn"
-                    onclick="stand()" disabled>
+                <button
+                    id="standBtn"
+                    class="action-btn"
+                    onclick="stand()"
+                    disabled
+                >
                     Stand
                 </button>
 
-                <button id="doubleBtn" class="action-btn"
-                    onclick="doubleDown()" disabled>
+                <button
+                    id="doubleBtn"
+                    class="action-btn"
+                    onclick="doubleDown()"
+                    disabled
+                >
                     Double
                 </button>
 
-                <button id="splitBtn" class="action-btn"
-                    onclick="split()" disabled>
+                <button
+                    id="splitBtn"
+                    class="action-btn"
+                    onclick="split()"
+                    disabled
+                >
                     Split
                 </button>
 
-                <button class="action-btn new-round"
-                    onclick="newRound()">
+                <button
+                    class="action-btn new-round"
+                    onclick="newRound()"
+                >
                     New Round
                 </button>
 
             </div>
 
         </div>
+
     </div>
+
 </section>
 
-<div id="rulesModal" class="modal">
+
+<!-- =========================
+     REGELS
+========================= -->
+
+<div
+    id="rulesModal"
+    class="modal"
+>
 
     <div class="modal-box">
 
         <h2>🃏 Blackjack regels</h2>
 
-        <p>• Blackjack = 21 met je eerste 2 kaarten.</p>
-        <p>• Blackjack betaalt 3:2.</p>
-        <p>• Dealer staat op 17.</p>
-        <p>• Hit, Stand en Double zijn beschikbaar.</p>
-        <p>• Split kan bij twee kaarten met dezelfde waarde.</p>
-        <p>• Voor Split moet je de tweede inzet kunnen betalen.</p>
-        <p>• Na Split speel je beide handen apart.</p>
-        <p>• Re-split is niet mogelijk.</p>
+        <p>
+            • Blackjack = 21 met je eerste 2 kaarten.
+        </p>
 
-        <button class="close" onclick="closeRules()">
+        <p>
+            • Blackjack betaalt 3:2.
+        </p>
+
+        <p>
+            • Dealer staat op 17.
+        </p>
+
+        <p>
+            • Hit, Stand en Double zijn beschikbaar.
+        </p>
+
+        <p>
+            • Split kan bij twee kaarten met dezelfde waarde.
+        </p>
+
+        <p>
+            • Voor Split moet je de tweede inzet kunnen betalen.
+        </p>
+
+        <p>
+            • Na Split speel je beide handen apart.
+        </p>
+
+        <p>
+            • Re-split is niet mogelijk.
+        </p>
+
+        <button
+            class="close"
+            onclick="closeRules()"
+        >
             Sluiten
         </button>
 
@@ -527,7 +772,12 @@ input {
 
 </div>
 
+
 <script>
+
+/* =========================
+   MULTIPLAYER
+========================= */
 
 const RENDER_URL =
     "https://meesmulder-67-github-io.onrender.com";
@@ -537,19 +787,29 @@ const socket = io(RENDER_URL);
 let currentRoom = null;
 let playerName = "";
 
+
+/* =========================
+   GAME VARIABLES
+========================= */
+
 let balance = 1000;
+
 let bet = 0;
 
 let deck = [];
+
 let dealerHand = [];
 
 let playerHands = [[]];
+
 let handBets = [0];
 
 let currentHand = 0;
 
 let playing = false;
+
 let dealerFinished = false;
+
 let isSplitHand = false;
 
 
@@ -560,19 +820,24 @@ let isSplitHand = false;
 function showScreen(id) {
 
     document.querySelectorAll(".screen")
-        .forEach(screen =>
-            screen.classList.remove("active")
-        );
+        .forEach(screen => {
 
-    document.getElementById(id)
+            screen.classList.remove("active");
+
+        });
+
+    document
+        .getElementById(id)
         .classList.add("active");
 }
+
 
 function startGame() {
 
     currentRoom = null;
 
-    document.getElementById("gameRoom")
+    document
+        .getElementById("gameRoom")
         .textContent = "";
 
     showScreen("gameScreen");
@@ -580,8 +845,42 @@ function startGame() {
     newRound();
 }
 
+
 function showMulti() {
+
     showScreen("multiScreen");
+}
+
+
+/* =========================
+   HOOFDMENU
+========================= */
+
+function returnHome() {
+
+    playing = false;
+
+    dealerFinished = false;
+
+    currentRoom = null;
+
+    bet = 0;
+
+    dealerHand = [];
+
+    playerHands = [[]];
+
+    handBets = [0];
+
+    currentHand = 0;
+
+    isSplitHand = false;
+
+    document
+        .getElementById("gameRoom")
+        .textContent = "";
+
+    showScreen("homeScreen");
 }
 
 
@@ -592,27 +891,36 @@ function showMulti() {
 function createRoom() {
 
     playerName =
-        document.getElementById("playerName")
-            .value.trim() || "Speler";
+        document
+            .getElementById("playerName")
+            .value
+            .trim() || "Speler";
 
     socket.emit("createRoom", {
         name: playerName
     });
 }
 
+
 function joinRoom() {
 
     playerName =
-        document.getElementById("playerName")
-            .value.trim() || "Speler";
+        document
+            .getElementById("playerName")
+            .value
+            .trim() || "Speler";
 
     const code =
-        document.getElementById("roomInput")
-            .value.trim()
+        document
+            .getElementById("roomInput")
+            .value
+            .trim()
             .toUpperCase();
 
     if (!code) {
+
         alert("Vul een kamercode in.");
+
         return;
     }
 
@@ -621,6 +929,7 @@ function joinRoom() {
         name: playerName
     });
 }
+
 
 function updateRoom(room) {
 
@@ -640,64 +949,110 @@ function updateRoom(room) {
             `${index + 1}. ${player.name}`;
 
         list.appendChild(div);
+
     });
 
-    document.getElementById("roomStatus")
+    document
+        .getElementById("roomStatus")
         .textContent =
         `${room.players.length} speler(s) in de kamer`;
 }
+
 
 function startMultiplayerGame() {
 
     if (!currentRoom) {
 
-        alert("Maak of join eerst een kamer.");
+        alert(
+            "Maak of join eerst een kamer."
+        );
 
         return;
     }
 
     showScreen("gameScreen");
 
-    document.getElementById("gameRoom")
+    document
+        .getElementById("gameRoom")
         .textContent =
         "Kamer: " + currentRoom;
 
     newRound();
 }
 
+
 socket.on("connect", () => {
-    console.log("Verbonden met Render.");
+
+    console.log(
+        "Verbonden met Render."
+    );
+
 });
+
 
 socket.on("roomCreated", data => {
 
     currentRoom = data.code;
 
-    document.getElementById("roomArea")
+    document
+        .getElementById("roomArea")
         .style.display = "block";
 
-    document.getElementById("roomCode")
+    document
+        .getElementById("roomCode")
         .textContent = data.code;
+
 });
+
 
 socket.on("roomJoined", data => {
 
     currentRoom = data.code;
 
-    document.getElementById("roomArea")
+    document
+        .getElementById("roomArea")
         .style.display = "block";
 
-    document.getElementById("roomCode")
+    document
+        .getElementById("roomCode")
         .textContent = data.code;
+
 });
+
 
 socket.on("roomUpdate", room => {
+
     updateRoom(room);
+
 });
 
+
 socket.on("joinError", message => {
+
     alert(message);
+
 });
+
+
+/* =========================
+   CREDITS
+========================= */
+
+function refillCreditsIfNeeded() {
+
+    if (balance <= 0) {
+
+        balance = 1000;
+
+        setMessage(
+            "Je credits waren op — je hebt weer 1000 credits gekregen."
+        );
+
+        updateBalance();
+
+    }
+
+}
 
 
 /* =========================
@@ -706,48 +1061,91 @@ socket.on("joinError", message => {
 
 function createDeck() {
 
-    const suits = ["♠", "♥", "♦", "♣"];
+    const suits = [
+        "♠",
+        "♥",
+        "♦",
+        "♣"
+    ];
 
     const ranks = [
-        "A","2","3","4","5","6","7",
-        "8","9","10","J","Q","K"
+        "A",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "J",
+        "Q",
+        "K"
     ];
 
     deck = [];
 
-    for (let d = 0; d < 6; d++) {
+
+    /* 6 decks */
+
+    for (
+        let d = 0;
+        d < 6;
+        d++
+    ) {
 
         for (const suit of suits) {
 
             for (const rank of ranks) {
 
                 deck.push({
-                    suit,
-                    rank
+                    suit: suit,
+                    rank: rank
                 });
+
             }
+
         }
+
     }
 
     shuffleDeck();
 }
 
+
 function shuffleDeck() {
 
-    for (let i = deck.length - 1; i > 0; i--) {
+    for (
+        let i = deck.length - 1;
+        i > 0;
+        i--
+    ) {
 
         const j =
-            Math.floor(Math.random() * (i + 1));
+            Math.floor(
+                Math.random() * (i + 1)
+            );
 
-        [deck[i], deck[j]] =
-            [deck[j], deck[i]];
+        [
+            deck[i],
+            deck[j]
+        ] = [
+            deck[j],
+            deck[i]
+        ];
+
     }
+
 }
+
 
 function drawCard() {
 
     if (deck.length < 20) {
+
         createDeck();
+
     }
 
     return deck.pop();
@@ -760,41 +1158,61 @@ function drawCard() {
 
 function cardValue(card) {
 
-    if (card.rank === "A") return 11;
+    if (card.rank === "A") {
+
+        return 11;
+
+    }
 
     if (
         card.rank === "K" ||
         card.rank === "Q" ||
         card.rank === "J"
     ) {
+
         return 10;
+
     }
 
     return Number(card.rank);
 }
 
+
 function handValue(hand) {
 
     let value = 0;
+
     let aces = 0;
+
 
     hand.forEach(card => {
 
         value += cardValue(card);
 
         if (card.rank === "A") {
+
             aces++;
+
         }
+
     });
 
-    while (value > 21 && aces > 0) {
+
+    while (
+        value > 21 &&
+        aces > 0
+    ) {
 
         value -= 10;
+
         aces--;
+
     }
+
 
     return value;
 }
+
 
 function isBlackjack(hand) {
 
@@ -802,6 +1220,7 @@ function isBlackjack(hand) {
         hand.length === 2 &&
         handValue(hand) === 21
     );
+
 }
 
 
@@ -811,27 +1230,54 @@ function isBlackjack(hand) {
 
 function newRound() {
 
+    /*
+       Alleen aanvullen wanneer
+       de vorige ronde klaar is
+       en je 0 credits hebt.
+    */
+
+    refillCreditsIfNeeded();
+
     createDeck();
 
     dealerHand = [];
 
-    playerHands = [[]];
-    handBets = [0];
+    playerHands = [
+        []
+    ];
+
+    handBets = [
+        0
+    ];
 
     currentHand = 0;
 
     bet = 0;
 
     playing = false;
+
     dealerFinished = false;
+
     isSplitHand = false;
 
-    document.getElementById("currentBet")
+
+    document
+        .getElementById("currentBet")
         .textContent = "0";
 
-    setMessage("Kies je inzet");
+
+    document
+        .getElementById("dealBtn")
+        .disabled = true;
+
+
+    setMessage(
+        "Kies je inzet"
+    );
+
 
     render();
+
 }
 
 
@@ -841,14 +1287,29 @@ function newRound() {
 
 function placeBet(amount) {
 
-    if (playing) return;
-
-    if (amount > balance) {
-
-        setMessage("Niet genoeg credits.");
+    if (playing) {
 
         return;
     }
+
+
+    if (
+        balance < amount
+    ) {
+
+        setMessage(
+            "Niet genoeg credits."
+        );
+
+        return;
+    }
+
+
+    /*
+       De chip wordt alleen toegevoegd.
+       De ronde begint pas wanneer
+       je op DEAL drukt.
+    */
 
     bet += amount;
 
@@ -856,42 +1317,61 @@ function placeBet(amount) {
 
     handBets[0] = bet;
 
+
     updateBalance();
 
-    document.getElementById("currentBet")
+
+    document
+        .getElementById("currentBet")
         .textContent = bet;
 
-    setMessage("Inzet: " + bet);
 
-    if (bet > 0) {
-        startDeal();
-    }
+    setMessage(
+        "Inzet: " + bet + " credits"
+    );
+
+
+    document
+        .getElementById("dealBtn")
+        .disabled = false;
+
 }
 
 
 /* =========================
-   DELEN
+   DEAL
 ========================= */
 
 function startDeal() {
 
-    if (bet <= 0) return;
+    if (
+        bet <= 0 ||
+        playing
+    ) {
+
+        return;
+    }
+
 
     dealerHand = [
         drawCard(),
         drawCard()
     ];
 
+
     playerHands[0] = [
         drawCard(),
         drawCard()
     ];
 
+
     playing = true;
 
     currentHand = 0;
 
+
     render();
+
 
     if (
         isBlackjack(playerHands[0]) ||
@@ -903,7 +1383,9 @@ function startDeal() {
         return;
     }
 
+
     updateActions();
+
 }
 
 
@@ -915,13 +1397,27 @@ function finishInitialBlackjack() {
 
     playing = false;
 
+
     const playerBJ =
-        isBlackjack(playerHands[0]);
+        isBlackjack(
+            playerHands[0]
+        );
+
 
     const dealerBJ =
-        isBlackjack(dealerHand);
+        isBlackjack(
+            dealerHand
+        );
 
-    if (playerBJ && dealerBJ) {
+
+    if (
+        playerBJ &&
+        dealerBJ
+    ) {
+
+        /*
+           inzet terug
+        */
 
         balance += bet;
 
@@ -929,24 +1425,47 @@ function finishInitialBlackjack() {
             "Beiden Blackjack — gelijkspel."
         );
 
-    } else if (playerBJ) {
+    }
 
-        balance += bet * 2.5;
+    else if (playerBJ) {
+
+        /*
+           3:2 winst
+           oorspronkelijke inzet
+           + 1.5x winst
+        */
+
+        balance +=
+            bet * 2.5;
 
         setMessage(
             "BLACKJACK! +" +
             (bet * 1.5)
         );
 
-    } else {
+    }
+
+    else {
 
         setMessage(
             "Dealer heeft Blackjack."
         );
+
     }
 
+
     updateBalance();
+
     render();
+
+
+    /*
+       Als je hierdoor op 0 komt:
+       automatisch 1000 erbij.
+    */
+
+    refillCreditsIfNeeded();
+
 }
 
 
@@ -956,27 +1475,41 @@ function finishInitialBlackjack() {
 
 function hit() {
 
-    if (!playing) return;
+    if (!playing) {
+
+        return;
+    }
+
 
     const hand =
         playerHands[currentHand];
 
-    hand.push(drawCard());
+
+    hand.push(
+        drawCard()
+    );
+
 
     render();
 
-    if (handValue(hand) > 21) {
+
+    if (
+        handValue(hand) > 21
+    ) {
 
         setMessage(
             `Hand ${currentHand + 1} is bust.`
         );
+
 
         nextHand();
 
         return;
     }
 
+
     updateActions();
+
 }
 
 
@@ -986,9 +1519,14 @@ function hit() {
 
 function stand() {
 
-    if (!playing) return;
+    if (!playing) {
+
+        return;
+    }
+
 
     nextHand();
+
 }
 
 
@@ -998,12 +1536,19 @@ function stand() {
 
 function doubleDown() {
 
-    if (!playing) return;
+    if (!playing) {
+
+        return;
+    }
+
 
     const currentBet =
         handBets[currentHand];
 
-    if (balance < currentBet) {
+
+    if (
+        balance < currentBet
+    ) {
 
         setMessage(
             "Niet genoeg credits om te dubbelen."
@@ -1012,19 +1557,40 @@ function doubleDown() {
         return;
     }
 
+
     balance -= currentBet;
+
 
     handBets[currentHand] =
         currentBet * 2;
 
+
     playerHands[currentHand]
-        .push(drawCard());
+        .push(
+            drawCard()
+        );
+
 
     updateBalance();
 
     render();
 
+
+    if (
+        handValue(
+            playerHands[currentHand]
+        ) > 21
+    ) {
+
+        setMessage(
+            `Hand ${currentHand + 1} is bust.`
+        );
+
+    }
+
+
     nextHand();
+
 }
 
 
@@ -1037,19 +1603,52 @@ function canSplit() {
     const hand =
         playerHands[currentHand];
 
-    if (isSplitHand) return false;
 
-    if (hand.length !== 2) return false;
+    /*
+       Je mag alleen splitten
+       met precies 2 kaarten.
+    */
+
+    if (
+        hand.length !== 2
+    ) {
+
+        return false;
+    }
+
+
+    /*
+       Na een split mag je
+       niet nog een keer splitten.
+    */
+
+    if (isSplitHand) {
+
+        return false;
+    }
+
+
+    /*
+       Zelfde waarde:
+       bijvoorbeeld 8 + 8
+       of K + Q.
+    */
 
     return (
         cardValue(hand[0]) ===
         cardValue(hand[1])
     );
+
 }
+
 
 function split() {
 
-    if (!playing) return;
+    if (!playing) {
+
+        return;
+    }
+
 
     if (!canSplit()) {
 
@@ -1060,10 +1659,20 @@ function split() {
         return;
     }
 
+
     const oldBet =
         handBets[currentHand];
 
-    if (balance < oldBet) {
+
+    /*
+       Voor de tweede hand
+       moet je dezelfde inzet
+       nogmaals kunnen betalen.
+    */
+
+    if (
+        balance < oldBet
+    ) {
 
         setMessage(
             "Niet genoeg credits voor Split."
@@ -1072,40 +1681,80 @@ function split() {
         return;
     }
 
+
+    /*
+       Tweede inzet betalen.
+    */
+
     balance -= oldBet;
+
 
     const firstCard =
         playerHands[currentHand][0];
 
+
     const secondCard =
         playerHands[currentHand][1];
 
+
+    /*
+       Twee aparte handen maken.
+    */
+
     playerHands = [
+
         [firstCard],
+
         [secondCard]
+
     ];
 
+
+    /*
+       Beide handen hebben
+       hun eigen inzet.
+    */
+
     handBets = [
+
         oldBet,
+
         oldBet
+
     ];
+
 
     currentHand = 0;
 
     isSplitHand = true;
 
-    playerHands[0].push(drawCard());
-    playerHands[1].push(drawCard());
+
+    /*
+       Iedere gesplitste hand
+       krijgt één nieuwe kaart.
+    */
+
+    playerHands[0].push(
+        drawCard()
+    );
+
+    playerHands[1].push(
+        drawCard()
+    );
+
 
     updateBalance();
 
     render();
 
+
     setMessage(
         "Split! Speel hand 1."
     );
 
+
     updateActions();
+
 }
 
 
@@ -1115,6 +1764,11 @@ function split() {
 
 function nextHand() {
 
+    /*
+       Geen split:
+       meteen naar dealer.
+    */
+
     if (!isSplitHand) {
 
         finishPlayerTurn();
@@ -1122,29 +1776,59 @@ function nextHand() {
         return;
     }
 
-    if (currentHand === 0) {
+
+    /*
+       Hand 1 klaar:
+       naar hand 2.
+    */
+
+    if (
+        currentHand === 0
+    ) {
 
         currentHand = 1;
 
         render();
 
-        if (handValue(playerHands[1]) > 21) {
 
-            setMessage("Hand 2 is bust.");
+        /*
+           Als hand 2 al bust is,
+           meteen naar dealer.
+        */
+
+        if (
+            handValue(
+                playerHands[1]
+            ) > 21
+        ) {
+
+            setMessage(
+                "Hand 2 is bust."
+            );
 
             finishPlayerTurn();
 
             return;
         }
 
-        setMessage("Nu speel je hand 2.");
+
+        setMessage(
+            "Nu speel je hand 2."
+        );
+
 
         updateActions();
 
         return;
     }
 
+
+    /*
+       Beide handen klaar.
+    */
+
     finishPlayerTurn();
+
 }
 
 
@@ -1159,18 +1843,32 @@ function finishPlayerTurn() {
     dealerPlay();
 
     calculateResults();
+
 }
+
 
 function dealerPlay() {
 
-    while (handValue(dealerHand) < 17) {
+    /*
+       Dealer trekt totdat hij
+       minimaal 17 heeft.
+    */
 
-        dealerHand.push(drawCard());
+    while (
+        handValue(dealerHand) < 17
+    ) {
+
+        dealerHand.push(
+            drawCard()
+        );
+
     }
+
 
     dealerFinished = true;
 
     render();
+
 }
 
 
@@ -1185,54 +1883,128 @@ function calculateResults() {
     const dealerValue =
         handValue(dealerHand);
 
-    playerHands.forEach((hand, index) => {
 
-        const handBet =
-            handBets[index];
+    playerHands.forEach(
+        (hand, index) => {
 
-        const playerValue =
-            handValue(hand);
+            const handBet =
+                handBets[index];
 
-        if (playerValue > 21) {
-            return;
+
+            const playerValue =
+                handValue(hand);
+
+
+            /*
+               Bust = inzet kwijt.
+            */
+
+            if (
+                playerValue > 21
+            ) {
+
+                return;
+            }
+
+
+            /*
+               Dealer bust =
+               dubbele inzet terug.
+            */
+
+            if (
+                dealerValue > 21
+            ) {
+
+                totalWin +=
+                    handBet * 2;
+
+                return;
+            }
+
+
+            /*
+               Player hoger.
+            */
+
+            if (
+                playerValue >
+                dealerValue
+            ) {
+
+                totalWin +=
+                    handBet * 2;
+
+                return;
+            }
+
+
+            /*
+               Gelijk =
+               inzet terug.
+            */
+
+            if (
+                playerValue ===
+                dealerValue
+            ) {
+
+                totalWin +=
+                    handBet;
+
+                return;
+            }
+
+
+            /*
+               Dealer hoger =
+               niets terug.
+            */
+
         }
+    );
 
-        if (dealerValue > 21) {
-
-            totalWin += handBet * 2;
-
-            return;
-        }
-
-        if (playerValue > dealerValue) {
-
-            totalWin += handBet * 2;
-
-            return;
-        }
-
-        if (playerValue === dealerValue) {
-
-            totalWin += handBet;
-
-            return;
-        }
-    });
 
     balance += totalWin;
 
+
     updateBalance();
 
-    setMessage(
-        `Dealer: ${dealerValue} — ronde klaar`
-    );
+
+    if (
+        isSplitHand
+    ) {
+
+        setMessage(
+            `Split klaar! Dealer: ${dealerValue}`
+        );
+
+    }
+
+    else {
+
+        setMessage(
+            `Dealer: ${dealerValue} — ronde klaar`
+        );
+
+    }
+
 
     updateActions();
+
+
+    /*
+       Als je alles kwijt bent,
+       meteen weer 1000 credits.
+    */
+
+    refillCreditsIfNeeded();
+
 }
 
 
 /* =========================
-   RENDER
+   KAART RENDEREN
 ========================= */
 
 function createCardElement(card) {
@@ -1240,22 +2012,38 @@ function createCardElement(card) {
     const div =
         document.createElement("div");
 
-    div.className = "card";
+
+    div.className =
+        "card";
+
 
     if (
         card.suit === "♥" ||
         card.suit === "♦"
     ) {
+
         div.classList.add("red");
+
     }
 
+
     div.innerHTML = `
-        <div>${card.rank}</div>
-        <div>${card.suit}</div>
+
+        <div>
+            ${card.rank}
+        </div>
+
+        <div>
+            ${card.suit}
+        </div>
+
     `;
 
+
     return div;
+
 }
+
 
 function renderCards(
     elementId,
@@ -1264,86 +2052,154 @@ function renderCards(
 ) {
 
     const container =
-        document.getElementById(elementId);
+        document.getElementById(
+            elementId
+        );
+
 
     container.innerHTML = "";
 
-    hand.forEach((card, index) => {
 
-        if (hideSecond && index === 1) {
+    hand.forEach(
+        (card, index) => {
 
-            const back =
-                document.createElement("div");
+            if (
+                hideSecond &&
+                index === 1
+            ) {
 
-            back.className =
-                "card back";
+                const back =
+                    document.createElement(
+                        "div"
+                    );
 
-            back.textContent = "♠";
 
-            container.appendChild(back);
+                back.className =
+                    "card back";
 
-            return;
+
+                back.textContent =
+                    "♠";
+
+
+                container.appendChild(
+                    back
+                );
+
+
+                return;
+            }
+
+
+            container.appendChild(
+                createCardElement(card)
+            );
+
         }
+    );
 
-        container.appendChild(
-            createCardElement(card)
-        );
-    });
 }
 
+
 function render() {
+
+    /*
+       Dealer.
+    */
 
     renderCards(
         "dealerCards",
         dealerHand,
-        playing && dealerHand.length > 1
+        playing &&
+        dealerHand.length > 1
     );
 
-    document.getElementById("dealerValue")
+
+    document
+        .getElementById("dealerValue")
         .textContent =
         dealerHand.length
+
             ? (
                 playing
+
                     ? "Waarde: " +
-                      cardValue(dealerHand[0])
+                      cardValue(
+                          dealerHand[0]
+                      )
+
                     : "Waarde: " +
-                      handValue(dealerHand)
+                      handValue(
+                          dealerHand
+                      )
               )
+
             : "";
 
+
+    /*
+       Player.
+    */
+
     const container =
-        document.getElementById("playerCards");
+        document.getElementById(
+            "playerCards"
+        );
+
 
     container.innerHTML = "";
 
+
     const hand =
-        playerHands[currentHand] || [];
+        playerHands[currentHand] ||
+        [];
+
 
     hand.forEach(card => {
 
         container.appendChild(
             createCardElement(card)
         );
+
     });
 
-    document.getElementById("playerValue")
+
+    document
+        .getElementById("playerValue")
         .textContent =
         hand.length
-            ? "Waarde: " + handValue(hand)
+
+            ? "Waarde: " +
+              handValue(hand)
+
             : "";
 
-    document.getElementById("handLabel")
+
+    /*
+       Hand nummer bij split.
+    */
+
+    document
+        .getElementById("handLabel")
         .textContent =
         isSplitHand
+
             ? `Hand ${currentHand + 1} van 2`
+
             : "";
 
-    document.getElementById("currentBet")
+
+    document
+        .getElementById("currentBet")
         .textContent =
-        handBets[currentHand] || bet;
+        handBets[currentHand] ||
+        bet;
+
 
     updateBalance();
+
     updateActions();
+
 }
 
 
@@ -1354,68 +2210,139 @@ function render() {
 function updateActions() {
 
     const hand =
-        playerHands[currentHand] || [];
+        playerHands[currentHand] ||
+        [];
+
 
     const canPlay =
         playing &&
         hand.length > 0 &&
         handValue(hand) <= 21;
 
-    document.getElementById("hitBtn")
-        .disabled = !canPlay;
 
-    document.getElementById("standBtn")
-        .disabled = !canPlay;
+    document
+        .getElementById("hitBtn")
+        .disabled =
+        !canPlay;
 
-    document.getElementById("doubleBtn")
-        .disabled = !(
+
+    document
+        .getElementById("standBtn")
+        .disabled =
+        !canPlay;
+
+
+    /*
+       Double alleen bij
+       eerste 2 kaarten.
+    */
+
+    document
+        .getElementById("doubleBtn")
+        .disabled =
+        !(
             canPlay &&
             hand.length === 2 &&
-            balance >= handBets[currentHand]
+            balance >=
+                handBets[currentHand]
         );
 
-    document.getElementById("splitBtn")
-        .disabled = !(
+
+    /*
+       Split alleen wanneer
+       de twee kaarten dezelfde
+       waarde hebben.
+    */
+
+    document
+        .getElementById("splitBtn")
+        .disabled =
+        !(
             canPlay &&
             canSplit() &&
-            balance >= handBets[currentHand]
+            balance >=
+                handBets[currentHand]
         );
 
-    document.querySelectorAll(".chip")
+
+    /*
+       Chips kunnen alleen
+       vóór de deal worden gebruikt.
+    */
+
+    document
+        .querySelectorAll(".chip")
         .forEach(chip => {
-            chip.disabled = playing;
+
+            chip.disabled =
+                playing;
+
         });
+
+
+    /*
+       Deal-knop.
+    */
+
+    document
+        .getElementById("dealBtn")
+        .disabled =
+        playing ||
+        bet <= 0 ||
+        dealerHand.length > 0;
+
 }
 
 
 /* =========================
-   UI
+   BALANCE
 ========================= */
 
 function updateBalance() {
 
-    document.getElementById("balance")
+    document
+        .getElementById("balance")
         .textContent =
         Math.floor(balance);
+
 }
+
 
 function setMessage(text) {
 
-    document.getElementById("message")
-        .textContent = text;
+    document
+        .getElementById("message")
+        .textContent =
+        text;
+
 }
+
+
+/* =========================
+   REGELS
+========================= */
 
 function openRules() {
 
-    document.getElementById("rulesModal")
+    document
+        .getElementById("rulesModal")
         .classList.add("active");
+
 }
+
 
 function closeRules() {
 
-    document.getElementById("rulesModal")
+    document
+        .getElementById("rulesModal")
         .classList.remove("active");
+
 }
+
+
+/* =========================
+   START
+========================= */
 
 updateBalance();
 
