@@ -6,766 +6,516 @@ const app = express();
 const server = http.createServer(app);
 
 const io = new Server(server, {
-    cors: {
-        origin: "*",
-        methods: ["GET", "POST"]
-    }
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
 });
 
-const PORT = process.env.PORT || 3000;
-
-app.use(express.static("public"));
-
 app.get("/", (req, res) => {
-    res.sendFile(__dirname + "/public/index.html");
+  res.send("Blackjack server online");
 });
 
 const rooms = new Map();
 
-/* =========================
-   HELPERS
-========================= */
-
-function cleanName(name) {
-    return String(name || "Speler")
-        .replace(/[<>]/g, "")
-        .trim()
-        .substring(0, 18) || "Speler";
-}
-
-function createRoomCode() {
-    const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-    let code;
-
-    do {
-        code = "";
-        for (let i = 0; i < 6; i++) {
-            code += chars[Math.floor(Math.random() * chars.length)];
-        }
-    } while (rooms.has(code));
-
-    return code;
-}
+const CHIP_VALUES = [5, 10, 25, 50, 100, 500];
 
 function createDeck() {
-    const suits = ["♠", "♥", "♦", "♣"];
-    const values = [
-        "A", "2", "3", "4", "5", "6", "7",
-        "8", "9", "10", "J", "Q", "K"
-    ];
+  const suits = ["♠", "♥", "♦", "♣"];
+  const ranks = [
+    { name: "A", value: 11 },
+    { name: "2", value: 2 },
+    { name: "3", value: 3 },
+    { name: "4", value: 4 },
+    { name: "5", value: 5 },
+    { name: "6", value: 6 },
+    { name: "7", value: 7 },
+    { name: "8", value: 8 },
+    { name: "9", value: 9 },
+    { name: "10", value: 10 },
+    { name: "J", value: 10 },
+    { name: "Q", value: 10 },
+    { name: "K", value: 10 }
+  ];
 
-    const deck = [];
+  const deck = [];
 
-    for (let d = 0; d < 6; d++) {
-        for (const suit of suits) {
-            for (const value of values) {
-                deck.push({ suit, value });
-            }
-        }
+  for (let d = 0; d < 6; d++) {
+    for (const suit of suits) {
+      for (const rank of ranks) {
+        deck.push({
+          name: rank.name,
+          suit,
+          value: rank.value
+        });
+      }
     }
+  }
 
-    for (let i = deck.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [deck[i], deck[j]] = [deck[j], deck[i]];
-    }
-
-    return deck;
+  return shuffle(deck);
 }
 
-function draw(room) {
-    if (room.deck.length < 20) {
-        room.deck = createDeck();
-    }
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
 
-    return room.deck.pop();
-}
-
-function cardValue(card) {
-    if (["J", "Q", "K"].includes(card.value)) return 10;
-    if (card.value === "A") return 11;
-    return Number(card.value);
+  return array;
 }
 
 function handValue(cards) {
-    let total = 0;
-    let aces = 0;
+  let total = cards.reduce((sum, card) => sum + card.value, 0);
+  let aces = cards.filter(card => card.name === "A").length;
 
-    for (const card of cards) {
-        total += cardValue(card);
-        if (card.value === "A") aces++;
-    }
+  while (total > 21 && aces > 0) {
+    total -= 10;
+    aces--;
+  }
 
-    while (total > 21 && aces > 0) {
-        total -= 10;
-        aces--;
-    }
-
-    return total;
+  return total;
 }
 
-function blackjack(cards) {
-    return cards.length === 2 && handValue(cards) === 21;
+function isBlackjack(cards) {
+  return cards.length === 2 && handValue(cards) === 21;
 }
 
-function findRoom(socketId) {
-    for (const room of rooms.values()) {
-        if (room.players.some(p => p.id === socketId)) {
-            return room;
-        }
-    }
+function roomState(room) {
+  return {
+    code: room.code,
+    hostId: room.hostId,
+    phase: room.phase,
+    dealerCards: room.dealerCards,
+    dealerHidden: room.dealerHidden,
+    currentPlayerId: room.currentPlayerId,
+    resultMessage: room.resultMessage,
 
-    return null;
-}
-
-function newPlayer(socket, name) {
-    return {
-        id: socket.id,
-        name: cleanName(name),
-        balance: 1000,
-        bet: 0,
-        cards: [],
-        standing: false,
-        busted: false,
-        doubled: false
-    };
-}
-
-/* =========================
-   DATA
-========================= */
-
-function roomData(room) {
-    return {
-        code: room.code,
-        hostId: room.hostId,
-        players: room.players.map(p => ({
-            id: p.id,
-            name: p.name,
-            balance: p.balance
-        }))
-    };
-}
-
-function gameData(room, socketId) {
-    const me = room.players.find(p => p.id === socketId);
-
-    return {
-        code: room.code,
-        phase: room.phase,
-        hostId: room.hostId,
-        currentPlayerId: room.currentPlayerId,
-
-        myBalance: me ? me.balance : 0,
-
-        dealerCards: room.dealerCards,
-        dealerHidden: room.phase === "playing",
-
-        players: room.players.map(p => ({
-            id: p.id,
-            name: p.name,
-            balance: p.balance,
-            bet: p.bet,
-            cards: p.cards,
-            active: p.id === room.currentPlayerId,
-            status:
-                p.busted
-                    ? "BUST"
-                    : p.standing
-                        ? "STAND"
-                        : ""
-        })),
-
-        resultMessage: room.resultMessage || ""
-    };
+    players: room.players.map(p => ({
+      id: p.id,
+      name: p.name,
+      balance: p.balance,
+      bet: p.bet,
+      cards: p.cards,
+      points: handValue(p.cards),
+      ready: p.ready,
+      stood: p.stood
+    }))
+  };
 }
 
 function sendRoom(room) {
-    io.to(room.code).emit("roomUpdate", roomData(room));
+  io.to(room.code).emit("roomState", roomState(room));
 }
 
-function sendGame(room) {
-    for (const player of room.players) {
-        io.to(player.id).emit(
-            "gameState",
-            gameData(room, player.id)
-        );
-    }
+function allPlayersReady(room) {
+  return room.players.length > 0 &&
+    room.players.every(player => player.ready);
 }
 
-/* =========================
-   CONNECTION
-========================= */
-
-io.on("connection", socket => {
-
-    console.log("Connected:", socket.id);
-
-    /* CREATE ROOM */
-
-    socket.on("createRoom", data => {
-
-        const code = createRoomCode();
-        const player = newPlayer(socket, data?.name);
-
-        const room = {
-            code,
-            hostId: socket.id,
-            players: [player],
-
-            phase: "waiting",
-
-            deck: [],
-            dealerCards: [],
-
-            currentPlayerId: null,
-
-            resultMessage: ""
-        };
-
-        rooms.set(code, room);
-
-        socket.join(code);
-
-        socket.emit("roomCreated", roomData(room));
-
-        sendRoom(room);
-    });
-
-    /* JOIN ROOM */
-
-    socket.on("joinRoom", data => {
-
-        const code = String(data?.code || "")
-            .trim()
-            .toUpperCase();
-
-        const room = rooms.get(code);
-
-        if (!room) {
-            socket.emit(
-                "joinError",
-                "Deze kamer bestaat niet."
-            );
-            return;
-        }
-
-        if (room.phase !== "waiting") {
-            socket.emit(
-                "joinError",
-                "Dit spel is al gestart."
-            );
-            return;
-        }
-
-        if (room.players.length >= 4) {
-            socket.emit(
-                "joinError",
-                "Deze tafel zit vol."
-            );
-            return;
-        }
-
-        const player = newPlayer(socket, data?.name);
-
-        room.players.push(player);
-
-        socket.join(code);
-
-        socket.emit("roomJoined", roomData(room));
-
-        sendRoom(room);
-    });
-
-    /* HOST START */
-
-    socket.on("startGame", () => {
-
-        const room = findRoom(socket.id);
-
-        if (!room) return;
-
-        if (room.hostId !== socket.id) {
-            socket.emit(
-                "gameError",
-                "Alleen de host kan het spel starten."
-            );
-            return;
-        }
-
-        if (room.phase !== "waiting") return;
-
-        room.phase = "betting";
-        room.resultMessage = "";
-
-        for (const player of room.players) {
-            player.bet = 0;
-            player.cards = [];
-            player.standing = false;
-            player.busted = false;
-            player.doubled = false;
-        }
-
-        sendGame(room);
-    });
-
-    /* BET */
-
-    socket.on("placeBet", data => {
-
-        const room = findRoom(socket.id);
-
-        if (!room || room.phase !== "betting") return;
-
-        const player = room.players.find(
-            p => p.id === socket.id
-        );
-
-        if (!player) return;
-
-        const amount = Math.floor(Number(data?.amount));
-
-        if (!Number.isFinite(amount) || amount <= 0) return;
-
-        if (player.balance < amount) {
-            socket.emit(
-                "gameError",
-                "Niet genoeg nepcredits."
-            );
-            return;
-        }
-
-        player.balance -= amount;
-        player.bet += amount;
-
-        sendGame(room);
-    });
-
-    /* START ROUND */
-
-    socket.on("startRound", () => {
-
-        const room = findRoom(socket.id);
-
-        if (!room) return;
-
-        if (room.hostId !== socket.id) {
-            socket.emit(
-                "gameError",
-                "Alleen de host kan de ronde starten."
-            );
-            return;
-        }
-
-        if (room.phase !== "betting") return;
-
-        const allBet = room.players.every(
-            p => p.bet > 0
-        );
-
-        if (!allBet) {
-            socket.emit(
-                "gameError",
-                "Iedere speler moet eerst inzetten."
-            );
-            return;
-        }
-
-        beginRound(room);
-    });
-
-    /* HIT */
-
-    socket.on("hit", () => {
-
-        const room = findRoom(socket.id);
-
-        if (!room) return;
-
-        if (
-            room.phase !== "playing" ||
-            room.currentPlayerId !== socket.id
-        ) return;
-
-        const player = room.players.find(
-            p => p.id === socket.id
-        );
-
-        if (!player) return;
-
-        player.cards.push(draw(room));
-
-        const total = handValue(player.cards);
-
-        if (total > 21) {
-            player.busted = true;
-            player.standing = true;
-            nextPlayer(room);
-        } else if (total === 21) {
-            player.standing = true;
-            nextPlayer(room);
-        }
-
-        sendGame(room);
-    });
-
-    /* STAND */
-
-    socket.on("stand", () => {
-
-        const room = findRoom(socket.id);
-
-        if (!room) return;
-
-        if (
-            room.phase !== "playing" ||
-            room.currentPlayerId !== socket.id
-        ) return;
-
-        const player = room.players.find(
-            p => p.id === socket.id
-        );
-
-        if (!player) return;
-
-        player.standing = true;
-
-        nextPlayer(room);
-
-        sendGame(room);
-    });
-
-    /* DOUBLE */
-
-    socket.on("double", () => {
-
-        const room = findRoom(socket.id);
-
-        if (!room) return;
-
-        if (
-            room.phase !== "playing" ||
-            room.currentPlayerId !== socket.id
-        ) return;
-
-        const player = room.players.find(
-            p => p.id === socket.id
-        );
-
-        if (!player) return;
-
-        if (player.cards.length !== 2) {
-            socket.emit(
-                "gameError",
-                "Double kan alleen met je eerste twee kaarten."
-            );
-            return;
-        }
-
-        if (player.balance < player.bet) {
-            socket.emit(
-                "gameError",
-                "Niet genoeg nepcredits."
-            );
-            return;
-        }
-
-        player.balance -= player.bet;
-        player.bet *= 2;
-        player.doubled = true;
-
-        player.cards.push(draw(room));
-
-        if (handValue(player.cards) > 21) {
-            player.busted = true;
-        }
-
-        player.standing = true;
-
-        nextPlayer(room);
-
-        sendGame(room);
-    });
-
-    /* SPLIT */
-
-    socket.on("split", () => {
-
-        const room = findRoom(socket.id);
-
-        if (!room) return;
-
-        if (
-            room.phase !== "playing" ||
-            room.currentPlayerId !== socket.id
-        ) return;
-
-        const player = room.players.find(
-            p => p.id === socket.id
-        );
-
-        if (!player) return;
-
-        if (player.cards.length !== 2) {
-            socket.emit(
-                "gameError",
-                "Split kan alleen met twee kaarten."
-            );
-            return;
-        }
-
-        if (
-            cardValue(player.cards[0]) !==
-            cardValue(player.cards[1])
-        ) {
-            socket.emit(
-                "gameError",
-                "Je kaarten moeten gelijk zijn."
-            );
-            return;
-        }
-
-        if (player.balance < player.bet) {
-            socket.emit(
-                "gameError",
-                "Niet genoeg nepcredits."
-            );
-            return;
-        }
-
-        /*
-         * Eén speler kan voorlopig één extra
-         * kaart krijgen. De volledige twee-hand
-         * split kan daarna worden uitgebreid.
-         */
-
-        player.balance -= player.bet;
-
-        player.cards = [
-            player.cards[0],
-            draw(room)
-        ];
-
-        sendGame(room);
-    });
-
-    /* NEXT ROUND */
-
-    socket.on("nextRound", () => {
-
-        const room = findRoom(socket.id);
-
-        if (!room) return;
-
-        if (room.hostId !== socket.id) return;
-
-        if (room.phase !== "finished") return;
-
-        room.phase = "betting";
-        room.dealerCards = [];
-        room.currentPlayerId = null;
-        room.resultMessage = "";
-
-        for (const player of room.players) {
-            player.bet = 0;
-            player.cards = [];
-            player.standing = false;
-            player.busted = false;
-            player.doubled = false;
-
-            if (player.balance <= 0) {
-                player.balance = 1000;
-            }
-        }
-
-        sendGame(room);
-    });
-
-    /* LEAVE */
-
-    socket.on("leaveRoom", () => {
-        removePlayer(socket);
-    });
-
-    /* DISCONNECT */
-
-    socket.on("disconnect", () => {
-        removePlayer(socket);
-        console.log("Disconnected:", socket.id);
-    });
-});
-
-/* =========================
-   ROUND
-========================= */
-
-function beginRound(room) {
-
-    room.phase = "playing";
-    room.deck = createDeck();
-    room.resultMessage = "";
-
-    room.dealerCards = [
-        draw(room),
-        draw(room)
-    ];
-
-    for (const player of room.players) {
-
-        player.cards = [
-            draw(room),
-            draw(room)
-        ];
-
-        player.standing = false;
-        player.busted = false;
-        player.doubled = false;
+function startRound(room) {
+  if (room.players.length === 0) return;
+
+  room.deck = createDeck();
+
+  room.dealerCards = [
+    room.deck.pop(),
+    room.deck.pop()
+  ];
+
+  room.dealerHidden = true;
+  room.phase = "playing";
+  room.resultMessage = "";
+  room.currentPlayerId = null;
+
+  for (const player of room.players) {
+    player.cards = [];
+    player.stood = false;
+    player.ready = false;
+
+    if (player.bet <= 0) {
+      player.bet = 0;
     }
 
-    room.currentPlayerId =
-        room.players[0]?.id || null;
-
-    sendGame(room);
-}
-
-function nextPlayer(room) {
-
-    const index = room.players.findIndex(
-        p => p.id === room.currentPlayerId
-    );
-
-    if (index === -1) {
-        finishRound(room);
-        return;
+    if (player.bet > player.balance) {
+      player.bet = player.balance;
     }
 
-    for (
-        let i = index + 1;
-        i < room.players.length;
-        i++
-    ) {
-        const player = room.players[i];
+    player.cards.push(room.deck.pop());
+    player.cards.push(room.deck.pop());
+  }
 
-        if (!player.standing && !player.busted) {
-            room.currentPlayerId = player.id;
-            return;
-        }
-    }
+  const first = room.players.find(
+    p => p.bet > 0 && !isBlackjack(p.cards)
+  );
 
+  if (first) {
+    room.currentPlayerId = first.id;
+  } else {
     finishRound(room);
+  }
+
+  sendRoom(room);
+}
+
+function moveToNextPlayer(room) {
+  const currentIndex = room.players.findIndex(
+    p => p.id === room.currentPlayerId
+  );
+
+  for (let i = currentIndex + 1; i < room.players.length; i++) {
+    const player = room.players[i];
+
+    if (
+      player.bet > 0 &&
+      !player.stood &&
+      !isBlackjack(player.cards) &&
+      handValue(player.cards) < 21
+    ) {
+      room.currentPlayerId = player.id;
+      sendRoom(room);
+      return;
+    }
+  }
+
+  finishRound(room);
 }
 
 function finishRound(room) {
+  room.dealerHidden = false;
 
-    room.currentPlayerId = null;
+  while (handValue(room.dealerCards) < 17) {
+    room.dealerCards.push(room.deck.pop());
+  }
 
-    while (handValue(room.dealerCards) < 17) {
-        room.dealerCards.push(draw(room));
+  const dealerPoints = handValue(room.dealerCards);
+
+  for (const player of room.players) {
+    if (player.bet <= 0) continue;
+
+    const playerPoints = handValue(player.cards);
+
+    if (playerPoints > 21) {
+      // Bust: bet already removed from balance.
+    } else if (isBlackjack(player.cards) && !isBlackjack(room.dealerCards)) {
+      player.balance += Math.floor(player.bet * 2.5);
+    } else if (isBlackjack(room.dealerCards) && !isBlackjack(player.cards)) {
+      // Dealer blackjack: no payout.
+    } else if (dealerPoints > 21) {
+      player.balance += player.bet * 2;
+    } else if (playerPoints > dealerPoints) {
+      player.balance += player.bet * 2;
+    } else if (playerPoints === dealerPoints) {
+      player.balance += player.bet;
     }
+  }
 
-    const dealerTotal =
-        handValue(room.dealerCards);
+  room.phase = "finished";
+  room.currentPlayerId = null;
 
-    const results = [];
+  for (const player of room.players) {
+    player.stood = false;
+  }
 
-    for (const player of room.players) {
+  room.resultMessage =
+    `Dealer: ${dealerPoints} punten`;
 
-        const total = handValue(player.cards);
-
-        if (player.busted) {
-            results.push(`${player.name}: verloren`);
-            continue;
-        }
-
-        if (
-            blackjack(player.cards) &&
-            !blackjack(room.dealerCards)
-        ) {
-            player.balance +=
-                Math.floor(player.bet * 2.5);
-
-            results.push(
-                `${player.name}: BLACKJACK`
-            );
-
-            continue;
-        }
-
-        if (dealerTotal > 21) {
-
-            player.balance +=
-                player.bet * 2;
-
-            results.push(
-                `${player.name}: gewonnen`
-            );
-
-        } else if (total > dealerTotal) {
-
-            player.balance +=
-                player.bet * 2;
-
-            results.push(
-                `${player.name}: gewonnen`
-            );
-
-        } else if (total === dealerTotal) {
-
-            player.balance +=
-                player.bet;
-
-            results.push(
-                `${player.name}: push`
-            );
-
-        } else {
-
-            results.push(
-                `${player.name}: verloren`
-            );
-        }
-    }
-
-    room.resultMessage =
-        results.join(" • ");
-
-    room.phase = "finished";
-
-    sendGame(room);
+  sendRoom(room);
 }
 
-/* =========================
-   REMOVE PLAYER
-========================= */
+function removePlayerFromRoom(socket) {
+  for (const [code, room] of rooms.entries()) {
+    const index = room.players.findIndex(p => p.id === socket.id);
 
-function removePlayer(socket) {
+    if (index === -1) continue;
 
-    const room = findRoom(socket.id);
-
-    if (!room) return;
-
-    room.players = room.players.filter(
-        p => p.id !== socket.id
-    );
+    room.players.splice(index, 1);
 
     if (room.players.length === 0) {
-        rooms.delete(room.code);
-        return;
+      rooms.delete(code);
+      return;
     }
 
     if (room.hostId === socket.id) {
-        room.hostId = room.players[0].id;
+      room.hostId = room.players[0].id;
     }
 
-    if (room.currentPlayerId === socket.id) {
-        nextPlayer(room);
+    if (room.phase === "playing") {
+      if (room.currentPlayerId === socket.id) {
+        const next = room.players.find(
+          p => p.bet > 0 && !p.stood && handValue(p.cards) < 21
+        );
+
+        if (next) {
+          room.currentPlayerId = next.id;
+        } else {
+          finishRound(room);
+          return;
+        }
+      }
     }
 
     sendRoom(room);
-    sendGame(room);
+    return;
+  }
 }
 
+io.on("connection", socket => {
+
+  socket.on("createRoom", ({ name }) => {
+    const cleanName = String(name || "Speler").trim().slice(0, 16);
+
+    let code;
+
+    do {
+      code = Math.random()
+        .toString(36)
+        .substring(2, 8)
+        .toUpperCase();
+    } while (rooms.has(code));
+
+    const player = {
+      id: socket.id,
+      name: cleanName,
+      balance: 1000,
+      bet: 0,
+      cards: [],
+      ready: false,
+      stood: false
+    };
+
+    const room = {
+      code,
+      hostId: socket.id,
+      players: [player],
+      phase: "waiting",
+      deck: [],
+      dealerCards: [],
+      dealerHidden: false,
+      currentPlayerId: null,
+      resultMessage: ""
+    };
+
+    rooms.set(code, room);
+
+    socket.join(code);
+
+    socket.emit("roomCreated", { code });
+    sendRoom(room);
+  });
+
+  socket.on("joinRoom", ({ code, name }) => {
+    const roomCode = String(code || "").trim().toUpperCase();
+    const room = rooms.get(roomCode);
+
+    if (!room) {
+      socket.emit("errorMessage", "Deze kamer bestaat niet.");
+      return;
+    }
+
+    if (room.players.length >= 4) {
+      socket.emit("errorMessage", "Deze kamer zit al vol.");
+      return;
+    }
+
+    if (room.phase === "playing") {
+      socket.emit(
+        "errorMessage",
+        "Je kunt pas joinen voordat een ronde bezig is."
+      );
+      return;
+    }
+
+    const cleanName = String(name || "Speler").trim().slice(0, 16);
+
+    const player = {
+      id: socket.id,
+      name: cleanName,
+      balance: 1000,
+      bet: 0,
+      cards: [],
+      ready: false,
+      stood: false
+    };
+
+    room.players.push(player);
+
+    socket.join(roomCode);
+
+    socket.emit("joinedRoom", { code: roomCode });
+    sendRoom(room);
+  });
+
+  socket.on("readyForGame", () => {
+    for (const room of rooms.values()) {
+      const player = room.players.find(p => p.id === socket.id);
+
+      if (!player) continue;
+
+      if (room.phase === "finished") {
+        for (const p of room.players) {
+          p.ready = false;
+          p.bet = 0;
+          p.cards = [];
+          p.stood = false;
+        }
+
+        room.dealerCards = [];
+        room.dealerHidden = false;
+        room.resultMessage = "";
+        room.phase = "waiting";
+      }
+
+      if (room.phase !== "waiting") {
+        sendRoom(room);
+        return;
+      }
+
+      player.ready = true;
+
+      sendRoom(room);
+
+      if (allPlayersReady(room)) {
+        startRound(room);
+      }
+
+      return;
+    }
+  });
+
+  socket.on("placeBet", ({ amount }) => {
+    const value = Number(amount);
+
+    if (!CHIP_VALUES.includes(value)) return;
+
+    for (const room of rooms.values()) {
+      const player = room.players.find(p => p.id === socket.id);
+
+      if (!player) continue;
+
+      if (room.phase !== "waiting") return;
+      if (player.ready) return;
+      if (player.balance < value) return;
+
+      player.balance -= value;
+      player.bet += value;
+
+      sendRoom(room);
+      return;
+    }
+  });
+
+  socket.on("clearBet", () => {
+    for (const room of rooms.values()) {
+      const player = room.players.find(p => p.id === socket.id);
+
+      if (!player) continue;
+      if (room.phase !== "waiting") return;
+
+      player.balance += player.bet;
+      player.bet = 0;
+
+      sendRoom(room);
+      return;
+    }
+  });
+
+  socket.on("hit", () => {
+    for (const room of rooms.values()) {
+      const player = room.players.find(p => p.id === socket.id);
+
+      if (!player) continue;
+      if (room.phase !== "playing") return;
+      if (room.currentPlayerId !== socket.id) return;
+      if (player.stood) return;
+
+      player.cards.push(room.deck.pop());
+
+      const points = handValue(player.cards);
+
+      if (points >= 21) {
+        player.stood = true;
+        moveToNextPlayer(room);
+      } else {
+        sendRoom(room);
+      }
+
+      return;
+    }
+  });
+
+  socket.on("stand", () => {
+    for (const room of rooms.values()) {
+      const player = room.players.find(p => p.id === socket.id);
+
+      if (!player) continue;
+      if (room.phase !== "playing") return;
+      if (room.currentPlayerId !== socket.id) return;
+
+      player.stood = true;
+      moveToNextPlayer(room);
+      return;
+    }
+  });
+
+  socket.on("double", () => {
+    for (const room of rooms.values()) {
+      const player = room.players.find(p => p.id === socket.id);
+
+      if (!player) continue;
+      if (room.phase !== "playing") return;
+      if (room.currentPlayerId !== socket.id) return;
+      if (player.cards.length !== 2) return;
+
+      if (player.balance < player.bet) return;
+
+      player.balance -= player.bet;
+      player.bet *= 2;
+
+      player.cards.push(room.deck.pop());
+      player.stood = true;
+
+      moveToNextPlayer(room);
+      return;
+    }
+  });
+
+  socket.on("nextRound", () => {
+    for (const room of rooms.values()) {
+      const player = room.players.find(p => p.id === socket.id);
+
+      if (!player) continue;
+
+      if (room.phase !== "finished") return;
+
+      for (const p of room.players) {
+        p.ready = false;
+        p.bet = 0;
+        p.cards = [];
+        p.stood = false;
+      }
+
+      room.dealerCards = [];
+      room.dealerHidden = false;
+      room.resultMessage = "";
+      room.phase = "waiting";
+
+      sendRoom(room);
+      return;
+    }
+  });
+
+  socket.on("leaveRoom", () => {
+    removePlayerFromRoom(socket);
+    socket.leaveAll();
+  });
+
+  socket.on("disconnect", () => {
+    removePlayerFromRoom(socket);
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+
 server.listen(PORT, () => {
-    console.log(
-        `Blackjack server draait op poort ${PORT}`
-    );
+  console.log(`Blackjack server running on port ${PORT}`);
 });
