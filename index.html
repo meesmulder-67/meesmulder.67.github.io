@@ -46,6 +46,7 @@ button {
   align-items: center;
   justify-content: center;
   text-align: center;
+  position: relative;
 }
 
 .logo {
@@ -325,6 +326,70 @@ input {
   color: #f1cf76;
 }
 
+
+/* =========================
+   REGELS
+========================= */
+
+.rules-button {
+  position: absolute;
+  top: 25px;
+  right: 25px;
+  width: auto;
+  margin: 0;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.rules-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: #00000099;
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.rules-overlay.active {
+  display: flex;
+}
+
+.rules-box {
+  width: min(420px, 100%);
+  background: #071b13;
+  border: 1px solid #ffffff25;
+  border-radius: 18px;
+  padding: 25px;
+  text-align: left;
+  box-shadow: 0 10px 40px #0009;
+  position: relative;
+}
+
+.rules-box h2 {
+  margin-top: 0;
+  text-align: center;
+}
+
+.rules-box p {
+  margin: 12px 0;
+  line-height: 1.5;
+}
+
+.rules-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 5px;
+}
+
+
 @media (max-width: 750px) {
   .players {
     grid-template-columns: repeat(2, 1fr);
@@ -350,6 +415,11 @@ input {
     width: 52px;
     height: 76px;
   }
+
+  .rules-button {
+    top: 15px;
+    right: 15px;
+  }
 }
 </style>
 </head>
@@ -357,6 +427,10 @@ input {
 <body>
 
 <section id="home" class="screen active">
+
+  <button class="action rules-button" id="rulesBtn">
+    REGELS
+  </button>
 
   <div class="logo">♠ BLACKJACK</div>
 
@@ -369,6 +443,33 @@ input {
   </div>
 
 </section>
+
+
+<!-- REGELS POPUP -->
+
+<div class="rules-overlay" id="rulesOverlay">
+
+  <div class="rules-box">
+
+    <button class="rules-close" id="rulesClose">
+      ×
+    </button>
+
+    <h2>BLACKJACK REGELS</h2>
+
+    <p>• Dealer staat op 17</p>
+
+    <p>• Kom zo dicht mogelijk bij 21</p>
+
+    <p>• Ga je boven 21? Dan verlies je</p>
+
+    <p>• Heb je meer punten dan de dealer? Dan win je</p>
+
+    <p>• Blackjack betaalt 3:2 🃏</p>
+
+  </div>
+
+</div>
 
 
 <section id="multiplayerSetup" class="screen">
@@ -585,6 +686,43 @@ function showScreen(id) {
 
   $(id).classList.add("active");
 }
+
+
+/* =========================
+   REGELS
+========================= */
+
+$("rulesBtn").addEventListener("click", () => {
+
+  $("rulesOverlay")
+    .classList
+    .add("active");
+
+});
+
+
+$("rulesClose").addEventListener("click", () => {
+
+  $("rulesOverlay")
+    .classList
+    .remove("active");
+
+});
+
+
+$("rulesOverlay").addEventListener("click", event => {
+
+  if (
+    event.target === $("rulesOverlay")
+  ) {
+
+    $("rulesOverlay")
+      .classList
+      .remove("active");
+
+  }
+
+});
 
 
 /* =========================
