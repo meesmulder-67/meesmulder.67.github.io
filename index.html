@@ -889,7 +889,6 @@ $("readyBtn").addEventListener("click", () => {
   }
 
   if (localGame.phase === "finished") {
-
     localGame.phase = "waiting";
     localGame.bet = 0;
     localGame.hands = [];
@@ -899,7 +898,6 @@ $("readyBtn").addEventListener("click", () => {
     localGame.message = "";
 
     renderLocalGame();
-
     return;
   }
 
@@ -1082,10 +1080,6 @@ function finishLocalHand() {
   const hand =
     localGame.hands[localGame.activeHand];
 
-  if (localPoints(hand) < 21) {
-    renderLocalGame();
-  }
-
   if (
     localGame.activeHand <
     localGame.hands.length - 1
@@ -1180,12 +1174,22 @@ function finishLocalRound() {
     results.push(result);
   }
 
-  localGame.phase = "finished";
-
-  // Automatisch bijvullen wanneer alle credits op zijn
+  /*
+    AUTOMATISCHE BIJVULLING
+    Als je alles kwijt bent krijg je weer 1000 credits.
+  */
   if (localGame.balance <= 0) {
     localGame.balance = 1000;
+    results.push("Credits bijgevuld naar 1000 💰");
   }
+
+  /*
+    DIRECT WEER KUNNEN INZETTEN
+  */
+  localGame.phase = "waiting";
+  localGame.bet = 0;
+  localGame.hands = [];
+  localGame.activeHand = 0;
 
   localGame.message =
     `Dealer: ${dealerPoints} punten — ${results.join(" | ")}`;
@@ -1249,9 +1253,7 @@ $("clearBetBtn").addEventListener("click", () => {
 $("nextRoundBtn").addEventListener("click", () => {
 
   if (online) {
-
     socket.emit("nextRound");
-
     return;
   }
 
@@ -1393,14 +1395,12 @@ function renderOnlineGame(state) {
     state.resultMessage || "";
 
   $("readyBtn").style.display =
-    state.phase === "finished"
-      ? "none"
-      : "inline-block";
-
-  $("nextRoundBtn").style.display =
-    state.phase === "finished"
+    state.phase === "betting"
       ? "inline-block"
       : "none";
+
+  $("nextRoundBtn").style.display =
+    "none";
 
   $("readyBtn").textContent =
     me.ready
@@ -1409,7 +1409,7 @@ function renderOnlineGame(state) {
 
   $("readyBtn").disabled =
     me.ready ||
-    state.phase === "playing";
+    state.phase !== "betting";
 
   const myTurn =
     state.currentPlayerId === myId &&
@@ -1501,7 +1501,7 @@ function renderLocalGame() {
 
                 <div class="hand-title">
                   Hand ${index + 1}
-                  — Inzet: ${index === 0 ? localGame.bet : localGame.bet}
+                  — Inzet: ${localGame.bet}
                 </div>
 
                 <div class="cards">
@@ -1527,14 +1527,12 @@ function renderLocalGame() {
     localGame.message;
 
   $("readyBtn").style.display =
-    localGame.phase === "finished"
-      ? "none"
-      : "inline-block";
-
-  $("nextRoundBtn").style.display =
-    localGame.phase === "finished"
+    localGame.phase === "waiting"
       ? "inline-block"
       : "none";
+
+  $("nextRoundBtn").style.display =
+    "none";
 
   $("hitBtn").disabled =
     localGame.phase !== "playing";
@@ -1554,6 +1552,14 @@ function renderLocalGame() {
   $("splitBtn").disabled =
     localGame.phase !== "playing" ||
     !localCanSplit();
+
+  document.querySelectorAll("[data-chip]").forEach(button => {
+    button.disabled =
+      localGame.phase !== "waiting";
+  });
+
+  $("clearBetBtn").disabled =
+    localGame.phase !== "waiting";
 }
 
 
